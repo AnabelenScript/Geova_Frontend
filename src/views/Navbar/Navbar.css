@@ -1,0 +1,18 @@
+.navbar{
+    height: 100vh;
+    background-color: antiquewhite;
+    width: 15vw;
+}
+
+.LogoContainer{
+    width: 100%;
+    background-color: aqua;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    box-sizing: border-box;
+    padding: 20px;
+}
+.LogoContainer img{
+    width: 6vw;
+}
