@@ -1,3 +1,143 @@
 .CreateContainer{
-    
+    background-color:#FAF6F1;
+    width: 98%;
+    height: 96%;
+    border-bottom-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+    padding:  20px 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.CreateTitleContainer{
+    width: 100% ;
+    height: 20vh;
+}
+
+.CreateTitle{
+    background-color: #FFEAB9;
+    width: 100%;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 40px;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.CreateTitle i{
+    font-size: 2vw;
+    color: #D68C0D;
+}
+
+.CreateEndContainer{
+    margin-top: 20px;
+    background-color: #FFEAB9;
+    width: 100%;
+    height: 5vh;
+}
+
+.CreateInfoContainer{
+    width: 100%;
+    height:auto;
+    background-color: #FAF6F1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 45px;
+    box-sizing: border-box;
+    display: flex;
+    gap: 20px;
+}
+
+.CreateInfo1{
+    width: 25vw;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+}
+.CreateInfo1 .AddButton{
+    width: 100%;
+    height: 35vh;
+    background-color: #f6dbbb;
+    margin: none;
+    border: none;
+    border-radius: 10px;
+}
+
+.CreateInfo1 .CancelButton{
+    width: 100%;
+    height: 5vh;
+    background-color: #ffffff;
+    margin: none;
+    border: #E6AF2E solid 2px;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.CreateInfo2{
+    width: 100%;
+    height: 100%;
+    padding: 18px 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+}
+.labels{
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+    width: 100%;
+    height: auto;
+    font-family: Arial, Helvetica, sans-serif;
+    gap: 10px;
+}
+
+.CreateLabels{
+    display: flex;
+    width: 100%;
+    height: auto;
+    gap: 30px;
+}
+
+.labels input, select{
+    width: 100%;
+    height: 5vh;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.CreateArea{
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.CreateArea textarea{
+    border: 0;
+    margin: 0;
+    height: 17vh;
+    resize: none;
+    border-radius: 10px;
+}
+
+.CreateInfo2 button{
+    width: 100%;
+    height: 5vh;
+    background-color: #E6AF2E;
+    border: #E6AF2E solid 2px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
 }

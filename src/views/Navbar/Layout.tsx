@@ -5,8 +5,11 @@ import Navbar from './Navbar';
 function Layout() {
   return (
     <>
+    <div style={{ display: 'flex', height: '100vh' }}>
       <Navbar />
-        <Outlet /> {}
+      <main style={{ flex: 1 }}>
+        <Outlet /> {}</main>
+    </div>
     </>
   );
 }

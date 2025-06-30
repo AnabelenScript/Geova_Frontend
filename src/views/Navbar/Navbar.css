@@ -1,18 +1,120 @@
+
 .navbar{
     height: 100vh;
-    background-color: antiquewhite;
     width: 15vw;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: width 0.2s ease;
 }
 
 .LogoContainer{
     width: 100%;
-    background-color: aqua;
+    min-height: 90px;
+    background-color: #FAF6F1;
     justify-content: center;
     align-items: center;
     display: flex;
     box-sizing: border-box;
     padding: 20px;
 }
-.LogoContainer img{
-    width: 6vw;
+.LogoContainer .logo-full{
+    width: 7.5vw;
+}
+
+.LogoContainer .logo-mini{
+    width: 3vw;
+}
+
+.links{
+    display: flex;
+    flex-direction: column;
+    gap: 20vh;
+    font-size: 20px;
+    padding: 0;
+}
+
+.links li{
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 80%;
+    padding: 10px 10px 10px 40px;
+    box-sizing: border-box;
+    height: 6vh;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.links li:hover{
+    background-color: #FAF6F1;
+    color: #D68C0D;
+    .linkform{
+        color: #D68C0D;
+    }
+}
+
+
+
+.Mainlinks{
+    display: flex;
+    gap: 3vh;
+    flex-direction: column;
+    margin: 0;
+    padding: 30px 0px;
+    box-sizing: border-box;
+}
+
+.links i{
+    font-size: 1.5vw;
+}
+
+.links .linkform{
+    text-decoration: none;
+    color: black;
+}
+
+
+.collapse-btn {
+  position: absolute;
+  top: 50%;
+  right: -15px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background-color: white;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: border 0.2s ease;
+  z-index: 10;
+  border: 1px solid #d68c0dc0;
+}
+
+.collapse-btn:hover {
+  box-shadow: 0 5px 15px #D68C0D;
+}
+
+.navbar.collapsed {
+  width: 5vw;
+  transition: width 0.3s ease;
+}
+
+.collapse-btn i {
+  transition: transform 0.3s ease;
+   font-size: 25px;
+}
+
+.navbar.collapsed .collapse-btn i {
+  transform: rotate(180deg);
+}
+
+.navbar.collapsed .links li span,
+.navbar.collapsed .linkform {
+  display: none;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
 }
