@@ -10,11 +10,11 @@ function CreateProject (){
                 <div className='CreateEndContainer'></div>
             </div>
             <div className='CreateInfoContainer'>
+                <div className='Info'>
                 <div className='CreateInfo1'>
                 <button className='AddButton'>
                 </button>
-                <button className='CancelButton'>Cancelar
-                </button>
+            
             </div>
             <div className='CreateInfo2'>
                 <div className='CreateLabels'>
@@ -31,7 +31,15 @@ function CreateProject (){
                     <label>Descripción</label>
                     <textarea></textarea>
                 </div>
-                <button>Crear proyecto</button>
+            </div></div>
+            <div className='CreateMapContainer'>
+                <label htmlFor="">Seleccione la ubicación en el terreno</label>
+                <div className='Map'><img src="/src/assets/map.png" alt="" /></div>
+                <div className='buttonsContainer'>
+                    <button className='CancelButton'>Cancelar
+                </button>
+                <button className='CreateButton'>Crear proyecto</button>
+                </div>
             </div>
             </div>
         </div>

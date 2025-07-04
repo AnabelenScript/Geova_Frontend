@@ -1,16 +1,19 @@
 // src/views/Layout.tsx
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
+import '../Navbar/Navbar.css'
 
 function Layout() {
+  const [collapsed, setCollapsed] = useState<boolean>(false); // 👈 tipado aquí
+
   return (
-    <>
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <Navbar />
-      <main style={{ flex: 1 }}>
-        <Outlet /> {}</main>
+    <div style={{ display: 'flex' }}>
+      <Navbar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <main className={`main-content ${collapsed ? 'collapsed' : ''}`}>
+        <Outlet />
+      </main>
     </div>
-    </>
   );
 }
 

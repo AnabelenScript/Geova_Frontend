@@ -1,7 +1,7 @@
 .CreateContainer{
     background-color:#FAF6F1;
     width: 98%;
-    height: 96%;
+    height: auto;
     border-bottom-right-radius: 30px;
     border-bottom-left-radius: 30px;
     padding:  20px 40px;
@@ -49,6 +49,7 @@
     padding: 45px;
     box-sizing: border-box;
     display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
@@ -68,8 +69,8 @@
     border-radius: 10px;
 }
 
-.CreateInfo1 .CancelButton{
-    width: 100%;
+.CreateMapContainer .CancelButton{
+    width: 25vw;
     height: 5vh;
     background-color: #ffffff;
     margin: none;
@@ -83,7 +84,7 @@
 .CreateInfo2{
     width: 100%;
     height: 100%;
-    padding: 18px 30px;
+    padding: 18px 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -113,6 +114,7 @@
     border: 0;
     box-sizing: border-box;
     border-radius: 10px;
+    font-size: 18px;
 }
 
 .CreateArea{
@@ -129,15 +131,46 @@
     height: 17vh;
     resize: none;
     border-radius: 10px;
+    font-size: 18px;
 }
 
-.CreateInfo2 button{
+.CreateButton{
     width: 100%;
     height: 5vh;
+    color: white;
     background-color: #E6AF2E;
     border: #E6AF2E solid 2px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     font-size: 18px;
     font-family: Arial, Helvetica, sans-serif;
+}
+
+.Info{
+    display: flex;
+    gap: 30px;
+}
+
+.buttonsContainer{
+    display: flex;
+    gap: 30px;
+    box-sizing: border-box;
+}
+
+.Map img{
+    width: 100%;
+}
+.Map{
+    height: 45vh;
+    overflow-y: hidden;
+     border: solid 2px #E6AF2E;
+     border-radius: 20px;
+}
+
+.CreateMapContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
 }
