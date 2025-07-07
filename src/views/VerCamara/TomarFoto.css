@@ -1,0 +1,101 @@
+.ProjectphotoContainer {
+    width: 70vw;
+    height: 70vh;
+    background-color: transparent;
+    margin: 70px 0px;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Esquina superior izquierda */
+.ProjectphotoContainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    background-color: #E6AF2E;
+    clip-path: polygon(0 0, 100% 0, 0% 100%);
+    z-index: 1;
+}
+
+/* Esquina inferior derecha */
+.ProjectphotoContainer::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background-color: #E6AF2E;
+    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
+    z-index: 1;
+}
+
+/* Esquina superior derecha */
+.ProjectphotoContainer .corner-top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background-color: #E6AF2E;
+    clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
+    z-index: 1;
+}
+
+/* Esquina inferior izquierda */
+.ProjectphotoContainer .corner-bottom-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    background-color: #E6AF2E;
+    clip-path: polygon(0% 100%, 100% 100%, 0% 0%);
+    z-index: 1;
+}
+
+
+.MainphotoContainer{
+    width: 100%;
+    height: 100%;
+    background-image: url(../../assets/fondo_login.png);
+    clip-path: polygon(95px 0%,calc(100% - 95px) 0%, 100% 95px,100% calc(100% - 95px),calc(100% - 95px) 100%, 95px 100%,0% calc(100% - 95px),0% 95px                        
+);
+justify-content: center;
+display: flex;
+flex-direction: column;
+gap: 35vh;
+align-items: center;
+padding-top: 40px;
+box-sizing: border-box;
+font-family: Arial, Helvetica, sans-serif;
+color: white;
+}
+
+.Takephotobutton{
+    width: 6vw;
+    height: 12vh;
+    background-color: #FFEAB9;
+    clip-path: polygon(1.6vw 0%,calc(100% - 1.6vw) 0%, 100% 1.6vw,100% calc(100% - 1.6vw),calc(100% - 1.6vw) 100%, 1.6vw 100%,0% calc(100% - 1.6vw),0% 1.6vw                        
+);
+box-sizing: border-box;
+padding: 8px;
+display: flex;
+align-items: center;
+}
+
+.Takephotobutton button{
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background-color: #E6AF2E;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(1.5vw 0%,calc(100% - 1.5vw) 0%, 100% 1.5vw,100% calc(100% - 1.5vw),calc(100% - 1.5vw) 100%, 1.5vw 100%,0% calc(100% - 1.5vw),0% 1.5vw);
+    cursor: pointer;
+
+}
