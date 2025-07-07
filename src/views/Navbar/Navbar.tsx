@@ -27,7 +27,7 @@ function Navbar({ collapsed, setCollapsed }: NavbarProps) {
         <ul className="Mainlinks">
           <Link to="/" className="linkform"><li><i className="bx bx-home"></i> Inicio</li></Link>
           <Link to="/create" className="linkform"><li><i className="bx bxs-dashboard"></i> Dashboard</li></Link>
-          <Link to="/login" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
+          <Link to="/create" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
           <Link to="/login" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
         </ul>
         <ul className="Mainlinks">

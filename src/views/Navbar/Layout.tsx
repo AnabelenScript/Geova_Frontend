@@ -1,11 +1,10 @@
-// src/views/Layout.tsx
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import '../Navbar/Navbar.css'
 
 function Layout() {
-  const [collapsed, setCollapsed] = useState<boolean>(false); // 👈 tipado aquí
+  const [collapsed, setCollapsed] = useState<boolean>(false); 
 
   return (
     <div style={{ display: 'flex' }}>
