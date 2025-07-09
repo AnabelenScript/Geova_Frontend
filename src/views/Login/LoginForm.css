@@ -14,22 +14,49 @@
   overflow-y:hidden;
 }
 
-.LoginContainer{
-    width: 55%;
-    height: 60%;
-    background-color: rgba(255, 255, 255, 0.386);
-    backdrop-filter: blur(4px) invert(1);     
-    -webkit-backdrop-filter: blur(10px) invert(1); 
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    filter: invert(1);
-    border-radius: 20px;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    align-items: start;
-    gap: 10px;
-    padding: 30px;
-    font-family: Arial, Helvetica, sans-serif;
+.LoginContainer {
+  width: 55%;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0.386);
+  backdrop-filter: blur(4px) invert(1);     
+  -webkit-backdrop-filter: blur(10px) invert(1); 
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  filter: invert(1);
+  border-radius: 20px;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between; 
+  align-items: stretch;
+  gap: 10px;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  flex-direction: row;
+  transition: all 0.4s ease-in-out;
+}
+
+.Machine {
+  position: relative;         
+  width: 40%;
+  height: auto;              
+  z-index: 2;
+  overflow: visible;   
+}
+
+.Machine img {
+  position: absolute;             
+  top: 0;
+  left: 8%;
+  width: auto;
+  height: 79vh;              
+  z-index: 1;
+  pointer-events: none;
+
+}
+
+.Machine.register-machine img {
+  height: 86vh;
+  top: 36px;
+  left: 2%;
 }
 
 .Formtitle{
@@ -45,7 +72,7 @@
 }
 
 .FormContainer{
-  width: 43%;
+  width: 48%;
   height: auto;
   padding: 30px;
   display: flex;
@@ -63,15 +90,6 @@
   margin: 0;
 }
 
-.Machine{
-  position: relative;
-  height: 83vh;
-}
-
-.Machine img{
-  height: 100%;
-  position: relative;
-}
 
 .Form{
   display: flex;
@@ -165,10 +183,11 @@
 }
 
 .login-mode {
-  margin-top: 62px; 
   height: 70%; 
   transition: all 0.3s ease-in-out;
+
 }
 .register-mode {
   transition: all 0.3s ease-in-out;
+ 
 }
