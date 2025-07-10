@@ -1,30 +1,37 @@
-import axios from 'axios';
+let socket = null;
+let isConnected = false;
 
-const API_URL = 'http://localhost:8000/graphs'; 
+const listeners = new Set();
 
 export const graphService = {
-  async createGraph(data) {
-    const response = await axios.post(API_URL, data);
-    return response.data;
+  connectToGraphWebSocket(url) {
+    if (socket && isConnected) return;
+
+    socket = new WebSocket(url);
+
+    socket.onopen = () => {
+      isConnected = true;
+      console.log('✅ WebSocket conectado');
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      listeners.forEach((callback) => callback(data));
+    };
+
+    socket.onclose = () => {
+      isConnected = false;
+      console.log('❌ WebSocket cerrado');
+    };
   },
 
-  async getAllGraphs() {
-    const response = await axios.get(API_URL);
-    return response.data;
+  subscribe(callback) {
+    listeners.add(callback);
   },
 
-  async getGraphById(id) {
-    const response = await axios.get(`${API_URL}/${id}`);
-    return response.data;
+  unsubscribe(callback) {
+    listeners.delete(callback);
   },
 
-  async updateGraph(id, data) {
-    const response = await axios.put(`${API_URL}/${id}`, data);
-    return response.data;
-  },
-
-  async deleteGraph(id) {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.data;
-  },
+  isConnected: () => isConnected
 };

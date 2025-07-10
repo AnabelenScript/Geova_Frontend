@@ -85,7 +85,6 @@ function CreateProject() {
         <div className="Info">
           <div className='CreateInfo1'>
             <label htmlFor="imgUpload" className='AddButton'>
-                <p>Agregar Imagen</p>
               {imgPreview ? (
                 <img src={imgPreview} alt="preview" className="PreviewImage" />
               ) : (

@@ -5,6 +5,7 @@ import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import GraphViewer from '../GraphViewer/Graph';
 
 function DetallesProyecto() {
   const { id } = useParams();
@@ -112,22 +113,11 @@ function DetallesProyecto() {
         </div>
       </div>
 
-      <div>
+      <div className='GraphContainer'>
         <h2>Gráficas</h2>
         <div className="GraphSection">
-          {graphsLoading ? (
-            <p>Cargando gráficas...</p>
-          ) : graphs.length === 0 ? (
-            <p>No hay gráficas generadas por el momento</p>
-          ) : (
-            graphs.map((graph) => (
-              <div key={graph.id} className="GraphCard">
-                <h3>{graph.title}</h3>
-                <p>{graph.description}</p>
-              </div>
-            ))
-          )}
-        </div>
+          <GraphViewer />
+          </div>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export const projectViewModel = {
     formData.append("fecha", new Date().toISOString());
     formData.append("lat", parseFloat(lat));
     formData.append("lng", parseFloat(lng));
-    formData.append("img", imgFile); // archivo real
+    formData.append("img", imgFile); 
 
     const response = await projectService.createProject(formData);
     return { success: true, data: response };

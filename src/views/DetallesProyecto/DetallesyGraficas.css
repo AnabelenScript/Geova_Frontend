@@ -184,3 +184,23 @@
 .MapDetail img{
      width: 100%;
 }
+
+.GraphSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.GraphCard {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.GraphContainer{
+    width: 100%;
+    padding: 0 40px;
+    box-sizing: border-box;
+}

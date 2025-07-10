@@ -1,16 +1,31 @@
+import { useEffect, useState } from 'react';
 import { graphService } from '../services/GraphService';
 
+const GRAPH_WS_URL = 'ws://localhost:8000/ws/graph';
+
 export const graphViewModel = {
-  async handleGetGraphsByProjectId(projectId) {
-    try {
-      const allGraphs = await graphService.getAllGraphs();
-      const filtered = allGraphs.filter(graph => graph.project_id === projectId);
-      return { success: true, data: filtered };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al obtener gráficas',
+  useGraphData() {
+    const [data, setData] = useState(null);
+    const [connected, setConnected] = useState(false);
+
+    useEffect(() => {
+      graphService.connectToGraphWebSocket(GRAPH_WS_URL);
+      setConnected(graphService.isConnected());
+
+      const handleData = (newData) => {
+        setData(newData);
       };
-    }
-  },
+
+      graphService.subscribe(handleData);
+
+      return () => {
+        graphService.unsubscribe(handleData);
+      };
+    }, []);
+
+    return {
+      data,
+      isConnected: connected
+    };
+  }
 };
