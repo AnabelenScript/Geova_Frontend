@@ -11,9 +11,9 @@ function DetallesProyecto() {
   const { id } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [graphs, setGraphs] = useState([]);
   const [graphsLoading, setGraphsLoading] = useState(true);
   const navigate = useNavigate();
+  const { data: graphs, isConnected } = graphViewModel.useGraphData();
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -29,18 +29,6 @@ function DetallesProyecto() {
     };
 
     fetchProject();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchGraphs = async () => {
-      if (!id) return;
-
-      const { success, data } = await graphViewModel.handleGetGraphsByProjectId(Number(id));
-      if (success) setGraphs(data);
-      setGraphsLoading(false);
-    };
-
-    fetchGraphs();
   }, [id]);
 
   const Handlecamera = () => {
@@ -61,7 +49,6 @@ function DetallesProyecto() {
         </div>
         <div className="DetallesEndContainer"></div>
       </div>
-
       <div className="DashSubtitle">
         <div className="DashSub1">
           <h2 className="Dsub1">
@@ -73,7 +60,6 @@ function DetallesProyecto() {
         </div>
         <div className="DashSub2"></div>
       </div>
-
       <div className="ProjectphotoDetail">
         <div className="corner-top-right"></div>
         <div className="corner-bottom-left"></div>
@@ -85,7 +71,6 @@ function DetallesProyecto() {
           )}
         </div>
       </div>
-
       <div className="DetailOptions">
         <h2>Descripción</h2>
         <p>{project?.Descripcion || ''}</p>
@@ -97,7 +82,6 @@ function DetallesProyecto() {
             <p>Categoría: {project?.Categoria || ''}</p>
           </div>
         </div>
-
         <h2>Ubicación</h2>
         <div className="MapDetail">
           {project?.Lat && project?.Lng ? (
@@ -112,7 +96,6 @@ function DetallesProyecto() {
           )}
         </div>
       </div>
-
       <div className='GraphContainer'>
         <h2>Gráficas</h2>
         <div className="GraphSection">

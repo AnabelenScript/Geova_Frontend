@@ -15,9 +15,14 @@ export const graphService = {
     };
 
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      listeners.forEach((callback) => callback(data));
-    };
+  try {
+    const data = JSON.parse(event.data);
+    listeners.forEach((callback) => callback(data));
+  } catch (e) {
+    listeners.forEach((callback) => callback({ raw: event.data }));
+  }
+};
+
 
     socket.onclose = () => {
       isConnected = false;
@@ -33,5 +38,7 @@ export const graphService = {
     listeners.delete(callback);
   },
 
-  isConnected: () => isConnected
+  isConnected() {
+    return isConnected;
+  }
 };

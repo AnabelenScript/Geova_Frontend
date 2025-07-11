@@ -35,7 +35,6 @@ function Login() {
         alert("Login successful");
         navigate('/Create')
       } else {
-        alert("Login failed: " + res.error);
       }
     } else {
       const res = await usersViewModel.handleRegister(form.username,form.nombre,form.apellidos,form.email,form.password);
@@ -73,8 +72,7 @@ function Login() {
                   <label>Last Name</label>
                   <input type="text" name="apellidos" value={form.apellidos} onChange={handleChange} placeholder='Last Name'/>
                 </div>
-              </>
-            )}
+              </>)}
             <div className='inputform'>
               <label>Email</label>
               <input type="text" name="email" value={form.email} onChange={handleChange} placeholder='Email'/>
