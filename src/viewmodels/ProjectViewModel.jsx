@@ -52,7 +52,8 @@ export const projectViewModel = {
 
   handleSelectProject(id, navigate) {
     selectedProjectId = id;
-    navigate(`/detalles/${id}`);
+    navigate(`/dashboard/detalles/${id}`);
+
   },
 
   getSelectedProjectId() {
@@ -60,6 +61,6 @@ export const projectViewModel = {
   },
 
   handleCamera(navigate){
-    navigate('/takephoto')
+    navigate('takephoto')
   }
 };

@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { graphViewModel } from '../../viewmodels/graphViewModel';
-import {
-  BarChart, Bar,
-  LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer
-} from 'recharts';
+import {BarChart, Bar,LineChart, Line,XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type ChartDatum = {
   name: string;
@@ -27,9 +22,6 @@ const convertIMX477Data = (data: any): ChartDatum[] => [
   { name: 'Calidad', value: data.calidad_frame * 100 },
 ];
 
-const convertTFLunaData = (data: any): ChartDatum[] => [
-  { name: 'Distancia (cm)', value: data.distancia_cm },
-];
 
 const GraphCard = ({ graph }: { graph: GraphData }) => {
   const { title, description, data, type } = graph;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/projects';
+const API_URL = 'https://geova-api1.namixcode.cc/projects';
 
 export const projectService = {
   async createProject(formData) {

@@ -85,7 +85,7 @@ function DetallesProyecto() {
         <h2>Ubicación</h2>
         <div className="MapDetail">
           {project?.Lat && project?.Lng ? (
-            <MapContainer center={[project.Lat, project.Lng]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={false} dragging={false} doubleClickZoom={false} scrollWheelZoom={false} touchZoom={false}>
+            <MapContainer center={[project.Lat, project.Lng]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={true} dragging={false} doubleClickZoom={true} scrollWheelZoom={false} touchZoom={true}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={[project.Lat, project.Lng]}>
                 <Popup>Ubicación del proyecto</Popup>

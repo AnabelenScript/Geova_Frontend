@@ -2,6 +2,9 @@ import { useState } from 'react';
 import './LoginForm.css';
 import { usersViewModel } from '../../viewmodels/UserViewModel';
 import { useNavigate } from 'react-router-dom';
+import maquinaImg from '../../assets/Maquina.png';
+import logoImg from '../../assets/Geova_logo.png';
+
 
 interface FormState {
   username: string;
@@ -32,7 +35,6 @@ function Login() {
     if (isLogin) {
       const res = await usersViewModel.handleLogin(form.email, form.password);
       if (res.success) {
-        alert("Login successful");
         navigate('/Create')
       } else {
       }
@@ -50,11 +52,12 @@ function Login() {
     <div className="Login">
       <div className={`LoginContainer ${!isLogin ? 'register-machine' : ''}`}>
         <div className={`Machine ${isLogin ? '' : 'register-machine'}`}>
-          <img src="/src/assets/Maquina.png" alt="Máquina" />
+          <img src={maquinaImg} alt="Máquina" />
+
         </div>
         <div className={`FormContainer ${isLogin ? 'login-mode' : 'register-mode'}`}>
           <div className="Formtitle">
-            <img src="/src/assets/Geova_logo.png" alt="Logo" className='logo' />
+            <img src={logoImg} alt="Logo" className='logo' />
             <h1>{isLogin ? 'Login' : 'Sign up'}</h1>
           </div>
           <div className='Form'>

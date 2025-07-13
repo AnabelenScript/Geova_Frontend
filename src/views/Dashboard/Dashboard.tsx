@@ -2,6 +2,8 @@ import './Dashboard.css';
 import { useEffect, useState } from 'react';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { useNavigate } from 'react-router-dom'; // importa esto
+import fondoLogin from '../../assets/fondo_login.png';
+
 
 
 interface Project {
@@ -20,18 +22,19 @@ function Dashboard() {
     projectViewModel.handleSelectProject(id, navigate); 
   };
   useEffect(() => {
-    const fetchProjects = async () => {
-      const { success, data, error } = await projectViewModel.handleGetAllProjects();
-      if (success) {
-        console.log(data); 
-        setProjects(data);
-      } else {
-        console.error('Error al cargar proyectos:', error);
-      }
-    };
+  const fetchProjects = async () => {
+    const { success, data, error } = await projectViewModel.handleGetAllProjects();
+    if (success && Array.isArray(data)) {
+      setProjects(data);
+    } else {
+      console.warn('No se encontraron proyectos o data inválida.');
+      setProjects([]);
+    }
+  };
 
-    fetchProjects();
-  }, []);
+  fetchProjects();
+}, []);
+
   const formatDate = (date: string) => {
     const parsedDate = new Date(date);
     if (isNaN(parsedDate.getTime())) {
@@ -77,7 +80,7 @@ function Dashboard() {
                 <div key={project.Id} className="ProjectCard" onClick={() => handleProjectClick(project.Id)}>
                     <div className="projectinfo">
                         <div className="Projectphoto">
-                            <img src="src/assets/fondo_login.png" alt="" />
+                            <img src={fondoLogin} alt="Fondo proyecto" />
                             </div>
                             <div>
                                 <h3>{project.NombreProyecto}</h3>
