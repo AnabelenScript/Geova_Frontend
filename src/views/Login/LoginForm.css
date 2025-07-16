@@ -15,7 +15,7 @@
 }
 
 .LoginContainer {
-  width: 55%;
+  width: 55vw;
   height: auto;
   background-color: rgba(255, 255, 255, 0.386);
   backdrop-filter: blur(4px) invert(1);     
@@ -31,12 +31,12 @@
   padding: 20px;
   font-family: Arial, Helvetica, sans-serif;
   flex-direction: row;
-  transition: all 0.4s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .Machine {
   position: relative;         
-  width: 40%;
+  width: 20vw;
   height: auto;              
   z-index: 2;
   overflow: visible;   
@@ -54,9 +54,9 @@
 }
 
 .Machine.register-machine img {
-  height: 86vh;
-  top: 36px;
-  left: 2%;
+  height: 90vh;
+  top: 6vh;
+  left: 0;
 }
 
 .Formtitle{
@@ -64,11 +64,12 @@
   justify-content: center;
   align-items: center;
   gap: 20px;
-  height: 60px;
+  height: 50px;
+  font-size: 0.8em;
 }
 
 .logo{
-  width: 60px;
+  width: 45px;
 }
 
 .FormContainer{
@@ -84,7 +85,7 @@
 .inputform{
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   width: 90%;
   padding: 0;
   margin: 0;
@@ -97,7 +98,7 @@
   gap: 20px;
   justify-content: center;
   align-items: center;
-  font-size: 18px;
+  font-size: 1em;
   width: 100%;
 }
 
@@ -108,17 +109,17 @@
   box-sizing: border-box;
   margin: 0;
   padding: 10px;
-  height: 45px;
+  height: 40px;
   border: 1px solid black;
   background-color: transparent;
   border-radius: 10px;
 }
 .inputform input::placeholder{
-  font-size: 16px;
+  font-size: 1.1em;
 }
 
 .loginbutton{
-  height: 45px;
+  height: 40px;
   box-sizing: border-box;
   border: transparent;
   margin: 0;
@@ -127,7 +128,7 @@
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   background-color: #E6AF2E;
-  font-size: 20px;
+  font-size: 1.1em;
 }
 
 .buttonform{

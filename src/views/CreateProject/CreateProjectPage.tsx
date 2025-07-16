@@ -85,6 +85,8 @@ function CreateProject() {
         <div className="Info">
           <div className='CreateInfo1'>
             <label htmlFor="imgUpload" className='AddButton'>
+              <div className="corner-top-right"></div>
+             <div className="corner-bottom-left"></div>
               {imgPreview ? (
                 <img src={imgPreview} alt="preview" className="PreviewImage" />
               ) : (

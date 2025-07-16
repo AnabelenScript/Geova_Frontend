@@ -1,8 +1,8 @@
 
 import './Navbar.css';
 import { Link } from 'react-router-dom';
-import logoFull from '../../assets/LogoCompleto.png';
-import logoMini from '../../assets/LogoMini.png';
+import logoFull from '../../assets/LogoCompleto.svg';
+import logoMini from '../../assets/LogoMini.svg';
 
 interface NavbarProps {
   collapsed: boolean;
@@ -27,7 +27,7 @@ function Navbar({ collapsed, setCollapsed }: NavbarProps) {
 
       <div className="links">
         <ul className="Mainlinks">
-          <Link to="/" className="linkform"><li><i className="bx bx-home"></i> Inicio</li></Link>
+          <Link to="menu" className="linkform"><li><i className="bx bx-home"></i> Inicio</li></Link>
           <Link to="dashboard" className="linkform"><li><i className="bx bxs-dashboard"></i> Dashboard</li></Link>
           <Link to="create" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
           <Link to="login" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>

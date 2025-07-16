@@ -5,6 +5,7 @@ import Layout from '../views/Navbar/Layout';
 import TomarFoto from '../views/VerCamara/TomarFoto';
 import Dashboard from '../views/Dashboard/Dashboard';
 import DetallesProyecto from '../views/DetallesProyecto/DetallesyGraficas';
+import MainMenu from '../views/MainMenu/MainMenu';
 
 function AppRoutes() {
   return (
@@ -16,6 +17,7 @@ function AppRoutes() {
           <Route path="dashboard/detalles/:id/takephoto" element={<TomarFoto />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
+          <Route path="menu" element={<MainMenu />} />
         </Route>
       </Routes>
     </HashRouter>
