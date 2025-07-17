@@ -2,16 +2,15 @@ import './Dashboard.css';
 import { useEffect, useState } from 'react';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { useNavigate } from 'react-router-dom'; // importa esto
-import fondoLogin from '../../assets/fondo_login.png';
-
 
 
 interface Project {
-    Id: number;
+  Id: number;
   NombreProyecto: string;
   Categoria: string;
   Descripcion: string;
   Fecha: string;
+  Img: File;
 }
 
 function Dashboard() {
@@ -80,7 +79,11 @@ function Dashboard() {
                 <div key={project.Id} className="ProjectCard" onClick={() => handleProjectClick(project.Id)}>
                     <div className="projectinfo">
                         <div className="Projectphoto">
-                            <img src={fondoLogin} alt="Fondo proyecto" />
+                            {project?.Img ? (
+                              <img src={project.Img} alt="Proyecto" className="ProjectImage" />
+                            ) : (
+                            <p>No se ha cargado imagen para este proyecto</p>
+                            )}
                             </div>
                             <div>
                                 <h3>{project.NombreProyecto}</h3>
