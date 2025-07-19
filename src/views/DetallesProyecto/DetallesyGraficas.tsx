@@ -35,6 +35,13 @@ function DetallesProyecto() {
     projectViewModel.handleCamera(navigate);
   };
 
+  const handleIrregularidades = () => {
+  if (project?.Id) {
+    projectViewModel.handleIrregularidades(navigate, project.Id);
+  }
+};
+
+
   const formatDate = (fecha) => {
     const date = new Date(fecha);
     return isNaN(date.getTime()) ? 'Fecha inválida' : date.toLocaleDateString();
@@ -77,7 +84,7 @@ function DetallesProyecto() {
 
         <div className="ExtraDetails">
           <button onClick={Handlecamera}>Medir terreno</button>
-          <button>Medir irregularidades</button>
+          <button onClick={handleIrregularidades}>Medir irregularidades</button>
           <div className="categorycontainer">
             <p>Categoría: {project?.Categoria || ''}</p>
           </div>

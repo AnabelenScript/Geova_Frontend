@@ -9,7 +9,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    align-items: center;
+    
 }
 
 .MenuTitleContainer{
@@ -55,7 +55,7 @@
     justify-content: space-between;
     align-items: center;
     font-family: Arial, Helvetica, sans-serif;
-    padding: 0 40px;
+    padding: 0 32px;
     box-sizing: border-box;
 }
 
@@ -89,30 +89,161 @@
     box-sizing: border-box;
 }
 
-.MenuSub2 button{
-    border: 0;
-    margin: 0;
-    padding: 0;
-    background-color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.9em;
+.MenuSub2 button {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
 }
 
-.buttonantiguo{
-    height: 80%;
-    width: 100%;
-    border-top-left-radius:6px;
-    border-bottom-left-radius: 6px;
+.MenuSub2 button.selected {
+  background-color: #D68C0D;
+  color: white;
 }
 
-.buttonreciente{
-    width: 100%;
-    height: 80%;
-    border-top-right-radius:6px;
-    border-bottom-right-radius: 6px;
+.buttonantiguo {
+  height: 80%;
+  width: 100%;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.buttonreciente {
+  width: 100%;
+  height: 80%;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
 }
 
 .MenuSub2 button:hover{
     background-color:#D68C0D;
     color: white;
+}
+
+.MenuProjectsWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  height: 30vh;
+  box-sizing: border-box;
+}
+
+.MenuProjectsWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 30vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Este contenedor manejará el scroll horizontal SIN crecer más allá de su espacio */
+.MenuProjects {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto; /* Scroll solo horizontal */
+  overflow-y: hidden;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+/* Oculta scroll en navegadores como Firefox, pero se puede quitar si lo quieres visible */
+.MenuProjects::-webkit-scrollbar {
+  height: 6px;
+}
+
+.MenuProjects::-webkit-scrollbar-thumb {
+  background-color: #D68C0D;
+  border-radius: 10px;
+}
+
+.sliderArrow {
+  background-color: #FFEAB9;
+  color: #D68C0D;
+  font-size: 1.5em;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sliderArrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.VideoContainer{
+    font-family: Arial, Helvetica, sans-serif;
+    .Msub1{
+        padding-left: 32px;
+        box-sizing: border-box;
+    }
+}
+
+
+.MenuProjectCard {
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  background-color: white;
+  width: 100%;
+  padding: 15px;
+  box-sizing: border-box;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.MenuProjectImageContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-color: #D68C0D;
+}
+
+.MenuProjectImage {
+  height: 100%; 
+  width: auto;  
+  object-fit: contain; 
+  border-radius: 6px;
+}
+.MenuProjectContainer{
+    display: flex;
+    gap: 20PX;
+    height: 100%;
+    width: 100%;
+
+}
+
+.VideoPromocional{
+    width: 100%;
+    height: 60vh;
+    background-color: #ffffff;
+    border-radius: 15px;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }

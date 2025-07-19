@@ -6,6 +6,7 @@ import TomarFoto from '../views/VerCamara/TomarFoto';
 import Dashboard from '../views/Dashboard/Dashboard';
 import DetallesProyecto from '../views/DetallesProyecto/DetallesyGraficas';
 import MainMenu from '../views/MainMenu/MainMenu';
+import MedirIrregularidades from '../views/MedirIrregularidades/MedirIrregluaridades';
 
 function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ function AppRoutes() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
           <Route path="menu" element={<MainMenu />} />
+          <Route path="dashboard/detalles/:id/irregularidades" element={<MainMenu />} />
         </Route>
       </Routes>
     </HashRouter>

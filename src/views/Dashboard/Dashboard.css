@@ -148,11 +148,13 @@
     display: flex;
     box-sizing: border-box;
     border-radius: 20px;
+    border: 2px solid #FAF6F1;
 }
 
 .ProjectCard:hover{
     border: 2px solid #D68C0D;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .ProjectList{
