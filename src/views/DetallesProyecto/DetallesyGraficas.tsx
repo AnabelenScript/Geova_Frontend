@@ -1,0 +1,116 @@
+import './DetallesyGraficas.css';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { projectViewModel } from '../../viewmodels/ProjectViewModel';
+import { graphViewModel } from '../../viewmodels/GraphViewModel';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import GraphViewer from '../GraphViewer/Graph';
+
+function DetallesProyecto() {
+  const { id } = useParams();
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [graphsLoading, setGraphsLoading] = useState(true);
+  const navigate = useNavigate();
+  const { data: graphs, isConnected } = graphViewModel.useGraphData();
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (!id) return;
+
+      const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
+      if (success) {
+        setProject(data);
+      } else {
+        console.error("Error al obtener proyecto:", error);
+      }
+      setLoading(false);
+    };
+
+    fetchProject();
+  }, [id]);
+
+  const Handlecamera = () => {
+    projectViewModel.handleCamera(navigate);
+  };
+
+  const handleIrregularidades = () => {
+  if (project?.Id) {
+    projectViewModel.handleIrregularidades(navigate, project.Id);
+  }
+};
+
+
+  const formatDate = (fecha) => {
+    const date = new Date(fecha);
+    return isNaN(date.getTime()) ? 'Fecha inválida' : date.toLocaleDateString();
+  };
+
+  return (
+    <div className="DetallesContainer">
+      <div className="DetallesTitleContainer">
+        <div className="DetallesTitle">
+          <h1>Detalles de proyecto</h1>
+          <i className="bx bxs-add-to-queue"></i>
+        </div>
+        <div className="DetallesEndContainer"></div>
+      </div>
+      <div className="DashSubtitle">
+        <div className="DashSub1">
+          <h2 className="Dsub1">
+            {loading ? 'Cargando...' : project?.NombreProyecto || 'Proyecto no encontrado'}
+          </h2>
+          <p className="Dsub2">
+            {loading ? '' : project?.Fecha ? formatDate(project.Fecha) : 'Fecha no disponible'}
+          </p>
+        </div>
+        <div className="DashSub2"></div>
+      </div>
+      <div className="ProjectphotoDetail">
+        <div className="corner-top-right"></div>
+        <div className="corner-bottom-left"></div>
+        <div className="PhotoContainer">
+          {project?.Img ? (
+            <img src={project.Img} alt="Proyecto" className="ProjectImage" />
+          ) : (
+            <p>No se ha cargado imagen para este proyecto</p>
+          )}
+        </div>
+      </div>
+      <div className="DetailOptions">
+        <h2>Descripción</h2>
+        <p>{project?.Descripcion || ''}</p>
+
+        <div className="ExtraDetails">
+          <button onClick={Handlecamera}>Medir terreno</button>
+          <button onClick={handleIrregularidades}>Medir irregularidades</button>
+          <div className="categorycontainer">
+            <p>Categoría: {project?.Categoria || ''}</p>
+          </div>
+        </div>
+        <h2>Ubicación</h2>
+        <div className="MapDetail">
+          {project?.Lat && project?.Lng ? (
+            <MapContainer center={[project.Lat, project.Lng]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={true} dragging={false} doubleClickZoom={true} scrollWheelZoom={false} touchZoom={true}>
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <Marker position={[project.Lat, project.Lng]}>
+                <Popup>Ubicación del proyecto</Popup>
+              </Marker>
+            </MapContainer>
+          ) : (
+            <p>Ubicación no disponible</p>
+          )}
+        </div>
+      </div>
+      <div className='GraphContainer'>
+        <h2>Gráficas</h2>
+        <div className="GraphSection">
+          <GraphViewer />
+          </div>
+      </div>
+    </div>
+  );
+}
+
+export default DetallesProyecto;

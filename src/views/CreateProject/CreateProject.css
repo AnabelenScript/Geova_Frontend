@@ -27,12 +27,16 @@
     padding: 10px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-   clip-path: polygon( 35px 0%, calc(100% - 35px) 0%,100% 35px,100% 100%,0% 100%,0% 35px);
+    clip-path: polygon( 35px 0%, calc(100% - 35px) 0%,100% 35px,100% 100%,0% 100%,0% 35px);
+}
+
+.CreateTitle h1{
+    font-size: 1.7em;
 }
 
 
 .CreateTitle i{
-    font-size: 2vw;
+    font-size: 2em;
     color: #D68C0D;
 }
 
@@ -55,24 +59,89 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 40px;
 }
 
 .CreateInfo1{
     width: 25vw;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
     gap: 35px;
+    box-sizing: border-box;
 }
 .CreateInfo1 .AddButton{
     width: 100%;
-    height: 35vh;
-    background-color: #f6dbbb;
+    height: 100%;
+    background-color: #ffffff;
     margin: none;
     border: none;
     border-radius: 10px;
+    font-size: 70px;
+    cursor: pointer;
+     display: inline-block;
+  text-align: center;
+  line-height: 100px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #D68C0D;
 }
+
+.CreateInfo1 .AddButton:hover{
+    outline: none;
+    border-color:#FFEAB9;
+    box-shadow: 0 8px 10px #f8d393f3;
+}
+
+
+.AddButton .corner-bottom-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #E6AF2E;
+    clip-path: polygon(0% 100%, 100% 100%, 0% 0%);
+    z-index: 1;
+}
+
+.AddButton .corner-top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #E6AF2E;
+    clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
+    z-index: 1;
+}
+
+.AddButton::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #E6AF2E;
+    clip-path: polygon(0 0, 100% 0, 0% 100%);
+    z-index: 1;
+}
+
+/* Esquina inferior derecha */
+.AddButton::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #E6AF2E;
+    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
+    z-index: 1;
+}
+
 
 .CreateMapContainer .CancelButton{
     width: 25vw;
@@ -82,14 +151,14 @@
     border: #E6AF2E solid 2px;
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
-    font-size: 18px;
+    font-size: 1em;
     font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
 }
 
 .CreateInfo2{
     width: 100%;
     height: 100%;
-    padding: 18px 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -98,7 +167,7 @@
 .labels{
     display: flex;
     flex-direction: column;
-    font-size: 18px;
+    font-size: 1em;
     width: 100%;
     height: auto;
     font-family: Arial, Helvetica, sans-serif;
@@ -119,7 +188,7 @@
     border: 0;
     box-sizing: border-box;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 1em;
 }
 
 .CreateArea{
@@ -127,7 +196,7 @@
     flex-direction: column;
     font-family: Arial, Helvetica, sans-serif;
     gap: 10px;
-    font-size: 18px;
+    font-size: 1em;
 }
 
 .CreateArea textarea{
@@ -136,20 +205,34 @@
     height: 17vh;
     resize: none;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 1em;
+}
+
+.CreateArea textarea:active, textarea:focus, textarea:hover{
+    outline: none;
+    border-color:#FFEAB9;
+    box-shadow: 0 8px 10px #f8d393f3;
 }
 
 .CreateButton{
     width: 100%;
     height: 5vh;
-    color: white;
-    background-color: #E6AF2E;
+    background-color: #ffffff;
+    margin: none;
     border: #E6AF2E solid 2px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
-    font-size: 18px;
+    font-size: 1em;
     font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
 }
+
+.CreateButton:hover, .CancelButton:hover{
+    background-color: #E6AF2E;
+    color: #ffffff;
+}
+
+
 
 .Info{
     display: flex;
@@ -166,7 +249,7 @@
     width: 100%;
 }
 .Map{
-    height: 45vh;
+    height: 50vh;
     overflow-y: hidden;
      border: solid 2px #E6AF2E;
      border-radius: 20px;
@@ -177,5 +260,17 @@
     flex-direction: column;
     gap: 20px;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 18px;
+    font-size: 1em;
+}
+
+.AddButton img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.PreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

@@ -1,6 +1,8 @@
 
 import './Navbar.css';
 import { Link } from 'react-router-dom';
+import logoFull from '../../assets/LogoCompleto.svg';
+import logoMini from '../../assets/LogoMini.svg';
 
 interface NavbarProps {
   collapsed: boolean;
@@ -10,14 +12,14 @@ interface NavbarProps {
 function Navbar({ collapsed, setCollapsed }: NavbarProps) {
   return (
     <nav className={`navbar ${collapsed ? 'collapsed' : ''}`}>
-      <div className="LogoContainer">
+       <div className="LogoContainer">
         <img
-          src="/src/assets/LogoCompleto.png"
+          src={logoFull}
           alt="Logo"
           className={`logo-full ${collapsed ? 'hidden' : ''}`}
         />
         <img
-          src="/src/assets/LogoMini.png"
+          src={logoMini}
           alt="Logo mini"
           className={`logo-mini ${collapsed ? '' : 'hidden'}`}
         />
@@ -25,10 +27,10 @@ function Navbar({ collapsed, setCollapsed }: NavbarProps) {
 
       <div className="links">
         <ul className="Mainlinks">
-          <Link to="/" className="linkform"><li><i className="bx bx-home"></i> Inicio</li></Link>
-          <Link to="/create" className="linkform"><li><i className="bx bxs-dashboard"></i> Dashboard</li></Link>
-          <Link to="/create" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
-          <Link to="/login" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
+          <Link to="menu" className="linkform"><li><i className='bx bxs-home'></i> Inicio</li></Link>
+          <Link to="dashboard" className="linkform"><li><i className="bx bxs-dashboard"></i> Dashboard</li></Link>
+          <Link to="create" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
+          <Link to="profile" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
         </ul>
         <ul className="Mainlinks">
           <Link to="/" className="linkform"><li><i className="bx bxs-log-out"></i> Logout</li></Link>
