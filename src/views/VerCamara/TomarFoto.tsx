@@ -23,7 +23,7 @@ function TomarFoto() {
         setData(prevData => ({
           ...prevData,
           luminosidad: sensorData.luminosidad_promedio,
-          calidad: sensorData.calidad_frame * 100, // Ajuste para porcentaje
+          calidad: sensorData.calidad_frame * 100, 
           nitidez: sensorData.nitidez_score
         }));
       }
@@ -31,14 +31,14 @@ function TomarFoto() {
       if (sensor === 'TF-Luna') {
         setData(prevData => ({
           ...prevData,
-          distancia: sensorData.distancia_m * 100, // Conversión a cm
+          distancia: sensorData.distancia_m * 100, 
         }));
       }
 
       if (sensor === 'MPU6050') {
         setData(prevData => ({
           ...prevData,
-          inclinacion: sensorData.roll + sensorData.pitch, // Suma de inclinación
+          inclinacion: sensorData.roll + sensorData.pitch, 
           apertura: sensorData.apertura,
           fuerzaSenal: sensorData.event ? "Fuerza alta" : "Fuerza baja"
         }));

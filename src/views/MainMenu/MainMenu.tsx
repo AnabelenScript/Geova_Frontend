@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { projectViewModel } from '../../viewmodels/projectViewModel';
 import './MainMenu.css';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { useNavigate } from 'react-router-dom';
+
 
 function MainMenu() {
   const [projects, setProjects] = useState([]);
@@ -9,6 +10,7 @@ function MainMenu() {
   const [currentPage, setCurrentPage] = useState(0); // 👈 Página actual
 
   const cardsPerPage = 2;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -35,6 +37,11 @@ function MainMenu() {
     setProjects(sorted);
     setCurrentPage(0); 
   };
+
+  const handleProjectClick = (Id) => {
+  projectViewModel.handleSelectProject(Id, navigate);
+};
+
 
   const startIndex = currentPage * cardsPerPage;
   const visibleProjects = projects.slice(startIndex, startIndex + cardsPerPage);
@@ -82,7 +89,7 @@ function MainMenu() {
 
         <div className="MenuProjects">
           {visibleProjects.map((project) => (
-            <div className="MenuProjectCard fade-in" key={project.Id}>
+            <div  className="MenuProjectCard fade-in" key={project.Id} onClick={() => handleProjectClick(project.Id)}>
               <div className='MenuProjectContainer'>
                 <div className='MenuProjectImageContainer'>
                   {project?.Img ? (

@@ -30,7 +30,7 @@ function Navbar({ collapsed, setCollapsed }: NavbarProps) {
           <Link to="menu" className="linkform"><li><i className='bx bxs-home'></i> Inicio</li></Link>
           <Link to="dashboard" className="linkform"><li><i className="bx bxs-dashboard"></i> Dashboard</li></Link>
           <Link to="create" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
-          <Link to="login" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
+          <Link to="profile" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
         </ul>
         <ul className="Mainlinks">
           <Link to="/" className="linkform"><li><i className="bx bxs-log-out"></i> Logout</li></Link>

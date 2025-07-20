@@ -7,7 +7,7 @@ import Dashboard from '../views/Dashboard/Dashboard';
 import DetallesProyecto from '../views/DetallesProyecto/DetallesyGraficas';
 import MainMenu from '../views/MainMenu/MainMenu';
 import MedirIrregularidades from '../views/MedirIrregularidades/MedirIrregluaridades';
-
+import Profile from '../views/Profile/Profile';
 function AppRoutes() {
   return (
     <HashRouter>
@@ -18,8 +18,9 @@ function AppRoutes() {
           <Route path="dashboard/detalles/:id/takephoto" element={<TomarFoto />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
+          <Route path="dashboard/detalles/:id/irregularidades" element={<MedirIrregularidades />} />
           <Route path="menu" element={<MainMenu />} />
-          <Route path="dashboard/detalles/:id/irregularidades" element={<MainMenu />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </HashRouter>
