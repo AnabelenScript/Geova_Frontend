@@ -16,5 +16,17 @@ export const userService = {
     async getUserById(id) {
         const response = await axios.get(`${API_URL}/${id}`);
         return response.data;
+    },
+
+    // 🔹 Nuevo método para actualizar usuario
+    async updateUser(id, updatedUser) {
+        const response = await axios.put(`${API_URL}/${id}`, updatedUser);
+        return response.data;
+    },
+
+    // 🔹 Nuevo método para eliminar usuario
+    async deleteUser(id) {
+        const response = await axios.delete(`${API_URL}/${id}`);
+        return response.data;
     }
 };

@@ -1,5 +1,8 @@
 import { projectService } from '../services/ProjectService';
-import { ProjectModel } from '../models/ProjectModel';
+import Swal from 'sweetalert2';
+import alerticon from '../assets/alerticon.svg'; 
+import succesfulicon from '../assets/sucessfulicon.svg'
+import './alerts.css'
 
 let selectedProjectId = null;
 let allProjects = [];
@@ -9,22 +12,74 @@ let filterType = '';
 
 export const projectViewModel = {
   async handleCreateProject(nombreProyecto, categoria, descripcion, imgFile, lat, lng) {
+    if (!nombreProyecto || !categoria || !descripcion || !imgFile || lat == null || lng == null) {
+      await Swal.fire({
+        title: 'Campos obligatorios',
+        text: 'Todos los campos son obligatorios, incluyendo imagen y ubicación.',
+        imageUrl: alerticon,
+        imageWidth: 200,
+        imageHeight: 200,
+        imageAlt: 'Advertencia',
+        showConfirmButton: false, 
+        icon: false,
+        background: '#fff',
+        color: '#333',
+        customClass: {
+           popup: 'succesful-popup',
+                title: 'succesful-titulo',
+                confirmButton: 'succesful-confirmar',
+                 htmlContainer: 'succesful-contenido'
+        }
+      });
+      return { success: false, error: 'Faltan campos obligatorios' };
+    }
+
     try {
       const formData = new FormData();
-      formData.append("nombreProyecto", nombreProyecto);
-      formData.append("categoria", categoria);
-      formData.append("descripcion", descripcion);
-      formData.append("fecha", new Date().toISOString());
-      formData.append("lat", parseFloat(lat));
-      formData.append("lng", parseFloat(lng));
-      formData.append("img", imgFile);
+      formData.append('nombreProyecto', nombreProyecto);
+      formData.append('categoria', categoria);
+      formData.append('descripcion', descripcion);
+      formData.append('fecha', new Date().toISOString());
+      formData.append('lat', parseFloat(lat));
+      formData.append('lng', parseFloat(lng));
+      formData.append('img', imgFile);
 
       const response = await projectService.createProject(formData);
+
+      await Swal.fire({
+        title: '¡Éxito!',
+        imageUrl: succesfulicon,
+        imageWidth: 200,
+        imageHeight: 200,
+        text: 'Proyecto creado exitosamente.',
+        showConfirmButton: false,
+        background: '#fff',
+        color: '#333',
+        customClass: {
+          popup: 'succesful-popup',
+                title: 'succesful-titulo',
+                confirmButton: 'succesful-confirmar',
+                 htmlContainer: 'succesful-contenido'
+        }
+      });
+
       return { success: true, data: response };
     } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || error.message || 'Error al crear el proyecto',
+        background: '#fff',
+        color: '#333',
+        customClass: {
+          popup: 'swal-popup',
+          title: 'swal-title'
+        }
+      });
+
       return {
         success: false,
-        error: error.response?.data?.error || error.message || 'Error al crear el proyecto',
+        error: error.response?.data?.error || error.message || 'Error al crear el proyecto'
       };
     }
   },
@@ -106,29 +161,30 @@ export const projectViewModel = {
 
     filteredProjects = result;
   },
+
   filterAndSortProjects(projects, searchTerm, sortOption) {
-  let result = [...projects];
+    let result = [...projects];
 
-  if (searchTerm.trim()) {
-    result = result.filter((project) =>
-      project.NombreProyecto.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    if (searchTerm.trim()) {
+      result = result.filter((project) =>
+        project.NombreProyecto.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (sortOption === 'az') {
+      result.sort((a, b) =>
+        a.NombreProyecto.localeCompare(b.NombreProyecto)
+      );
+    } else if (sortOption === 'recientes') {
+      result.sort((a, b) => new Date(b.Fecha).getTime() - new Date(a.Fecha).getTime());
+    } else if (sortOption === 'antiguos') {
+      result.sort((a, b) => new Date(a.Fecha).getTime() - new Date(b.Fecha).getTime());
+    }
+
+    return result;
+  },
+
+  handleIrregularidades(navigate, id) {
+    navigate(`/dashboard/detalles/${id}/irregularidades`);
   }
-
-  if (sortOption === 'az') {
-    result.sort((a, b) =>
-      a.NombreProyecto.localeCompare(b.NombreProyecto)
-    );
-  } else if (sortOption === 'recientes') {
-    result.sort((a, b) => new Date(b.Fecha).getTime() - new Date(a.Fecha).getTime());
-  } else if (sortOption === 'antiguos') {
-    result.sort((a, b) => new Date(a.Fecha).getTime() - new Date(b.Fecha).getTime());
-  }
-
-  return result;
-},
-handleIrregularidades(navigate, id) {
-  navigate(`/dashboard/detalles/${id}/irregularidades`);
-}
-
 };
