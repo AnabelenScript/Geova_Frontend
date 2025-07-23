@@ -1,21 +1,26 @@
+/* Contenedor principal */
 .ProjectPContainer{
-    background-color:#FAF6F1;
+    background-color: #FAF6F1;
     width: 98%;
     height: auto;
     border-bottom-right-radius: 30px;
     border-bottom-left-radius: 30px;
-    padding:  40px 40px;
+    padding: 40px 40px;
     box-sizing: border-box;
     display: flex;
     gap: 20px;
     align-items: center;
 }
+
+/* Paneles de datos laterales */
 .ProjectData{
     width: 8vw;
     height: 70vh;
     display: flex;
     flex-direction: column;
 }
+
+/* Container principal de la cámara */
 .ProjectphotoContainer {
     width: 60vw;
     height: 70vh;
@@ -26,7 +31,7 @@
     overflow: hidden;
 }
 
-/* Esquina superior izquierda */
+/* Esquinas decorativas */
 .ProjectphotoContainer::before {
     content: "";
     position: absolute;
@@ -39,7 +44,6 @@
     z-index: 1;
 }
 
-/* Esquina inferior derecha */
 .ProjectphotoContainer::after {
     content: "";
     position: absolute;
@@ -52,7 +56,6 @@
     z-index: 1;
 }
 
-/* Esquina superior derecha */
 .ProjectphotoContainer .corner-top-right {
     position: absolute;
     top: 0;
@@ -64,7 +67,6 @@
     z-index: 1;
 }
 
-/* Esquina inferior izquierda */
 .ProjectphotoContainer .corner-bottom-left {
     position: absolute;
     bottom: 0;
@@ -76,49 +78,216 @@
     z-index: 1;
 }
 
-
-
+/* Container interno con forma recortada */
 .MainphotoContainer{
     width: 100%;
     height: 100%;
     background-image: url(../../assets/fondo_login.png);
-    clip-path: polygon(95px 0%,calc(100% - 95px) 0%, 100% 95px,100% calc(100% - 95px),calc(100% - 95px) 100%, 95px 100%,0% calc(100% - 95px),0% 95px                        
+    background-size: cover;
+    background-position: center;
+    clip-path: polygon(
+        95px 0%, 
+        calc(100% - 95px) 0%, 
+        100% 95px, 
+        100% calc(100% - 95px), 
+        calc(100% - 95px) 100%, 
+        95px 100%, 
+        0% calc(100% - 95px), 
+        0% 95px
     );
-    justify-content: center;
     display: flex;
     flex-direction: column;
-    gap: 35vh;
+    justify-content: space-between;
     align-items: center;
-    padding-top: 40px;
+    padding: 60px 40px 40px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     color: white;
+    position: relative;
 }
 
-.Takephotobutton{
+/* Placeholder cuando no hay cámara */
+.camera-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.camera-placeholder h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.connection-status {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+}
+
+.connection-status small {
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+/* Container de la cámara en vivo */
+.camera-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+/* Stream de video */
+.camera-stream {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Overlay del stream */
+.stream-overlay {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: rgba(220, 20, 60, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    backdrop-filter: blur(5px);
+    z-index: 2;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Errores del stream */
+.stream-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(220, 20, 60, 0.95);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    z-index: 3;
+    max-width: 80%;
+}
+
+.stream-error p {
+    margin: 0 0 15px 0;
+    font-size: 1rem;
+}
+
+.retry-button {
+    background-color: white;
+    color: #dc143c;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+/* Botón de la cámara */
+.Takephotobutton {
     width: 6vw;
     height: 12vh;
     background-color: #FFEAB9;
-    clip-path: polygon(1.6vw 0%,calc(100% - 1.6vw) 0%, 100% 1.6vw,100% calc(100% - 1.6vw),calc(100% - 1.6vw) 100%, 1.6vw 100%,0% calc(100% - 1.6vw),0% 1.6vw                        
-);
-box-sizing: border-box;
-padding: 8px;
-display: flex;
-align-items: center;
+    clip-path: polygon(
+        1.6vw 0%, 
+        calc(100% - 1.6vw) 0%, 
+        100% 1.6vw, 
+        100% calc(100% - 1.6vw), 
+        calc(100% - 1.6vw) 100%, 
+        1.6vw 100%, 
+        0% calc(100% - 1.6vw), 
+        0% 1.6vw
+    );
+    box-sizing: border-box;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
 }
 
-.Takephotobutton button{
+.TakeButton {
     border: 0;
     margin: 0;
     padding: 0;
     background-color: #E6AF2E;
     width: 100%;
     height: 100%;
-    clip-path: polygon(1.5vw 0%,calc(100% - 1.5vw) 0%, 100% 1.5vw,100% calc(100% - 1.5vw),calc(100% - 1.5vw) 100%, 1.5vw 100%,0% calc(100% - 1.5vw),0% 1.5vw);
+    clip-path: polygon(
+        1.5vw 0%, 
+        calc(100% - 1.5vw) 0%, 
+        100% 1.5vw, 
+        100% calc(100% - 1.5vw), 
+        calc(100% - 1.5vw) 100%, 
+        1.5vw 100%, 
+        0% calc(100% - 1.5vw), 
+        0% 1.5vw
+    );
     cursor: pointer;
-
+    font-size: 2rem;
+    color: white;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.TakeButton:hover:not(.disabled) {
+    background-color: #d4941a;
+    transform: scale(1.05);
+}
+
+.TakeButton.active {
+    background-color: #dc143c;
+    animation: recording 1.5s infinite;
+}
+
+.TakeButton.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@keyframes recording {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Estilos de los datos laterales */
 .ProjectData label {
     font-size: 1.1rem;
     font-weight: bold;
@@ -129,19 +298,82 @@ align-items: center;
     text-align: center;
     border-radius: 10px;
     background-color: #E6AF2E;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+.ProjectData label:hover {
+    background-color: #d4941a;
+    transform: translateY(-2px);
 }
 
 .ProjectData span {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: #333;
-    padding: 5px;
-    font-size: 1.2em;
+    padding: 12px 8px;
     display: flex;
     justify-content: center;
+    align-items: center;
     background-color: #FFF;
-    border-radius: 5px;
+    border-radius: 8px;
     margin-bottom: 12px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    min-height: 40px;
+}
+
+.ProjectData span:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+    .ProjectPContainer {
+        flex-direction: column;
+        height: auto;
+        gap: 30px;
+    }
+    
+    .ProjectData {
+        width: 90%;
+        height: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .ProjectphotoContainer {
+        width: 90%;
+        height: 50vh;
+        margin: 20px 0;
+    }
+    
+    .MainphotoContainer {
+        gap: 20px;
+    }
+    
+    .Takephotobutton {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ProjectPContainer {
+        padding: 20px;
+    }
+    
+    .ProjectphotoContainer {
+        height: 40vh;
+    }
+    
+    .camera-placeholder h1 {
+        font-size: 1.4rem;
+    }
+    
+    .ProjectData span {
+        font-size: 1rem;
+        padding: 8px;
+    }
 }

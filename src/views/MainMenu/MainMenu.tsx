@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { projectViewModel } from '../../viewmodels/projectViewModel';
+import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import './MainMenu.css';
 import { useNavigate } from 'react-router-dom';
 
