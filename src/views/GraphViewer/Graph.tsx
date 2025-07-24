@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { graphViewModel } from '../../viewmodels/graphViewModel';
+import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer
