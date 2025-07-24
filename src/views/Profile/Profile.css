@@ -160,9 +160,7 @@
    justify-content: center;
    gap: 50px;
    font-size: 1.5em;
-   .bx bxs-edit-alt{
-    color:#D68C0D;
-   }
+
 }
 
 .profdata p{

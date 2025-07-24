@@ -3,6 +3,8 @@ import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
 import './alerts.css'
+import { showSuccessAlert, showErrorAlert, showConfirmAlert} from '../utils/alerts';
+
 
 let selectedProjectId = null;
 let allProjects = [];
@@ -12,91 +14,70 @@ let filterType = '';
 
 export const projectViewModel = {
   async handleCreateProject(nombreProyecto, categoria, descripcion, imgFile, lat, lng) {
-    if (!nombreProyecto || !categoria || !descripcion || !imgFile || lat == null || lng == null) {
-      await Swal.fire({
-        title: 'Campos obligatorios',
-        text: 'Todos los campos son obligatorios, incluyendo imagen y ubicación.',
-        imageUrl: alerticon,
-        imageWidth: 200,
-        imageHeight: 200,
-        imageAlt: 'Advertencia',
-        showConfirmButton: false, 
-        icon: false,
-        background: '#fff',
-        color: '#333',
-        customClass: {
-           popup: 'succesful-popup',
-                title: 'succesful-titulo',
-                confirmButton: 'succesful-confirmar',
-                 htmlContainer: 'succesful-contenido'
-        }
-      });
-      return { success: false, error: 'Faltan campos obligatorios' };
-    }
+  if (!nombreProyecto || !categoria || !descripcion || !imgFile || lat == null || lng == null) {
+    await showConfirmAlert(
+      'Campos obligatorios',
+      'Todos los campos son obligatorios, incluyendo imagen y ubicación.'
+    );
+    return { success: false, error: 'Faltan campos obligatorios' };
+  }
+  const userKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
+  if (!userKey) {
+    await showErrorAlert('No se encontró información del usuario. Por favor, inicie sesión de nuevo.');
+    return { success: false, error: 'Usuario no autenticado' };
+  }
 
-    try {
-      const formData = new FormData();
-      formData.append('nombreProyecto', nombreProyecto);
-      formData.append('categoria', categoria);
-      formData.append('descripcion', descripcion);
-      formData.append('fecha', new Date().toISOString());
-      formData.append('lat', parseFloat(lat));
-      formData.append('lng', parseFloat(lng));
-      formData.append('img', imgFile);
+  const user = JSON.parse(localStorage.getItem(userKey));
+  const userId = user.id;
 
-      const response = await projectService.createProject(formData);
+  try {
+    const formData = new FormData();
+    formData.append('nombreProyecto', nombreProyecto);
+    formData.append('categoria', categoria);
+    formData.append('descripcion', descripcion);
+    formData.append('fecha', new Date().toISOString());
+    formData.append('lat', parseFloat(lat));
+    formData.append('lng', parseFloat(lng));
+    formData.append('img', imgFile);
+    formData.append('userId', userId);
 
-      await Swal.fire({
-        title: '¡Éxito!',
-        imageUrl: succesfulicon,
-        imageWidth: 200,
-        imageHeight: 200,
-        text: 'Proyecto creado exitosamente.',
-        showConfirmButton: false,
-        background: '#fff',
-        color: '#333',
-        customClass: {
-          popup: 'succesful-popup',
-                title: 'succesful-titulo',
-                confirmButton: 'succesful-confirmar',
-                 htmlContainer: 'succesful-contenido'
-        }
-      });
+    const response = await projectService.createProject(formData);
 
-      return { success: true, data: response };
-    } catch (error) {
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.error || error.message || 'Error al crear el proyecto',
-        background: '#fff',
-        color: '#333',
-        customClass: {
-          popup: 'swal-popup',
-          title: 'swal-title'
-        }
-      });
+    await showSuccessAlert('Proyecto creado exitosamente.');
+    return { success: true, data: response };
+  } catch (error) {
+    await showErrorAlert(error.response?.data?.error || error.message || 'Error al crear el proyecto');
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al crear el proyecto'
+    };
+  }
+},
 
-      return {
-        success: false,
-        error: error.response?.data?.error || error.message || 'Error al crear el proyecto'
-      };
-    }
-  },
 
   async handleGetAllProjects() {
-    try {
-      const response = await projectService.getAllProjects();
-      allProjects = response;
-      filteredProjects = [...allProjects];
-      return { success: true, data: filteredProjects };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.error || error.message || 'Error al obtener los proyectos',
-      };
+  try {
+    const userKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
+    if (!userKey) {
+      throw new Error('Usuario no autenticado');
     }
-  },
+    const user = JSON.parse(localStorage.getItem(userKey));
+    const userId = user?.id;
+    if (!userId) {
+      throw new Error('No se pudo obtener el ID del usuario');
+    }
+    const response = await projectService.getAllProjectsByIdUser(userId);
+    allProjects = response;
+    filteredProjects = [...allProjects];
+    return { success: true, data: filteredProjects };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al obtener los proyectos',
+    };
+  }
+},
+
 
   async handleGetProjectById(id) {
     try {
@@ -186,5 +167,59 @@ export const projectViewModel = {
 
   handleIrregularidades(navigate, id) {
     navigate(`/dashboard/detalles/${id}/irregularidades`);
+  },
+
+async handleUpdateProject(id, nombreProyecto, categoria, descripcion, imgFile, lat, lng) {
+  try {
+    const userKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
+    if (!userKey) throw new Error('Usuario no autenticado');
+
+    const user = JSON.parse(localStorage.getItem(userKey));
+    const userId = user?.id;
+    if (!userId) throw new Error('No se pudo obtener el ID del usuario');
+
+    const formData = new FormData();
+    formData.append('nombreProyecto', nombreProyecto);
+    formData.append('categoria', categoria);
+    formData.append('descripcion', descripcion);
+    formData.append('fecha', new Date().toISOString());
+    formData.append('lat', parseFloat(lat));
+    formData.append('lng', parseFloat(lng));
+    formData.append('userId', userId);
+
+    if (imgFile) {
+      formData.append('img', imgFile);
+    }
+
+    const response = await projectService.updateProject(id, formData);
+    await showSuccessAlert('El proyecto ha sido actualizado exitosamente.');
+    return { success: true, data: response };
+  } catch (error) {
+    await showErrorAlert(error.response?.data?.error || error.message || 'Error al actualizar el proyecto');
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar el proyecto'
+    };
   }
+},
+
+async handleDeleteProject(id, navigate) {
+  try {
+    const confirm = await showConfirmAlert(
+      '¿Estás seguro?',
+      'Este proyecto se eliminará permanentemente.'
+    );
+
+    if (!confirm.isConfirmed) return { success: false };
+    await projectService.deleteProject(id);
+    await showSuccessAlert('Proyecto eliminado exitosamente.');
+    await projectViewModel.handleGetAllProjects();
+    navigate('/dashboard');
+    return { success: true };
+  } catch (error) {
+    await showErrorAlert(error.response?.data?.error || error.message || 'Error al eliminar el proyecto');
+    return { success: false };
+  }
+}
+
 };
