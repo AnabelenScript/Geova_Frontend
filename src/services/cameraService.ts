@@ -1,8 +1,7 @@
-// src/services/cameraService.ts
+// src/services/cameraService.ts - Versión simplificada
 import axios from 'axios';
 
-// URL fija del servidor de la Raspberry Pi
-const API_BASE_URL = 'http://raspberrypi.local:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 export interface StreamingStatus {
   active: boolean;
@@ -12,13 +11,13 @@ export interface StreamingStatus {
 export interface ApiResponse {
   status: 'success' | 'error';
   message: string;
+  active?: boolean;
 }
 
 class CameraService {
-  private baseUrl: string;
+  private baseUrl: string = API_BASE_URL;
 
   constructor() {
-    this.baseUrl = API_BASE_URL;
     console.log(`🔗 Camera Service inicializado con URL: ${this.baseUrl}`);
   }
 
@@ -28,56 +27,31 @@ class CameraService {
   async checkConnection(): Promise<boolean> {
     try {
       const response = await axios.get(`${this.baseUrl}/imx477/streaming/status`, {
-        timeout: 3000
+        timeout: 5000
       });
       return response.status === 200;
     } catch (error) {
-      console.warn('⚠️ No se pudo conectar con raspberrypi.local, intentando con localhost...');
-      
-      // Fallback a localhost si raspberrypi.local no funciona
-      try {
-        this.baseUrl = 'http://localhost:8000';
-        const fallbackResponse = await axios.get(`${this.baseUrl}/imx477/streaming/status`, {
-          timeout: 3000
-        });
-        console.log('✅ Conectado a localhost como fallback');
-        return fallbackResponse.status === 200;
-      } catch (fallbackError) {
-        console.error('❌ No se pudo conectar ni a raspberrypi.local ni a localhost');
-        return false;
-      }
+      console.warn('⚠️ No se pudo conectar con raspberrypi.local');
+      return false;
     }
   }
 
   /**
-   * Inicia el streaming de la cámara
+   * Inicia el streaming de la cámara - simplificado
    */
   async startStreaming(): Promise<ApiResponse> {
     try {
-      // Verificar conexión antes de iniciar
-      const isConnected = await this.checkConnection();
-      if (!isConnected) {
-        throw new Error('No se puede conectar al servidor de la Raspberry Pi');
-      }
-
+      console.log(`📷 Iniciando streaming en: ${this.baseUrl}/imx477/streaming/start`);
       const response = await axios.post(`${this.baseUrl}/imx477/streaming/start`, {}, {
-        timeout: 10000 // 10 segundos para iniciar streaming
+        timeout: 10000,
+        headers: { 'Content-Type': 'application/json' }
       });
       
-      console.log('📷 Streaming iniciado correctamente');
+      console.log('📷 Respuesta del servidor:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error al iniciar streaming:', error);
-      if (axios.isAxiosError(error)) {
-        if (error.code === 'ENOTFOUND') {
-          throw new Error('No se pudo resolver raspberrypi.local. Verifique que la Raspberry Pi esté encendida y conectada a la red.');
-        } else if (error.code === 'ECONNREFUSED') {
-          throw new Error('Conexión rechazada. Verifique que el servidor FastAPI esté ejecutándose en la Raspberry Pi.');
-        } else if (error.code === 'ETIMEDOUT') {
-          throw new Error('Tiempo de espera agotado. La Raspberry Pi puede estar sobrecargada o la red es lenta.');
-        }
-      }
-      throw new Error('No se pudo iniciar el streaming de la cámara');
+      console.error('❌ Error al iniciar streaming:', error);
+      throw new Error(`No se pudo iniciar el streaming: ${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
   }
 
@@ -86,15 +60,22 @@ class CameraService {
    */
   async stopStreaming(): Promise<ApiResponse> {
     try {
+      console.log(`⏹️ Deteniendo streaming en: ${this.baseUrl}/imx477/streaming/stop`);
       const response = await axios.post(`${this.baseUrl}/imx477/streaming/stop`, {}, {
-        timeout: 5000
+        timeout: 5000,
+        headers: { 'Content-Type': 'application/json' }
       });
       
       console.log('⏹️ Streaming detenido correctamente');
       return response.data;
     } catch (error) {
-      console.error('Error al detener streaming:', error);
-      throw new Error('No se pudo detener el streaming de la cámara');
+      console.error('❌ Error al detener streaming:', error);
+      // No es crítico si falla al detener
+      return {
+        status: 'success',
+        message: 'Streaming detenido (con advertencias)',
+        active: false
+      };
     }
   }
 
@@ -108,8 +89,8 @@ class CameraService {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al obtener estado del streaming:', error);
-      throw new Error('No se pudo obtener el estado del streaming');
+      console.error('❌ Error al obtener estado del streaming:', error);
+      return { active: false, fps: 0 };
     }
   }
 
