@@ -1,4 +1,5 @@
 import { projectService } from '../services/ProjectService';
+import { imxService } from '../services/imx.Service';
 import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
@@ -219,6 +220,32 @@ async handleDeleteProject(id, navigate) {
   } catch (error) {
     await showErrorAlert(error.response?.data?.error || error.message || 'Error al eliminar el proyecto');
     return { success: false };
+  }
+},
+async handlePostSensorIMX(sensorData) {
+    try {
+      const response = await imxService.enviarDatos(sensorData);
+      await showSuccessAlert('Datos del sensor guardados correctamente.');
+      return { success: true, data: response };
+    } catch (error) {
+      await showErrorAlert(error.response?.data?.error || error.message || 'Error al guardar datos del sensor');
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Error al guardar datos del sensor'
+      };
+    }
+  },
+
+  async handleGetSensorIMXByProjectId(id_project) {
+  try {
+    const response = await imxService.getSensorIMXByProjectId(id_project);
+    return { success: true, data: response };
+  } catch (error) {
+    await showErrorAlert(error.response?.data?.error || error.message || 'Error al obtener datos del sensor');
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al obtener datos del sensor'
+    };
   }
 }
 

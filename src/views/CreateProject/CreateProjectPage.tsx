@@ -37,7 +37,7 @@ function CreateProject() {
       if (typeof reader.result === 'string') {
         setImgPreview(reader.result);
       }
-    };
+    };  
     reader.readAsDataURL(file);
   };
 

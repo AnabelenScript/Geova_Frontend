@@ -25,7 +25,6 @@ export const showSuccessAlert = async (text) => {
 
 export const showErrorAlert = async (text) => {
   return Swal.fire({
-    icon: 'error',
     title: 'Error',
     text,
     background: '#fff',
