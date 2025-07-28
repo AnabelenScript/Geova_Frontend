@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import './LoginForm.css';
 import { usersViewModel } from '../../viewmodels/UserViewModel';
-import { useNavigate } from 'react-router-dom';
+
 import maquinaImg from '../../assets/Maquina.png';
 import logoImg from '../../assets/Geova_logo.png';
-
 
 interface FormState {
   username: string;
@@ -15,7 +14,7 @@ interface FormState {
 }
 
 function Login() {
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState<FormState>({
     username: '',
     nombre: '',
@@ -23,7 +22,8 @@ function Login() {
     email: '',
     password: ''
   });
-  const navigate = useNavigate();
+
+
   const toggleMode = () => setIsLogin(!isLogin);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,18 +33,15 @@ function Login() {
 
   const handleSubmit = async () => {
     if (isLogin) {
-      const res = await usersViewModel.handleLogin(form.email, form.password);
-      if (res.success) {
-        navigate('/Create')
-      } else {
-      }
+      await usersViewModel.handleLogin(form.email, form.password);
     } else {
-      const res = await usersViewModel.handleRegister(form.username,form.nombre,form.apellidos,form.email,form.password);
-      if (res.success) {
-        alert("User registered");
-      } else {
-        alert("Registration failed: " + res.error);
-      }
+      await usersViewModel.handleRegister(
+        form.username,
+        form.nombre,
+        form.apellidos,
+        form.email,
+        form.password,
+      );
     }
   };
 
@@ -53,7 +50,6 @@ function Login() {
       <div className={`LoginContainer ${!isLogin ? 'register-machine' : ''}`}>
         <div className={`Machine ${isLogin ? '' : 'register-machine'}`}>
           <img src={maquinaImg} alt="Máquina" />
-
         </div>
         <div className={`FormContainer ${isLogin ? 'login-mode' : 'register-mode'}`}>
           <div className="Formtitle">
@@ -65,24 +61,25 @@ function Login() {
               <>
                 <div className='inputform'>
                   <label>Username</label>
-                  <input type="text" name="username" value={form.username} onChange={handleChange} placeholder='Username'/>
+                  <input type="text" name="username" value={form.username} onChange={handleChange} />
                 </div>
                 <div className='inputform'>
                   <label>Name</label>
-                  <input type="text" name="nombre" value={form.nombre} onChange={handleChange} placeholder='Name'/>
+                  <input type="text" name="nombre" value={form.nombre} onChange={handleChange} />
                 </div>
                 <div className='inputform'>
                   <label>Last Name</label>
-                  <input type="text" name="apellidos" value={form.apellidos} onChange={handleChange} placeholder='Last Name'/>
+                  <input type="text" name="apellidos" value={form.apellidos} onChange={handleChange} />
                 </div>
-              </>)}
+              </>
+            )}
             <div className='inputform'>
               <label>Email</label>
-              <input type="text" name="email" value={form.email} onChange={handleChange} placeholder='Email'/>
+              <input type="text" name="email" value={form.email} onChange={handleChange} />
             </div>
             <div className='inputform'>
               <label>Password</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder='Password' required/>
+              <input type="password" name="password" value={form.password} onChange={handleChange} />
             </div>
             <div className='buttonform'>
               <button className='loginbutton' onClick={handleSubmit}>
@@ -90,10 +87,7 @@ function Login() {
               </button>
               <p>
                 {isLogin ? "Don't have an account? " : "Do you already have an account? "}
-                <span
-                  style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                  onClick={toggleMode}
-                >
+                <span onClick={toggleMode} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
                   {isLogin ? 'Sign up' : 'Login'}
                 </span>
               </p>
