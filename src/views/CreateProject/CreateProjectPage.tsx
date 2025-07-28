@@ -1,7 +1,6 @@
 import './CreateProject.css';
 import { useState } from 'react';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import Swal from 'sweetalert2';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -38,17 +37,12 @@ function CreateProject() {
       if (typeof reader.result === 'string') {
         setImgPreview(reader.result);
       }
-    };
+    };  
     reader.readAsDataURL(file);
   };
 
   const handleCreate = async () => {
-    if (!nombreProyecto || !categoria || !descripcion || !imgFile || lat == null || lng == null) {
-      Swal.fire('Error', 'Todos los campos son obligatorios, incluyendo imagen y ubicación', 'warning');
-      return;
-    }
-
-    const { success, error } = await projectViewModel.handleCreateProject(
+    const { success } = await projectViewModel.handleCreateProject(
       nombreProyecto,
       categoria,
       descripcion,
@@ -58,7 +52,6 @@ function CreateProject() {
     );
 
     if (success) {
-      Swal.fire('Éxito', 'Proyecto creado exitosamente', 'success');
       setNombreProyecto('');
       setCategoria('');
       setDescripcion('');
@@ -66,8 +59,6 @@ function CreateProject() {
       setImgPreview('');
       setLat(null);
       setLng(null);
-    } else {
-      Swal.fire('Error', error, 'error');
     }
   };
 
@@ -86,7 +77,7 @@ function CreateProject() {
           <div className='CreateInfo1'>
             <label htmlFor="imgUpload" className='AddButton'>
               <div className="corner-top-right"></div>
-             <div className="corner-bottom-left"></div>
+              <div className="corner-bottom-left"></div>
               {imgPreview ? (
                 <img src={imgPreview} alt="preview" className="PreviewImage" />
               ) : (

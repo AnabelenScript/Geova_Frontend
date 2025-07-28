@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'https://geova-api1.namixcode.cc/users';
+//https://geova-api1.namixcode.cc/users
 
 export const userService = {
     async register(user) {
@@ -15,6 +16,16 @@ export const userService = {
 
     async getUserById(id) {
         const response = await axios.get(`${API_URL}/${id}`);
+        return response.data;
+    },
+
+    async updateUser(id, updatedUser) {
+        const response = await axios.put(`${API_URL}/${id}`, updatedUser);
+        return response.data;
+    },
+
+    async deleteUser(id) {
+        const response = await axios.delete(`${API_URL}/${id}`);
         return response.data;
     }
 };
