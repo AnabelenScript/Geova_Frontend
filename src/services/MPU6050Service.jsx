@@ -33,4 +33,36 @@ export const mpuSensorService = {
 
     return response.data;
   },
+
+  async updateSensorMPU(sensor_id, data) {
+    const tokenKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
+    if (!tokenKey) throw new Error('Usuario no autenticado');
+    const user = JSON.parse(localStorage.getItem(tokenKey));
+    const token = user?.token;
+  
+    const response = await axios.put(`${API_URL}/${sensor_id}`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  },
+
+  async updateDualSensorMPU(sensor_id, data) {
+    const tokenKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
+    if (!tokenKey) throw new Error('Usuario no autenticado');
+    const user = JSON.parse(localStorage.getItem(tokenKey));
+    const token = user?.token;
+    
+    const response = await axios.put(`${API_URL}/${sensor_id}/dual`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    return response.data;
+  },
 };
