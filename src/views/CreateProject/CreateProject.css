@@ -24,30 +24,30 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 40px;
+    padding: 15px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-    clip-path: polygon( 35px 0%, calc(100% - 35px) 0%,100% 35px,100% 100%,0% 100%,0% 35px);
+    clip-path: polygon( 25px 0%, calc(100% - 25px) 0%,100% 25px,100% 100%,0% 100%,0% 25px);
 }
 
 .CreateTitle h1{
-    font-size: 1.7em;
+    font-size :4vh;
+    margin: 0%;
+    font-weight: 600;
 }
 
-
 .CreateTitle i{
-    font-size: 2em;
+    font-size: 5vh;
     color: #D68C0D;
 }
 
 .CreateEndContainer {
-    margin-top: 20px;
+    margin-top: 12px;
     background-color: #FFEAB9;
     width: 100%;
     height: 5vh;
-    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 35px) 100%, 35px 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 25px) 100%, 25px 100%);
 }
-
 
 .CreateInfoContainer{
     width: 100%;
@@ -76,22 +76,23 @@
     border-radius: 10px;
     font-size: 70px;
     cursor: pointer;
-     display: inline-block;
-  text-align: center;
-  line-height: 100px;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #D68C0D;
+    display: inline-block;
+    text-align: center;
+    line-height: 100px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #D68C0D;
 }
 
 .CreateInfo1 .AddButton:hover{
     outline: none;
-    border-color:#FFEAB9;
-    box-shadow: 0 8px 10px #f8d393f3;
+    box-sizing: border-box;
+    border: dashed #E6AF2E;
+    transition: .2s;
 }
 
 
@@ -143,14 +144,14 @@
 }
 
 
-.CreateMapContainer .CancelButton{
-    width: 25vw;
-    height: 5vh;
+.CancelButton{
+    width: 30vw;
+    height: 7vh;
     background-color: #ffffff;
     margin: none;
-    border: #E6AF2E solid 2px;
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
+    border: #E6AF2E solid 1px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
     font-size: 1em;
     font-family: Arial, Helvetica, sans-serif;
     cursor: pointer;
@@ -185,10 +186,15 @@
     width: 100%;
     height: 5vh;
     margin: 0;
+    padding-left: 10px;
     border: 0;
     box-sizing: border-box;
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 1em;
+}
+
+input:hover, input:focus, select:hover {
+    border: solid 2px #D68C0D;
 }
 
 .CreateArea{
@@ -202,26 +208,28 @@
 .CreateArea textarea{
     border: 0;
     margin: 0;
+    padding: 10px;
     height: 17vh;
     resize: none;
     border-radius: 10px;
-    font-size: 1em;
+    font-size: 15px;
+    letter-spacing: .1px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .CreateArea textarea:active, textarea:focus, textarea:hover{
     outline: none;
-    border-color:#FFEAB9;
-    box-shadow: 0 8px 10px #f8d393f3;
+    border: solid 2px #E6AF2E;
 }
 
 .CreateButton{
     width: 100%;
-    height: 5vh;
-    background-color: #ffffff;
+    height: 7vh;
+    background-color: #FFEAB9;
     margin: none;
-    border: #E6AF2E solid 2px;
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
+    border: #E6AF2E solid 1px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
     font-size: 1em;
     font-family: Arial, Helvetica, sans-serif;
     cursor: pointer;
@@ -229,10 +237,16 @@
 
 .CreateButton:hover, .CancelButton:hover{
     background-color: #E6AF2E;
+    font-weight: 600;
+    letter-spacing: .2px;
     color: #ffffff;
+
+    transition: .1s;
 }
-
-
+.CreateButton:active, .CancelButton:active{
+    transform: scale(.9);
+    transition: .2s;
+}
 
 .Info{
     display: flex;
@@ -241,13 +255,14 @@
 
 .buttonsContainer{
     display: flex;
-    gap: 30px;
+    gap: 20px;
     box-sizing: border-box;
 }
 
 .Map img{
     width: 100%;
 }
+
 .Map{
     height: 50vh;
     overflow-y: hidden;
@@ -273,4 +288,90 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Para celulares en vertical */
+@media screen and (max-width: 768px) and (max-aspect-ratio: 3/4) {
+  .Info {
+    flex-direction: column;
+  }
+
+  .CreateInfo1 {
+    width: 100%;
+    height: auto;
+  }
+
+  .CreateInfo1 .AddButton {
+    font-size: 40px;
+    height: 30vh;
+  }
+
+  .CreateInfo2 {
+    width: 100%;
+  }
+
+  .CreateLabels {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .labels input, select {
+    height: 36px;
+  }
+
+  .CancelButton,
+  .CreateButton {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .buttonsContainer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .Map {
+    height: 35vh;
+  }
+}
+
+
+/* Para tablets horizontales */
+@media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) and (max-width: 1024px) {
+  .Info {
+    flex-direction: row;
+  }
+
+  .CreateInfo1 {
+    width: 57%;
+    height: auto; /* Cuadrado */
+  }
+
+  .CreateInfo1 .AddButton {
+    font-size: 60px;
+    height: 100%;
+  }
+
+  .CreateInfo2 {
+    width: 43%;
+  }
+
+  .CreateLabels {
+    flex-direction: column;
+  }
+
+  .CancelButton {
+    width: 30%;
+  }
+  .CreateButton {
+    width: 70%;
+  }
+
+  .buttonsContainer {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .Map {
+    height: 50vh;
+  }
 }

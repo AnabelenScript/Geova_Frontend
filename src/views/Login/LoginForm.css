@@ -17,6 +17,7 @@
 .LoginContainer {
   width: 55vw;
   height: auto;
+  overflow: visible;
   background-color: rgba(255, 255, 255, 0.386);
   backdrop-filter: blur(4px) invert(1);     
   -webkit-backdrop-filter: blur(10px) invert(1); 
@@ -25,10 +26,10 @@
   border-radius: 20px;
   z-index: 3;
   display: flex;
-  justify-content: space-between; 
+  justify-content: center; 
   align-items: stretch;
-  gap: 10px;
-  padding: 20px;
+  gap: 5  px;
+  padding: 5px 20px;
   font-family: Arial, Helvetica, sans-serif;
   flex-direction: row;
   transition: all 0.3s ease-in-out;
@@ -36,8 +37,12 @@
 
 .Machine {
   position: relative;         
-  width: 20vw;
-  height: auto;              
+  min-width: 25vw;
+  max-width: 100%;
+  height: auto;   
+  display: flex;
+  justify-content: center;
+  align-items: center;           
   z-index: 2;
   overflow: visible;   
 }
@@ -45,9 +50,8 @@
 .Machine img {
   position: absolute;             
   top: 0;
-  left: 8%;
   width: auto;
-  height: 79vh;              
+  height: 85vh;              
   z-index: 1;
   pointer-events: none;
 
@@ -56,7 +60,6 @@
 .Machine.register-machine img {
   height: 90vh;
   top: 6vh;
-  left: 0;
 }
 
 .Formtitle{
@@ -75,12 +78,11 @@
 .FormContainer{
   width: 48%;
   height: auto;
-  padding: 30px;
+  padding: 10px 10px 0px 10px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 10px;
 }
-
 
 .inputform{
   display: flex;
@@ -95,20 +97,18 @@
 .Form{
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   justify-content: center;
   align-items: center;
   font-size: 1em;
   width: 100%;
 }
 
-
-
 .inputform input{
   width: 100%;
   box-sizing: border-box;
   margin: 0;
-  padding: 10px;
+  padding: 5px 10px;
   height: 40px;
   border: 1px solid black;
   background-color: transparent;
@@ -141,6 +141,17 @@
   align-items: center;
 }
 
+.buttonform button:hover {
+  transform: scale(.9);
+  transition: .2s;
+}
+.buttonform button:active {
+  transform: scale(.8);
+  transition: .2s;
+  background-color: #FFEAB9;
+  color: #000;
+}
+
 /*Estilos para una pantalla mayor*/
 
 @media (min-width: 1921px) {
@@ -166,20 +177,20 @@
   }
 
   .inputform input::placeholder{
-  font-size: 18px;
-}
+    font-size: 18px;
+  }
 
-.loginbutton{
-  height: 52px;
-  font-size: 22px;
-}
-.inputform{
-  gap: 14px;
+  .loginbutton{
+    height: 52px;
+    font-size: 22px;
+  }
+  .inputform{
+    gap: 14px;
 
-}
-.buttonform{
-  gap: 10px;
-}
+  }
+  .buttonform{
+    gap: 10px;
+  }
 
 }
 
@@ -191,4 +202,71 @@
 .register-mode {
   transition: all 0.3s ease-in-out;
  
+}
+
+@media screen and (max-aspect-ratio: 3/2) {
+  .Login {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 40px 10px;
+    overflow-y: auto;
+  }
+
+  .LoginContainer {
+    flex-direction: column;
+    width: 45vw;
+    height: auto;
+    padding: 20px 15px;
+    align-items: center;
+  }
+
+  /* 🚫 Ocultar imagen en pantallas 2:3 horizontales */
+  .Machine {
+    display: none !important;
+  }
+
+  .FormContainer {
+    width: 100%;
+    padding: 20px 10px;
+    gap: 20px;
+  }
+
+  .Formtitle {
+    font-size: 1em;
+    gap: 10px;
+  }
+
+  .Form {
+    font-size: 1em;
+    gap: 20px;
+  }
+
+  .inputform input {
+    height: 40px;
+    font-size: 1em;
+  }
+
+  .inputform input::placeholder {
+    font-size: 1em;
+  }
+
+  .loginbutton {
+    height: 40px;
+    font-size: 1em;
+  }
+
+  .buttonform {
+    width: 90%;
+    gap: 10px;
+  }
+
+  .logo {
+    width: 35px;
+  }
+}
+
+@media screen and (max-width: 768) {
+  .LoginContainer {
+    width: 100%;
+  }
 }

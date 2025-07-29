@@ -246,9 +246,10 @@ export const projectViewModel = {
       return { success: false };
     }
   },
-async handlePostSensorIMX(sensorData) {
-  try {
-    console.log('📤 Enviando datos al sensor IMX:', sensorData); // 🔍 DEBUG
+
+  async handlePostSensorIMX(sensorData) {
+    try {
+        console.log('📤 Enviando datos al sensor IMX:', sensorData); // 🔍 DEBUG
 
     const response = await imxService.postSensorIMX(sensorData);
 
@@ -260,6 +261,7 @@ async handlePostSensorIMX(sensorData) {
     };
   }
 },
+
 
 
   async handleGetSensorIMXByProjectId(id_project) {

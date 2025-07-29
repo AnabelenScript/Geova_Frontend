@@ -119,7 +119,12 @@ function MainMenu() {
 
       <div className='VideoContainer'>
         <h2 className="Msub1">Video promocional</h2>
-        <div className='VideoPromocional'></div>
+        <div className='VideoPromocional'>
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/fi1215wwfAQ?si=Cmn0YVhCcmQBUEpD" 
+            title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+          </iframe>
+        </div>
       </div>
     </div>
   );
