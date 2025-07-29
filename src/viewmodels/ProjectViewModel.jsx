@@ -1,5 +1,6 @@
 import { projectService } from '../services/ProjectService';
 import { imxService } from '../services/imx.Service';
+import { tflunaService } from '../services/tflunaService';
 import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
@@ -269,6 +270,35 @@ async handlePostSensorIMX(sensorData) {
       success: false,
     };
   }
-}
+},
+
+async handlePostSensorTFLuna(sensorData) {
+  try {
+    console.log('📤 Enviando datos al sensor TfLuna:', sensorData);
+
+    const response = await tflunaService.postSensortfluna(sensorData);
+    await showSuccessAlert('Datos del sensor guardados correctamente.');
+
+    return { success: true, data: response };
+  } catch (error) {
+    await showErrorAlert(error.response?.data?.error || error.message || 'Error al guardar datos del sensor');
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al guardar datos del sensor'
+    };
+  }
+},
+
+async handleGetSensorTFLunaByProjectId(id_project) {
+  try {
+    const response = await tflunaService.getSensorTFLunaByProjectId(id_project);
+    return { success: true, data: response };
+  } catch (error) {
+    await showCautionAlert(error.response?.data?.error || error.message || 'No hay datos guardados del sensor');
+    return {
+      success: false,
+    };
+  }
+},
 
 };
