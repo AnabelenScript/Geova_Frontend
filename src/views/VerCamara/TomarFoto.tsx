@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; 
 import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { cameraService } from '../../services/cameraService';
-import { imxService } from '../../services/imx.Service';
+import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 import './TomarFoto.css';
 
@@ -13,7 +13,12 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Tooltip
+  Tooltip,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 function TomarFoto() {
@@ -24,28 +29,46 @@ function TomarFoto() {
     inclinacion: null,
     distancia: null,
     fuerzaSenal: null,
-    apertura: null
+    temperatura: null,
+    apertura: null,
+    resolution: null,
+    laser_detectado: null,
+    event: null,
+    probabilidad: null,
+    timestamp: null
   });
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState(null);
   const [isFromAPI, setIsFromAPI] = useState(false);
+  const [lastTfData, setLastTfData] = useState(null);
+  const [tfDataHistory, setTfDataHistory] = useState({
+    distancia_cm_history: [],
+    fuerzaSenal_history: [],
+    temperatura_history: []
+  });
+
   const imgRef = useRef(null);
   const { data: websocketData } = graphViewModel.useGraphData();
-  const { id } = useParams(); // ID del proyecto desde la URL
+  const { id } = useParams();
 
-  // Cargar datos de la API al iniciar
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
-        const response = await imxService.getSensorIMXByProjectId(id);
-        if (response && response.length > 0) {
-          const last = response[response.length - 1]; // Toma el último dato registrado
+        const response = await projectViewModel.handleGetSensorIMXByProjectId(id);
+        if (response.success && response.data.length > 0) {
+          const last = response.data[response.data.length - 1];
           setData(prevData => ({
             ...prevData,
             calidad: last.calidad_frame,
             nitidez: last.nitidez_score,
+            distancia_cm: last.distancia_cm,
             luminosidad: last.luminosidad_promedio,
+            resolution: last.resolution,
+            laser_detectado: last.laser_detectado,
+            event: last.event,
+            probabilidad: last.probabilidad_confiabilidad,
+            timestamp: last.timestamp,
             fuerzaSenal: last.event ? "Fuerza alta" : "Fuerza baja",
           }));
           setIsFromAPI(true);
@@ -54,38 +77,62 @@ function TomarFoto() {
         console.error('Error al cargar datos desde API:', error);
       }
     };
-
     fetchSensorData();
   }, [id]);
 
-  // Datos en tiempo real si no hay datos en la API
   useEffect(() => {
-    if (!isFromAPI && websocketData) {
-      const { sensor, data: sensorData } = websocketData;
-      if (sensor === 'IMX477') {
-        setData(prevData => ({
-          ...prevData,
-          luminosidad: sensorData.luminosidad_promedio,
-          calidad: sensorData.calidad_frame,
-          nitidez: sensorData.nitidez_score
-        }));
-      }
-      if (sensor === 'TF-Luna') {
-        setData(prevData => ({
-          ...prevData,
-          distancia: sensorData.distancia_m * 100,
-        }));
-      }
-      if (sensor === 'MPU6050') {
-        setData(prevData => ({
-          ...prevData,
-          inclinacion: sensorData.roll + sensorData.pitch,
-          apertura: sensorData.apertura,
-          fuerzaSenal: sensorData.event ? "Fuerza alta" : "Fuerza baja"
-        }));
-      }
+    if (!isFromAPI && websocketData?.sensor === 'IMX477') {
+      const sensorData = websocketData.data;
+      setData(prevData => ({
+        ...prevData,
+        luminosidad: sensorData.luminosidad_promedio,
+        calidad: sensorData.calidad_frame,
+        nitidez: sensorData.nitidez_score,
+        resolution: sensorData.resolution,
+        laser_detectado: sensorData.laser_detectado,
+        probabilidad: sensorData.probabilidad_confiabilidad,
+        event: sensorData.event,
+        timestamp: sensorData.timestamp
+      }));
     }
   }, [websocketData, isFromAPI]);
+
+  useEffect(() => {
+    if (websocketData?.sensor === 'TF-Luna') {
+      setLastTfData(websocketData.data);
+    }
+  }, [websocketData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (lastTfData) {
+        const timestamp = new Date().toLocaleTimeString();
+
+        const distancia = lastTfData.distancia_m * 100;
+        const fuerza = lastTfData.fuerza_senal;
+        const temperatura = lastTfData.temperatura ?? 0;
+
+        setData(prevData => ({
+  ...prevData,
+  distancia,
+  fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
+  temperatura,
+  distancia_cm: lastTfData.distancia_cm,
+  event: lastTfData.event,
+  timestamp: lastTfData.timestamp
+}));
+
+
+        setTfDataHistory(prev => ({
+          distancia_cm_history: [...prev.distancia_cm_history.slice(-19), { name: timestamp, valor: distancia }],
+          fuerzaSenal_history: [...prev.fuerzaSenal_history.slice(-19), { name: timestamp, valor: fuerza }],
+          temperatura_history: [...prev.temperatura_history.slice(-19), { name: timestamp, valor: temperatura }]
+        }));
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [lastTfData]);
 
   const startStream = async () => {
     try {
@@ -118,46 +165,62 @@ function TomarFoto() {
     }
   };
 
+  const evaluarFPS = (fps) => {
+    if (fps >= 24) return ' (Buena)';
+    if (fps >= 15) return ' (Media)';
+    return ' (Mala)';
+  };
+
+  const evaluarFuerzaSenal = (valor) => {
+  if (valor >= 10000) return 'Muy buena';
+  if (valor >= 4000) return 'Buena';
+  if (valor >= 2000) return 'Aceptable';
+  if (valor >= 1000) return 'Baja';
+  return 'Muy baja';
+};
+
+
+  const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
+  const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
+
   const radarData = [
     {
       atributo: 'Calidad',
-      valor: data.calidad ? Number(data.calidad.toFixed(2)) : 0,
+      valor: data.calidad ? Number((data.calidad * 100).toFixed(2)) : 0,
+      evaluacion: data.calidad ? evaluarFPS(data.calidad * 30) : '',
     },
     {
       atributo: 'Nitidez',
-      valor: data.nitidez ? Number(data.nitidez.toFixed(2)) : 0,
+      valor: data.nitidez ? Number(normalizarNitidez(data.nitidez).toFixed(2)) : 0,
     },
     {
       atributo: 'Luminosidad',
-      valor: data.luminosidad ? Number(data.luminosidad.toFixed(2)) : 0,
+      valor: data.luminosidad ? Number(normalizarLuminosidad(data.luminosidad).toFixed(2)) : 0,
     },
     {
       atributo: 'Confiabilidad',
-      valor: data.calidad && data.nitidez
-        ? Number(((data.calidad + data.nitidez) / 2).toFixed(2))
-        : 0,
+      valor: data.probabilidad ? Number((data.probabilidad).toFixed(2)) : 0,
     },
   ];
 
   const handleGuardarMedidas = async () => {
-    const timestamp = new Date().toISOString();
     const payload = {
       id_project: parseInt(id),
-      resolution: "640x480",
-      luminosidad_promedio: data.luminosidad || 0,
-      nitidez_score: data.nitidez || 0,
-      laser_detectado: false,
-      calidad_frame: data.calidad || 0,
-      probabilidad_confiabilidad: data.calidad && data.nitidez
-        ? (data.calidad + data.nitidez) / 2
-        : 0,
-      event: data.fuerzaSenal === "Fuerza alta",
-      timestamp
+      resolution: data.resolution,
+      luminosidad_promedio: data.luminosidad ?? 0,
+      nitidez_score: data.nitidez ?? 0,
+      laser_detectado: data.laser_detectado ?? false,
+      calidad_frame: data.calidad ?? 0,
+      probabilidad_confiabilidad: data.probabilidad ?? 0,
+      event: true,
+      timestamp: data.timestamp?.toString() || new Date().toISOString().replace('T', ' ').substring(0, 23)
     };
 
+    console.log("🧾 Payload a enviar al API:", payload);
+
     try {
-      await imxService.postSensorIMX(payload);
-      await showSuccessAlert('Datos del sensor guardados correctamente.');
+      await projectViewModel.handlePostSensorIMX(payload);
+      await showSuccessAlert("Datos guardados exitosamente.");
     } catch (error) {
       await showErrorAlert('Error al guardar los datos del sensor.');
     }
@@ -168,9 +231,9 @@ function TomarFoto() {
       <div className='ProjectFotoPContainer'>
         <div className='ProjectData'>
           <label>Calidad</label>
-          <span>{data.calidad ? `${data.calidad.toFixed(2)} FPS` : "Cargando..."}</span>
+          <span>{data.calidad ? `${data.calidad.toFixed(2)}` : "Cargando..."}</span>
           <label>Nitidez</label>
-          <span>{data.nitidez ? `${data.nitidez.toFixed(2)} %` : "Cargando..."}</span>
+          <span>{data.nitidez ? `${data.nitidez.toFixed(2)}` : "Cargando..."}</span>
           <label>Luminosidad</label>
           <span>{data.luminosidad ? `${data.luminosidad.toFixed(2)} lux` : "Cargando..."}</span>
         </div>
@@ -247,14 +310,8 @@ function TomarFoto() {
                 cursor={{ stroke: "#E6AF2E", strokeWidth: 2 }}
                 formatter={(value, name, props) => {
                   const atributo = props?.payload?.atributo;
-                  let unidad = '';
-                  switch (atributo) {
-                    case 'Confiabilidad': unidad = '%'; break;
-                    case 'Luminosidad': unidad = 'lux'; break;
-                    case 'Calidad': unidad = 'FPS'; break;
-                    default: unidad = '';
-                  }
-                  return [`${value} ${unidad}`, atributo];
+                  const evaluacion = props?.payload?.evaluacion || '';
+                  return [`${value} %${evaluacion}`, atributo];
                 }}
               />
             </RadarChart>
@@ -264,6 +321,49 @@ function TomarFoto() {
           <button className="guardar-medidas-btn" onClick={handleGuardarMedidas}>
             Guardar medidas
           </button>
+        </div>
+      </div>
+
+      <div className="TFGraphsContainer">
+        <h2>Gráficas del sensor TF-Luna</h2>
+
+        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
+          <h4>Distancia (cm)</h4>
+          <ResponsiveContainer>
+            <LineChart data={tfDataHistory.distancia_cm_history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="cm" />
+              <Tooltip formatter={(value) => [`${value.toFixed(2)} cm`, 'Distancia']} />
+              <Line type="monotone" dataKey="valor" stroke="#8884d8" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
+          <h4>Fuerza de Señal</h4>
+          <ResponsiveContainer>
+            <LineChart data={tfDataHistory.fuerzaSenal_history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="" />
+              <Tooltip formatter={(value) => [`${value.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']}/>
+              <Line type="monotone" dataKey="valor" stroke="#82ca9d" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={{ width: '100%', height: 350, marginBottom: 50}}>
+          <h4>Temperatura (°C)</h4>
+          <ResponsiveContainer>
+            <LineChart data={tfDataHistory.temperatura_history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="°C" />
+              <Tooltip formatter={(value) => [`${value.toFixed(2)} °C`, 'Temperatura']} />
+              <Line type="monotone" dataKey="valor" stroke="#ff7300" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
