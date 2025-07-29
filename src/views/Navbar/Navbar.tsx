@@ -1,6 +1,5 @@
-
 import './Navbar.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logoFull from '../../assets/LogoCompleto.svg';
 import logoMini from '../../assets/LogoMini.svg';
 
@@ -10,9 +9,16 @@ interface NavbarProps {
 }
 
 function Navbar({ collapsed, setCollapsed }: NavbarProps) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+  };
+
   return (
     <nav className={`navbar ${collapsed ? 'collapsed' : ''}`}>
-       <div className="LogoContainer">
+      <div className="LogoContainer">
         <img
           src={logoFull}
           alt="Logo"
@@ -33,7 +39,9 @@ function Navbar({ collapsed, setCollapsed }: NavbarProps) {
           <Link to="profile" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
         </ul>
         <ul className="Mainlinks">
-          <Link to="/" className="linkform"><li><i className="bx bxs-log-out"></i> Logout</li></Link>
+          <li className="linkform" style={{ cursor: 'pointer' }} onClick={handleLogout}>
+            <i className="bx bxs-log-out"></i> Logout
+          </li>
         </ul>
       </div>
 

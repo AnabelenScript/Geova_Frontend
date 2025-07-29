@@ -1,268 +1,194 @@
 import React, { useEffect, useState } from 'react';
-import { graphViewModel } from '../../viewmodels/graphViewModel';
-import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
+import { useParams } from 'react-router-dom';
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 
-type ChartDatum = {
-  name: string;
-  value: number;
-};
+function GraphViewer() {
+  const { id } = useParams();
+  const [dataIMX, setDataIMX] = useState(null);
+  const [dataTF, setDataTF] = useState(null);
+  const [dataMPU, setDataMPU] = useState(null);
 
-type GraphData = {
-  title: string;
-  description?: string;
-  type: 'bar' | 'line';
-  data?: ChartDatum[] | any;
-};
+  const evaluarFPS = (fps) => {
+    if (fps >= 24) return ' (Buena)';
+    if (fps >= 15) return ' (Media)';
+    return ' (Mala)';
+  };
 
-const colors = ['#D68C0D'];
+  const evaluarFuerzaSenal = (valor) => {
+    if (valor >= 10000) return 'Muy buena';
+    if (valor >= 4000) return 'Buena';
+    if (valor >= 2000) return 'Aceptable';
+    if (valor >= 1000) return 'Baja';
+    return 'Muy baja';
+  };
 
-const getUnitByKey = (key: string): string => {
-  if (key.includes('distancia')) return 'cm';
-  if (key.includes('calidad')) return 'FPS';
-  if (key.includes('luminosidad')) return 'lux';
-  if (key.includes('nitidez')) return '%';
-  if (key.includes('apertura')) return '°'; 
-  if (key.includes('inclinacion')) return '°'; 
-  return 'valor';
-};
+  const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
+  const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
-const convertIMX477Data = (data: any): any[] => [
-  {
-    name: 'Sensor IMX477',
-    nitidez_score: data.nitidez_score,
-    luminosidad_promedio: data.luminosidad_promedio,
-    calidad_frame: data.calidad_frame * 100,
-  }
-];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const imx = await projectViewModel.handleGetSensorIMXByProjectId(id);
+        const tf = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
+        const mpu = await projectViewModel.handleGetSensorMPUByProjectId(id);
 
-const GraphCard = ({ graph }: { graph: GraphData }) => {
-  const { title, description, data, type } = graph;
+        if (imx.success && imx.data.length > 0) {
+          setDataIMX(imx.data[imx.data.length - 1]);
+        }
+        if (tf.success && tf.data.length > 0) {
+          setDataTF(tf.data[tf.data.length - 1]);
+        }
+        if (mpu.success && mpu.data.length > 0) {
+          setDataMPU(mpu.data[mpu.data.length - 1]);
+        }
+      } catch (error) {
+        console.error('Error obteniendo datos de sensores:', error);
+      }
+    }
 
-  const isBarWithMultipleKeys =
-    type === 'bar' &&
-    Array.isArray(data) &&
-    data.length > 0 &&
-    typeof data[0] === 'object' &&
-    Object.keys(data[0]).length > 2;
+    fetchData();
+  }, [id]);
 
-  const barKeys = isBarWithMultipleKeys
-    ? Object.keys(data[0]).filter(k => k !== 'name')
-    : [];
+  const radarData = dataIMX ? [
+    {
+      atributo: 'Calidad',
+      valor: Number((dataIMX.calidad_frame * 100).toFixed(2)),
+      evaluacion: evaluarFPS(dataIMX.calidad_frame * 30),
+    },
+    {
+      atributo: 'Nitidez',
+      valor: Number(normalizarNitidez(dataIMX.nitidez_score).toFixed(2)),
+    },
+    {
+      atributo: 'Luminosidad',
+      valor: Number(normalizarLuminosidad(dataIMX.luminosidad_promedio).toFixed(2)),
+    },
+    {
+      atributo: 'Confiabilidad',
+      valor: Number((dataIMX.probabilidad_confiabilidad).toFixed(2)),
+    },
+  ] : [];
+
+  const distanceData = dataTF ? [{
+    name: 'Último',
+    valor: dataTF.distancia_cm,
+  }] : [];
+
+  const fuerzaData = dataTF ? [{
+    name: 'Último',
+    valor: dataTF.fuerza_senal,
+  }] : [];
+
+  const tempData = dataTF ? [{
+    name: 'Último',
+    valor: dataTF.temperatura,
+  }] : [];
+
+  const inclinacion = dataMPU ? (dataMPU.roll + dataMPU.pitch) : 0;
+  const inclinacionData = [{
+    name: 'Último',
+    valor: inclinacion,
+  }];
+
+  const aperturaData = dataMPU ? [{
+    name: 'Último',
+    valor: dataMPU.apertura,
+  }] : [];
 
   return (
-    <div className="GraphCard" style={{ marginBottom: 30 }}>
-      <h3>{title}</h3>
-      {description && <p>{description}</p>}
-      <div style={{ width: '100%', height: 250, marginBottom: 50 }}>
-        <ResponsiveContainer>
-          {type === 'bar' ? (
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip
-                formatter={(value: number, name: string) => [
-                  `${value.toFixed(2)} ${getUnitByKey(name.toLowerCase())}`,
-                  name.replace(/_/g, ' ')
-                ]}
+    <div className="GraphContainer">
+      {radarData.length > 0 && (
+        <>
+          <h3>Calidad, nitidez y confiabilidad</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <RadarChart data={radarData}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="atributo" />
+              <PolarRadiusAxis angle={30} domain={[0, 100]} />
+              <Radar
+                name="Valores"
+                dataKey="valor"
+                stroke="black"
+                fill="#E6AF2E"
+                fillOpacity={0.6}
               />
-              <Legend />
-              {isBarWithMultipleKeys ? (
-                barKeys.map((key, index) => (
-                  <Bar
-                    key={key}
-                    dataKey={key}
-                    fill={colors[0]} 
-                    name={key.replace(/_/g, ' ')}
-                  />
-                ))
-              ) : (
-                <Bar dataKey="value" fill={colors[0]} /> 
-              )}
-            </BarChart>
-          ) : (
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis domain={[0, 'auto']} />
-              <Tooltip
-                formatter={(value: number) => {
-                  const unit = getUnitByKey(title.toLowerCase());
-                  return [`${value.toFixed(2)} ${unit}`, title];
-                }}
-              />
-              <Legend
-                formatter={() => {
-                  const unit = getUnitByKey(title.toLowerCase());
-                  return `${title} (${unit})`;
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke={colors[0]} 
-                strokeWidth={2}
-                dot={false}
-                name={`${title}`}
-              />
-            </LineChart>
-          )}
+              <Tooltip formatter={(value, name, props) => {
+                const atributo = props?.payload?.atributo;
+                const evaluacion = props?.payload?.evaluacion || '';
+                return [`${value} %${evaluacion}`, atributo];
+              }} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </>
+      )}
+
+      <div style={{ marginTop: '40px' }}>
+        <h3>Distancia (cm)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={distanceData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis unit="cm" />
+            <Tooltip formatter={(value) => [`${value?.toFixed(2)} cm`, 'Distancia']} />
+            <Line type="monotone" dataKey="valor" stroke="#8884d8" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ marginTop: '40px' }}>
+        <h3>Fuerza de Señal</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={fuerzaData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip formatter={(value) => [`${value?.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
+            <Line type="monotone" dataKey="valor" stroke="#82ca9d" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ marginTop: '40px' }}>
+        <h3>Temperatura (°C)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={tempData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis unit="°C" />
+            <Tooltip formatter={(value) => [`${value?.toFixed(2)} °C`, 'Temperatura']} />
+            <Line type="monotone" dataKey="valor" stroke="#ff7300" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ marginTop: '40px' }}>
+        <h3>Inclinación (°)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={inclinacionData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis unit="°" />
+            <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Inclinación']} />
+            <Line type="monotone" dataKey="valor" stroke="#2e86de" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ marginTop: '40px' }}>
+        <h3>Apertura (°)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={aperturaData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis unit="°" />
+            <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Apertura']} />
+            <Line type="monotone" dataKey="valor" stroke="#1abc9c" />
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </div>
   );
-};
-
-const GraphViewer: React.FC = () => {
-  const { data } = graphViewModel.useGraphData();
-  const [sensorData, setSensorData] = useState<{ [key: string]: any }>({});
-  const [history, setHistory] = useState<{
-    luminosidad: ChartDatum[];
-    calidad: ChartDatum[];
-    nitidez: ChartDatum[];
-    distancia: ChartDatum[];
-    inclinacion: ChartDatum[];
-    apertura: ChartDatum[];
-  }>({
-    luminosidad: [],
-    calidad: [],
-    nitidez: [],
-    distancia: [],
-    inclinacion: [],
-    apertura: [],
-  });
-
-  useEffect(() => {
-    if (data?.sensor && data.data) {
-      setSensorData(prev => ({ ...prev, [data.sensor]: data.data }));
-
-      const now = new Date().toLocaleTimeString();
-
-      if (data.sensor === 'IMX477') {
-        setHistory(prev => ({
-          ...prev,
-          luminosidad: [...prev.luminosidad, {
-            name: now,
-            value: data.data.luminosidad_promedio
-          }].slice(-20),
-
-          calidad: [...prev.calidad, {
-            name: now,
-            value: data.data.calidad_frame * 100
-          }].slice(-20),
-
-          nitidez: [...prev.nitidez, {
-            name: now,
-            value: data.data.nitidez_score
-          }].slice(-20),
-        }));
-      }
-
-      if (data.sensor === 'TF-Luna') {
-        setHistory(prev => ({
-          ...prev,
-          distancia: [...prev.distancia, {
-            name: now,
-            value: data.data.distancia_m * 100
-          }].slice(-20),
-        }));
-      }
-
-      if (data.sensor === 'MPU6050') {
-        setHistory(prev => ({
-          ...prev,
-          inclinacion: [...prev.inclinacion, {
-            name: now,
-            value: data.data.roll + data.data.pitch 
-          }].slice(-20),
-          apertura: [...prev.apertura, {
-            name: now,
-            value: data.data.apertura
-          }].slice(-20),
-        }));
-      }
-    }
-  }, [data]);
-
-  const graphs: GraphData[] = [];
-
-  if (sensorData["IMX477"]) {
-    graphs.push({
-      title: 'Sensor IMX477 - Nitidez, Luminosidad y Calidad',
-      description: 'Datos en tiempo real del sensor de cámara',
-      type: 'bar',
-      data: convertIMX477Data(sensorData["IMX477"])
-    });
-  }
-
-  if (history.luminosidad.length > 0) {
-    graphs.push({
-      title: 'Luminosidad',
-      description: 'Evolución en tiempo real de la luminosidad',
-      type: 'line',
-      data: history.luminosidad
-    });
-  }
-
-  if (history.calidad.length > 0) {
-    graphs.push({
-      title: 'Calidad',
-      description: 'Evolución en tiempo real de la calidad de la imagen',
-      type: 'line',
-      data: history.calidad
-    });
-  }
-
-  if (history.nitidez.length > 0) {
-    graphs.push({
-      title: 'Nitidez',
-      description: 'Evolución en tiempo real de la nitidez',
-      type: 'line',
-      data: history.nitidez
-    });
-  }
-
-  if (history.distancia.length > 0) {
-    graphs.push({
-      title: 'TF-Luna - Distancia',
-      description: 'Evolución en tiempo real de la distancia',
-      type: 'line',
-      data: history.distancia
-    });
-  }
-
-  if (history.inclinacion.length > 0) {
-    graphs.push({
-      title: 'Inclinación (Roll + Pitch)',
-      description: 'Nivelación del sensor con respecto al nivel del suelo (medido en grados)',
-      type: 'line',
-      data: history.inclinacion
-    });
-  }
-
-  if (history.apertura.length > 0) {
-    graphs.push({
-      title: 'Apertura',
-      description: 'Rango de visión del sensor en grados',
-      type: 'line',
-      data: history.apertura
-    });
-  }
-
-  return (
-    <div>
-      {graphs.length > 0 ? (
-        graphs.map((graph, index) => (
-          <GraphCard key={index} graph={graph} />
-        ))
-      ) : (
-        <p>Esperando datos de sensores...</p>
-      )}
-    </div>
-  );
-};
+}
 
 export default GraphViewer;

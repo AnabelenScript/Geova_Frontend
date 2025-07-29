@@ -46,7 +46,7 @@ function Dashboard() {
     if (searchTerm && result.length === 1) {
       const foundId = result[0].Id;
       setHighlightedId(foundId);
-      setTimeout(() => setHighlightedId(null), 1500); // quitar resaltado tras 1.5s
+      setTimeout(() => setHighlightedId(null), 1500);
     }
   }, [searchTerm, sortOption, projects]);
 
