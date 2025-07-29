@@ -41,6 +41,24 @@ export const showErrorAlert = async (text) => {
   });
 };
 
+export const showCautionAlert = async (text) => {
+  return Swal.fire({
+    text,
+    background: '#fff',
+    imageUrl: alerticon,
+    showConfirmButton: false,
+    timer: 2000,
+    imageWidth: 200,
+    imageHeight: 200,
+    color: '#333',
+    customClass: {
+      popup: 'succesful-popup',
+      title: 'succesful-title'
+    }
+  });
+};
+
+
 export const showConfirmAlert = async (title, text) => {
   return Swal.fire({
     title,

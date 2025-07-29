@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
 import './alerts.css'
-import { showSuccessAlert, showErrorAlert, showConfirmAlert} from '../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showConfirmAlert, showCautionAlert} from '../utils/alerts';
 
 let selectedProjectId = null;
 let allProjects = [];
@@ -241,31 +241,3 @@ export const projectViewModel = {
       return { success: false };
     }
   },
-
-  async handlePostSensorIMX(sensorData) {
-    try {
-      const response = await imxService.enviarDatos(sensorData);
-      await showSuccessAlert('Datos del sensor guardados correctamente.');
-      return { success: true, data: response };
-    } catch (error) {
-      await showErrorAlert(error.response?.data?.error || error.message || 'Error al guardar datos del sensor');
-      return {
-        success: false,
-        error: error.response?.data?.error || error.message || 'Error al guardar datos del sensor'
-      };
-    }
-  },
-
-  async handleGetSensorIMXByProjectId(id_project) {
-    try {
-      const response = await imxService.getSensorIMXByProjectId(id_project);
-      return { success: true, data: response };
-    } catch (error) {
-      await showErrorAlert(error.response?.data?.error || error.message || 'Error al obtener datos del sensor');
-      return {
-        success: false,
-        error: error.response?.data?.error || error.message || 'Error al obtener datos del sensor'
-      };
-    }
-  }
-};
