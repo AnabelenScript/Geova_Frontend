@@ -24,28 +24,29 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 40px;
+    padding: 15px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-   clip-path: polygon( 35px 0%, calc(100% - 35px) 0%,100% 35px,100% 100%,0% 100%,0% 35px);
+    clip-path: polygon( 25px 0%, calc(100% - 25px) 0%,100% 25px,100% 100%,0% 100%,0% 25px);
 }
 
 .DashTitle h1{
-   font-size :1.7em; ;
-    
+    font-size :4vh;
+    margin: 0%;
+    font-weight: 600;
 }
 
 .DashTitle i{
-    font-size: 2vw;
+    font-size: 5vh;
     color: #D68C0D;
 }
 
 .DashEndContainer {
-    margin-top: 20px;
+    margin-top: 12px;
     background-color: #FFEAB9;
     width: 100%;
     height: 5vh;
-    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 35px) 100%, 35px 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 25px) 100%, 25px 100%);
 }
 
 .DashSubtitle{
@@ -84,9 +85,8 @@
 
 .Dfilter:focus, select:hover{
     outline: none;
- border-color:#FFEAB9;
- background-color: #fff;
- box-shadow: 0 8px 10px #f8d393f3;
+    border-color:#D68C0D;
+    background-color: #fff;
 }
 
 .DashSub2{
@@ -125,9 +125,8 @@
 
 .input:focus, input:hover {
  outline: none;
- border-color:#FFEAB9;
+ border-color:#D68C0D;
  background-color: #fff;
- box-shadow: 0 8px 10px #f8d393f3;
 }
 
 .icon {
@@ -138,17 +137,17 @@
  height: 1.2rem;
 }
 
-
 .ProjectCard{
     color: #0d0c22;
     width: 100%;
     background-color: white;
     font-family: Arial, Helvetica, sans-serif;
-    height: 20vh;
+    height: auto;
     display: flex;
     box-sizing: border-box;
     border-radius: 20px;
     border: 2px solid #FAF6F1;
+    overflow: hidden;
 }
 
 .ProjectCard:hover{
@@ -185,6 +184,12 @@
     box-sizing: border-box;
 }
 
+.projectinfo p {
+    font-size: 14px;
+    margin: 6px;
+    color: #686464;
+}
+
 .graphview{
     background-color: #FFEAB9;
     width: 50%;
@@ -194,4 +199,55 @@
     font-family: Arial, Helvetica, sans-serif;
     padding: 0 40px;
     font-size: 1em;
+}
+
+
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  .graphview {
+    display: none;
+  }
+
+  .projectinfo {
+    width: 100%;
+    gap: 20px;
+    display: flex;
+    align-items: center; /* opcional: para apilar contenido si es necesario */
+  }
+
+  .Projectphoto {
+    width: 100%; /* para ocupar todo el ancho si se apila */
+  }
+  .projectinfo  div {
+    display: flex;
+    width: 100%;
+    margin-left: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center; /* opcional: para apilar contenido si es necesario */
+  }
+}
+
+
+@media screen and (min-aspect-ratio: 3/4) and (max-width: 768px) {
+  .graphview {
+    display: none;
+  }
+
+  .projectinfo {
+    width: 100%;
+    gap: 20px;
+    flex-direction: column;
+    align-items: center; /* opcional: para apilar contenido si es necesario */
+  }
+
+  .Projectphoto {
+    width: 100%; /* para ocupar todo el ancho si se apila */
+  }
+  .projectinfo  div {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* opcional: para apilar contenido si es necesario */
+  }
 }

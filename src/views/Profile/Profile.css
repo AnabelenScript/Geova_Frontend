@@ -216,9 +216,8 @@
 
 .profdata input:focus, input:hover {
  outline: none;
- border-color:#FFEAB9;
+ border-color:#D68C0D;
  background-color: #fff;
- box-shadow: 0 8px 10px #f8d393f3;
 }
 
 .profdataview{

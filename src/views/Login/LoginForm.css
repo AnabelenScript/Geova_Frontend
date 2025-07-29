@@ -192,3 +192,64 @@
   transition: all 0.3s ease-in-out;
  
 }
+
+@media screen and (max-aspect-ratio: 3/2) {
+  .Login {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 40px 10px;
+    overflow-y: auto;
+  }
+
+  .LoginContainer {
+    flex-direction: column;
+    width: 45vw;
+    height: auto;
+    padding: 20px 15px;
+    align-items: center;
+  }
+
+  /* 🚫 Ocultar imagen en pantallas 2:3 horizontales */
+  .Machine {
+    display: none !important;
+  }
+
+  .FormContainer {
+    width: 100%;
+    padding: 20px 10px;
+    gap: 20px;
+  }
+
+  .Formtitle {
+    font-size: 1em;
+    gap: 10px;
+  }
+
+  .Form {
+    font-size: 1em;
+    gap: 20px;
+  }
+
+  .inputform input {
+    height: 40px;
+    font-size: 1em;
+  }
+
+  .inputform input::placeholder {
+    font-size: 1em;
+  }
+
+  .loginbutton {
+    height: 40px;
+    font-size: 1em;
+  }
+
+  .buttonform {
+    width: 90%;
+    gap: 10px;
+  }
+
+  .logo {
+    width: 35px;
+  }
+}
