@@ -32,16 +32,18 @@ function TomarFoto() {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState(null);
-  const [isFromAPI, setIsFromAPI] = useState(false);
-  const [lastTfData, setLastTfData] = useState(null);
-  const [useRealtime, setUseRealtime] = useState(true);
-  const [tfDataHistory, setTfDataHistory] = useState({
-    distancia_cm_history: [],
-    fuerzaSenal_history: [],
-    temperatura_history: [],
-    inclinacion_history: [],
-    apertura_history: []
-  });
+  const [lastTfData] = useState(null);
+  const tfDataHistoryRef = useRef({
+  distancia_cm_history: [...[]],
+  fuerzaSenal_history: [...[]],
+  temperatura_history: [...[]],
+  inclinacion_history: [...[]],
+  apertura_history: [...[]]
+});
+
+
+const [tfDataHistory, setTfDataHistory] = useState(tfDataHistoryRef.current);
+
 
   const imgRef = useRef(null);
   const { data: websocketData } = graphViewModel.useGraphData();
@@ -65,64 +67,10 @@ function TomarFoto() {
   const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
   // Carga de datos iniciales
-  useEffect(() => {
-    const fetchSensorData = async () => {
-      try {
-        const imxResponse = await projectViewModel.handleGetSensorIMXByProjectId(id);
-        if (imxResponse.success && imxResponse.data.length > 0) {
-          const last = imxResponse.data[imxResponse.data.length - 1];
-          setData(prevData => ({
-            ...prevData,
-            calidad: last.calidad_frame,
-            nitidez: last.nitidez_score,
-            distancia: last.distancia_cm,
-            luminosidad: last.luminosidad_promedio,
-            resolution: last.resolution,
-            laser_detectado: last.laser_detectado,
-            event: last.event,
-            probabilidad: last.probabilidad_confiabilidad,
-            timestamp: last.timestamp,
-            fuerzaSenal: last.fuerza_senal
-              ? `${last.fuerza_senal} (${evaluarFuerzaSenal(last.fuerza_senal)})`
-              : "No disponible",
-            temperatura: last.temperatura ?? 0,
-            apertura: last.apertura,
-          }));
-          setIsFromAPI(true);
-        }
-
-        const tfResponse = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
-        if (tfResponse.success && tfResponse.data.length > 0) {
-          const history = tfResponse.data.map((entry) => {
-            const time = new Date(entry.timestamp).toLocaleTimeString();
-            return {
-              distancia: { name: time, valor: entry.distancia_cm },
-              fuerza: { name: time, valor: entry.fuerza_senal },
-              temp: { name: time, valor: entry.temperatura }
-            };
-          });
-
-          setTfDataHistory({
-            distancia_cm_history: history.map(h => h.distancia),
-            fuerzaSenal_history: history.map(h => h.fuerza),
-            temperatura_history: history.map(h => h.temp),
-            inclinacion_history: [],
-            apertura_history: []
-          });
-
-          setUseRealtime(false);
-        }
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-      }
-    };
-
-    fetchSensorData();
-  }, [id]);
 
   // WebSocket IMX477
   useEffect(() => {
-    if (!isFromAPI && websocketData?.sensor === 'IMX477') {
+    if (websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
       setData(prevData => ({
         ...prevData,
@@ -136,21 +84,69 @@ function TomarFoto() {
         timestamp: sensorData.timestamp
       }));
     }
-  }, [websocketData, isFromAPI]);
+  }, [websocketData]);
 
   // WebSocket TF-Luna
   useEffect(() => {
-    if (websocketData?.sensor === 'TF-Luna') {
-      setLastTfData(websocketData.data);
-    }
-  }, [websocketData]);
+  if (!websocketData) return;
 
-  // WebSocket MPU6050 (🔧 Corrección aquí)
-  useEffect(() => {
-  if (websocketData?.sensor === 'MPU6050') {
+  const now = new Date().toLocaleTimeString();
+
+  if (websocketData.sensor === 'TF-Luna') {
+    const tf = websocketData.data;
+    const distancia = typeof tf.distancia_m === 'number' ? tf.distancia_m * 100 : 0;
+    const fuerza = typeof tf.fuerza_senal === 'number' ? tf.fuerza_senal : 0;
+    const temperatura = typeof tf.temperatura === 'number' ? tf.temperatura : 0;
+
+    tfDataHistoryRef.current.distancia_cm_history = [
+  ...tfDataHistoryRef.current.distancia_cm_history,
+  { name: now, valor: distancia }
+].slice(-20);
+
+tfDataHistoryRef.current.fuerzaSenal_history = [
+  ...tfDataHistoryRef.current.fuerzaSenal_history,
+  { name: now, valor: fuerza }
+].slice(-20);
+
+tfDataHistoryRef.current.temperatura_history = [
+  ...tfDataHistoryRef.current.temperatura_history,
+  { name: now, valor: temperatura }
+].slice(-20);
+
+
+    tfDataHistoryRef.current.distancia_cm_history = tfDataHistoryRef.current.distancia_cm_history.slice(-20);
+    tfDataHistoryRef.current.fuerzaSenal_history = tfDataHistoryRef.current.fuerzaSenal_history.slice(-20);
+    tfDataHistoryRef.current.temperatura_history = tfDataHistoryRef.current.temperatura_history.slice(-20);
+
+    setData(prev => ({
+      ...prev,
+      distancia,
+      fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
+      temperatura,
+      timestamp: tf.timestamp
+    }));
+
+    setTfDataHistory({ ...tfDataHistoryRef.current }); 
+  }
+
+  if (websocketData.sensor === 'MPU6050') {
     const { roll, pitch, apertura } = websocketData.data;
     if (typeof roll === 'number' && typeof pitch === 'number' && typeof apertura === 'number') {
       const inclinacion = roll + pitch;
+
+      tfDataHistoryRef.current.inclinacion_history = [
+  ...tfDataHistoryRef.current.inclinacion_history,
+  { name: now, valor: inclinacion }
+].slice(-20);
+
+tfDataHistoryRef.current.apertura_history = [
+  ...tfDataHistoryRef.current.apertura_history,
+  { name: now, valor: apertura }
+].slice(-20);
+
+
+      tfDataHistoryRef.current.inclinacion_history = tfDataHistoryRef.current.inclinacion_history.slice(-20);
+      tfDataHistoryRef.current.apertura_history = tfDataHistoryRef.current.apertura_history.slice(-20);
 
       setData(prev => ({
         ...prev,
@@ -158,45 +154,41 @@ function TomarFoto() {
         apertura,
       }));
 
-      const now = new Date().toLocaleTimeString();
-      setTfDataHistory(prev => ({
-        ...prev,
-        inclinacion_history: [...prev.inclinacion_history.slice(-19), { name: now, valor: inclinacion }],
-        apertura_history: [...prev.apertura_history.slice(-19), { name: now, valor: apertura }],
-      }));
+      setTfDataHistory({ ...tfDataHistoryRef.current });
     }
   }
 }, [websocketData]);
 
+
   useEffect(() => {
-    if (!useRealtime) return;
+  const interval = setInterval(() => {
+    if (lastTfData) {
+      const timestamp = new Date().toLocaleTimeString();
 
-    const interval = setInterval(() => {
-      if (lastTfData) {
-        const timestamp = new Date().toLocaleTimeString();
-        const distancia = lastTfData.distancia_m * 100;
-        const fuerza = lastTfData.fuerza_senal;
-        const temperatura = lastTfData.temperatura ?? 0;
+      const distancia = typeof lastTfData.distancia_m === 'number' ? lastTfData.distancia_m * 100 : 0;
+      const fuerza = typeof lastTfData.fuerza_senal === 'number' ? lastTfData.fuerza_senal : 0;
+      const temperatura = typeof lastTfData.temperatura === 'number' ? lastTfData.temperatura : 0;
 
-        setData(prev => ({
-          ...prev,
-          distancia,
-          fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
-          temperatura,
-          timestamp: lastTfData.timestamp
-        }));
+      setData(prev => ({
+        ...prev,
+        distancia,
+        fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
+        temperatura,
+        timestamp: lastTfData.timestamp
+      }));
 
-        setTfDataHistory(prev => ({
-          ...prev,
-          distancia_cm_history: [...prev.distancia_cm_history.slice(-19), { name: timestamp, valor: distancia }],
-          fuerzaSenal_history: [...prev.fuerzaSenal_history.slice(-19), { name: timestamp, valor: fuerza }],
-          temperatura_history: [...prev.temperatura_history.slice(-19), { name: timestamp, valor: temperatura }]
-        }));
-      }
-    }, 10000);
+      setTfDataHistory(prev => ({
+        ...prev,
+        distancia_cm_history: [...prev.distancia_cm_history.slice(-19), { name: timestamp, valor: distancia }],
+        fuerzaSenal_history: [...prev.fuerzaSenal_history.slice(-19), { name: timestamp, valor: fuerza }],
+        temperatura_history: [...prev.temperatura_history.slice(-19), { name: timestamp, valor: temperatura }]
+      }));
+    }
+  }, 10000);
 
-    return () => clearInterval(interval);
-  }, [lastTfData, useRealtime]);
+  return () => clearInterval(interval);
+}, [lastTfData]);
+
 
   const startStream = async () => {
     try {
