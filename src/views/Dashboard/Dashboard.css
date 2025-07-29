@@ -55,9 +55,9 @@
     padding: 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: start;
     font-family: Arial, Helvetica, sans-serif;
-    padding: 0px 36px;
+    padding: 0px 16px;
     box-sizing: border-box;
 }
 
@@ -179,20 +179,23 @@
 .projectinfo{
     display: flex;
     gap: 30px;
-    width: 50%;
+    width: 60%;
     padding: 20px;
     box-sizing: border-box;
 }
 
+.projectinfo div {
+    margin-left: 8px;
+}
+
 .projectinfo p {
     font-size: 14px;
-    margin: 6px;
     color: #686464;
 }
 
 .graphview{
     background-color: #FFEAB9;
-    width: 50%;
+    width: 40%;
 }
 
 .NoProjects{
