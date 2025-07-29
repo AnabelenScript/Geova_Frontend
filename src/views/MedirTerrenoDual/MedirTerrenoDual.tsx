@@ -5,7 +5,7 @@ import { cameraService } from '../../services/cameraService';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert} from '../../utils/alerts';
 
-import './TomarFoto.css';
+import './MedirTerreno.css';
 
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -13,7 +13,7 @@ import {
   XAxis, YAxis,
 } from 'recharts';
 
-function TomarFoto() {
+function MedirTerrenoDual() {
   const [data, setData] = useState({
     calidad: null,
     nitidez: null,
@@ -485,4 +485,4 @@ function TomarFoto() {
 );
 }
 
-export default TomarFoto;
+export default MedirTerrenoDual;

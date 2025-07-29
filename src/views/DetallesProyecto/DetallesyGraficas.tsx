@@ -69,6 +69,10 @@ function DetallesProyecto() {
     projectViewModel.handleCamera(navigate);
   };
 
+  const Handlecameradual = () => {
+    projectViewModel.handleCameraDual(navigate);
+  };
+
   const handleIrregularidades = () => {
     if (project?.Id) {
       projectViewModel.handleIrregularidades(navigate, project.Id);
@@ -195,6 +199,7 @@ function DetallesProyecto() {
 
         <div className="ExtraDetails">
           <button onClick={Handlecamera}>Medir terreno</button>
+          <button onClick={Handlecameradual}>Medir terreno Dual</button>
           <button onClick={handleIrregularidades}>Medir irregularidades</button>
           <div className="categorycontainer">
             <p>Categoría: {project?.Categoria || ''}</p>
@@ -249,8 +254,6 @@ function DetallesProyecto() {
               value={editData.descripcion}
               onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
             />
-
-            {/* Vista previa imagen actual o seleccionada */}
             <div className="PreviewImageContainer">
               {editData.imgFile ? (
                 <img

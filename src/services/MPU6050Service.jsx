@@ -25,7 +25,7 @@ export const mpuSensorService = {
     const user = JSON.parse(localStorage.getItem(tokenKey));
     const token = user?.token;
 
-    const response = await axios.get(`${API_URL}?id_project=${id_project}`, {
+    const response = await axios.get(`${API_URL}/${id_project}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

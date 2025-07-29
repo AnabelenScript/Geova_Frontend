@@ -106,6 +106,9 @@ export const projectViewModel = {
   handleCamera(navigate) {
     navigate('takephoto');
   },
+  handleCameraDual(navigate) {
+    navigate('takephotodual');
+  },
 
   sortProjectsByDate(type, projects) {
     let sorted;
