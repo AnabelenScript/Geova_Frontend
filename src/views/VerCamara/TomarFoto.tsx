@@ -1,10 +1,10 @@
-// TomarFoto.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { cameraService } from '../../services/cameraService';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import { showSuccessAlert, showErrorAlert, showCautionAlert } from '../../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert} from '../../utils/alerts';
+
 import './TomarFoto.css';
 
 import {
@@ -38,7 +38,9 @@ function TomarFoto() {
   const [tfDataHistory, setTfDataHistory] = useState({
     distancia_cm_history: [],
     fuerzaSenal_history: [],
-    temperatura_history: []
+    temperatura_history: [],
+    inclinacion_history: [],
+    apertura_history: []
   });
 
   const imgRef = useRef(null);
@@ -62,6 +64,7 @@ function TomarFoto() {
   const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
   const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
+  // Carga de datos iniciales
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
@@ -83,6 +86,7 @@ function TomarFoto() {
               ? `${last.fuerza_senal} (${evaluarFuerzaSenal(last.fuerza_senal)})`
               : "No disponible",
             temperatura: last.temperatura ?? 0,
+            apertura: last.apertura,
           }));
           setIsFromAPI(true);
         }
@@ -102,6 +106,8 @@ function TomarFoto() {
             distancia_cm_history: history.map(h => h.distancia),
             fuerzaSenal_history: history.map(h => h.fuerza),
             temperatura_history: history.map(h => h.temp),
+            inclinacion_history: [],
+            apertura_history: []
           });
 
           setUseRealtime(false);
@@ -114,6 +120,7 @@ function TomarFoto() {
     fetchSensorData();
   }, [id]);
 
+  // WebSocket IMX477
   useEffect(() => {
     if (!isFromAPI && websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
@@ -131,11 +138,34 @@ function TomarFoto() {
     }
   }, [websocketData, isFromAPI]);
 
+  // WebSocket TF-Luna
   useEffect(() => {
     if (websocketData?.sensor === 'TF-Luna') {
       setLastTfData(websocketData.data);
     }
   }, [websocketData]);
+
+  // WebSocket MPU6050 (🔧 Corrección aquí)
+  useEffect(() => {
+  if (websocketData?.sensor === 'MPU6050') {
+    const { roll, pitch, apertura } = websocketData.data;
+
+    const inclinacion = (roll ?? 0) + (pitch ?? 0);
+
+    setData(prev => ({
+      ...prev,
+      inclinacion,
+      apertura,
+    }));
+
+    const now = new Date().toLocaleTimeString();
+    setTfDataHistory(prev => ({
+      ...prev,
+      inclinacion_history: [...(prev.inclinacion_history || []).slice(-19), { name: now, valor: inclinacion }],
+      apertura_history: [...(prev.apertura_history || []).slice(-19), { name: now, valor: apertura }],
+    }));
+  }
+}, [websocketData]);
 
   useEffect(() => {
     if (!useRealtime) return;
@@ -156,6 +186,7 @@ function TomarFoto() {
         }));
 
         setTfDataHistory(prev => ({
+          ...prev,
           distancia_cm_history: [...prev.distancia_cm_history.slice(-19), { name: timestamp, valor: distancia }],
           fuerzaSenal_history: [...prev.fuerzaSenal_history.slice(-19), { name: timestamp, valor: fuerza }],
           temperatura_history: [...prev.temperatura_history.slice(-19), { name: timestamp, valor: temperatura }]
@@ -218,7 +249,7 @@ function TomarFoto() {
   ];
 
   const handleGuardarMedidas = async () => {
-  // 🟢 Naive datetime string compatible con PostgreSQL TIMESTAMP WITHOUT TIME ZONE
+    showLoadingAlert(); 
   const timestamp = new Date().toISOString().replace('Z', '');
 
   const payloadCamara = {
@@ -245,14 +276,32 @@ function TomarFoto() {
     timestamp,
   };
 
+  const payloadMPU = {
+    id_project: parseInt(id),
+    ax: websocketData?.data?.ax ?? 0,
+    ay: websocketData?.data?.ay ?? 0,
+    az: websocketData?.data?.az ?? 0,
+    gx: websocketData?.data?.gx ?? 0,
+    gy: websocketData?.data?.gy ?? 0,
+    gz: websocketData?.data?.gz ?? 0,
+    roll: websocketData?.data?.roll ?? 0,
+    pitch: websocketData?.data?.pitch ?? 0,
+    apertura: data.apertura ?? 0,
+    event: true,
+    timestamp,
+  };
+
   try {
     const resIMX = await projectViewModel.handlePostSensorIMX(payloadCamara);
     const resTF = await projectViewModel.handlePostSensorTFLuna(payloadTF);
+    const resMPU = await projectViewModel.handlePostSensorMPU(payloadMPU);
 
-    if (resIMX.success && resTF.success) {
+     closeLoadingAlert(); 
+
+    if (resIMX.success && resTF.success && resMPU.success) {
       await showSuccessAlert("Datos guardados exitosamente.");
     } else {
-      await showErrorAlert("Uno o ambos sensores no se guardaron correctamente.");
+      await showErrorAlert("Uno o más sensores no se guardaron correctamente.");
     }
   } catch (error) {
     await showErrorAlert("Error al guardar los datos.");
@@ -260,8 +309,7 @@ function TomarFoto() {
 };
 
 
-
-    return (
+  return (
   <div className="ProjectPContainer">
     <div className='ProjectFotoPContainer'>
       <div className='ProjectData'>
@@ -400,7 +448,38 @@ function TomarFoto() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+
+      
+</div>
+<div className="TFGraphsContainer">
+  <h2>Gráficas del sensor MPU</h2>
+
+  <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
+    <h4>Inclinación (°)</h4>
+    <ResponsiveContainer>
+      <LineChart data={tfDataHistory.inclinacion_history}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis unit="°" />
+        <Tooltip formatter={(value) => [`${value.toFixed(2)} °`, 'Inclinación']} />
+        <Line type="monotone" dataKey="valor" stroke="#2e86de" strokeWidth={2} dot={false} />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+
+  <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
+    <h4>Apertura (°)</h4>
+    <ResponsiveContainer>
+      <LineChart data={tfDataHistory.apertura_history}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis unit="°" />
+        <Tooltip formatter={(value) => [`${value.toFixed(2)} °`, 'Apertura']} />
+        <Line type="monotone" dataKey="valor" stroke="#1abc9c" strokeWidth={2} dot={false} />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
   </div>
 );
 }

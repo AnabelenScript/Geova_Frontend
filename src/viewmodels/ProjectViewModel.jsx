@@ -1,6 +1,7 @@
 import { projectService } from '../services/ProjectService';
 import { imxService } from '../services/imx.Service';
 import { tflunaService } from '../services/tflunaService';
+import { mpuSensorService } from '../services/MPU6050Service';
 import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
@@ -247,11 +248,9 @@ async handlePostSensorIMX(sensorData) {
     console.log('📤 Enviando datos al sensor IMX:', sensorData); // 🔍 DEBUG
 
     const response = await imxService.postSensorIMX(sensorData);
-    await showSuccessAlert('Datos del sensor guardados correctamente.');
 
     return { success: true, data: response };
   } catch (error) {
-    await showErrorAlert(error.response?.data?.error || error.message || 'Error al guardar datos del sensor');
     return {
       success: false,
       error: error.response?.data?.error || error.message || 'Error al guardar datos del sensor'
@@ -265,7 +264,6 @@ async handlePostSensorIMX(sensorData) {
     const response = await imxService.getSensorIMXByProjectId(id_project);
     return { success: true, data: response };
   } catch (error) {
-    await showCautionAlert(error.response?.data?.error || error.message || 'No hay datos guardados del sensor');
     return {
       success: false,
     };
@@ -277,11 +275,9 @@ async handlePostSensorTFLuna(sensorData) {
     console.log('📤 Enviando datos al sensor TfLuna:', sensorData);
 
     const response = await tflunaService.postSensortfluna(sensorData);
-    await showSuccessAlert('Datos del sensor guardados correctamente.');
 
     return { success: true, data: response };
   } catch (error) {
-    await showErrorAlert(error.response?.data?.error || error.message || 'Error al guardar datos del sensor');
     return {
       success: false,
       error: error.response?.data?.error || error.message || 'Error al guardar datos del sensor'
@@ -294,11 +290,35 @@ async handleGetSensorTFLunaByProjectId(id_project) {
     const response = await tflunaService.getSensorTFLunaByProjectId(id_project);
     return { success: true, data: response };
   } catch (error) {
-    await showCautionAlert(error.response?.data?.error || error.message || 'No hay datos guardados del sensor');
     return {
       success: false,
     };
   }
 },
 
+async handlePostSensorMPU(sensorData) {
+  try {
+    console.log('📤 Enviando datos al sensor TfLuna:', sensorData);
+
+    const response = await mpuSensorService.postSensorMPU(sensorData);
+
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al guardar datos del sensor'
+    };
+  }
+},
+
+async handleGetSensorMPUByProjectId(id_project) {
+  try {
+    const response = await mpuSensorService.getSensorMPUByProjectId(id_project);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+    };
+  }
+},
 };
