@@ -8,6 +8,7 @@ import DetallesProyecto from '../views/DetallesProyecto/DetallesyGraficas';
 import MainMenu from '../views/MainMenu/MainMenu';
 import MedirIrregularidades from '../views/MedirIrregularidades/MedirIrregluaridades';
 import Profile from '../views/Profile/Profile';
+import MedirTerrenoDual from '../views/MedirTerrenoDual/MedirTerrenoDual';
 function AppRoutes() {
   return (
     <HashRouter>
@@ -16,6 +17,7 @@ function AppRoutes() {
         <Route path="/" element={<Layout />}>
           <Route path="create" element={<CreateProject />} />
           <Route path="dashboard/detalles/:id/takephoto" element={<TomarFoto />} />
+          <Route path="dashboard/detalles/:id/takephotodual" element={<MedirTerrenoDual />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
           <Route path="dashboard/detalles/:id/irregularidades" element={<MedirIrregularidades />} />
