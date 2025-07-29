@@ -246,9 +246,10 @@ export const projectViewModel = {
       return { success: false };
     }
   },
-async handlePostSensorIMX(sensorData) {
-  try {
-    console.log('📤 Enviando datos al sensor IMX:', sensorData); // 🔍 DEBUG
+
+  async handlePostSensorIMX(sensorData) {
+    try {
+        console.log('📤 Enviando datos al sensor IMX:', sensorData); // 🔍 DEBUG
 
     const response = await imxService.postSensorIMX(sensorData);
 
@@ -260,6 +261,7 @@ async handlePostSensorIMX(sensorData) {
     };
   }
 },
+
 
 
   async handleGetSensorIMXByProjectId(id_project) {
@@ -324,4 +326,82 @@ async handleGetSensorMPUByProjectId(id_project) {
     };
   }
 },
+
+async handleUpdateSensorTFLuna(sensor_id, sensorData) {
+  try {
+    console.log('📤 Actualizando datos del sensor TFLuna:', sensorData);
+    const response = await tflunaService.updateSensorTFLuna(sensor_id, sensorData);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar datos del sensor TFLuna'
+    };
+  }
+},
+
+async handleUpdateDualSensorTFLuna(sensor_id, sensorData) {
+  try {
+    console.log('📤 Actualizando datos dual del sensor TFLuna:', sensorData);
+    const response = await tflunaService.updateDualSensorTFLuna(sensor_id, sensorData);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar datos dual del sensor TFLuna'
+    };
+  }
+},
+
+async handleUpdateSensorMPU(sensor_id, sensorData) {
+  try {
+    console.log('📤 Actualizando datos del sensor MPU:', sensorData);
+    const response = await mpuSensorService.updateSensorMPU(sensor_id, sensorData);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar datos del sensor MPU'
+    };
+  }
+},
+
+async handleUpdateDualSensorMPU(sensor_id, sensorData) {
+  try {
+    console.log('📤 Actualizando datos dual del sensor MPU:', sensorData);
+    const response = await mpuSensorService.updateDualSensorMPU(sensor_id, sensorData);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar datos dual del sensor MPU'
+    };
+  }
+},
+
+async handleUpdateSensorIMX(sensor_id, sensorData) {
+  try {
+    console.log('📤 Actualizando datos del sensor IMX:', sensorData);
+    const response = await imxService.updateSensorIMX(sensor_id, sensorData);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar datos del sensor IMX'
+    };
+  }
+},
+
+async handleUpdateDualSensorIMX(sensor_id, sensorData) {
+  try {
+    console.log('📤 Actualizando datos dual del sensor IMX:', sensorData);
+    const response = await imxService.updateDualSensorIMX(sensor_id, sensorData);
+    return { success: true, data: response };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Error al actualizar datos dual del sensor IMX'
+    };
+  }
+}
 };

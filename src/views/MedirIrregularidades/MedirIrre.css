@@ -1,3 +1,4 @@
+/* src/views/MedirIrregularidades/MedirIrre.css */
 .MedicionIrregularidades{
     background-color:#FAF6F1;
     width: 98%;
@@ -13,10 +14,10 @@
 }
 
 .IrreGraphContainer{
-      width: 60vw;
-    height: 70vh;
+    width: 80vw;
+    height: 80vh;
     background-color: transparent;
-    margin: 70px 0px;
+    margin: 50px 0px;
     position: relative;
     border-radius: 20px;
     overflow: hidden;
@@ -36,7 +37,6 @@
     z-index: 1;
 }
 
-/* Esquina inferior derecha */
 .IrreGraphContainer::after {
     content: "";
     position: absolute;
@@ -60,7 +60,6 @@
     z-index: 1;
 }
 
-/* Esquina inferior izquierda */
 .IrreGraphContainer .corner-bottom-left {
     position: absolute;
     bottom: 0;
@@ -73,17 +72,346 @@
 }
 
 .MainGraphContainer{
-     width: 100%;
+    width: 100%;
     height: 100%;
     background-color: rgb(255, 255, 255);
-    clip-path: polygon(95px 0%,calc(100% - 95px) 0%, 100% 95px,100% calc(100% - 95px),calc(100% - 95px) 100%, 95px 100%,0% calc(100% - 95px),0% 95px                        
-    );
-    padding: 20px;
-    gap: 30px;
+    clip-path: polygon(95px 0%,calc(100% - 95px) 0%, 100% 95px,100% calc(100% - 95px),calc(100% - 95px) 100%, 95px 100%,0% calc(100% - 95px),0% 95px);
+    padding: 30px;
+    gap: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     color: rgb(0, 0, 0);
+    position: relative;
+}
+
+/* Header y controles de vista */
+.header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.header-controls h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+.view-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.view-btn {
+    padding: 8px 16px;
+    border: 2px solid #E6AF2E;
+    background-color: transparent;
+    color: #E6AF2E;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+    background-color: #E6AF2E;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.view-btn.active {
+    background-color: #E6AF2E;
+    color: white;
+    box-shadow: 0 4px 8px rgba(230, 175, 46, 0.3);
+}
+
+/* Estadísticas */
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    color: #E6AF2E;
+    font-weight: bold;
+}
+
+/* Contenedor del gráfico */
+.chart-container {
+    width: 100%;
+    height: 400px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-data-message {
+    text-align: center;
+    color: #666;
+}
+
+.no-data-message p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.no-data-message p:first-child {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Controles de acción */
+.action-controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+}
+
+.delete-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.start-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.start-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+}
+
+.start-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Controles de recolección */
+.collection-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.collecting-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.stop-btn {
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.stop-btn:hover {
+    background-color: #e0a800;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 193, 7, 0.4);
+}
+
+.collection-info {
+    background-color: #e3f2fd;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    border-left: 4px solid #2196f3;
+}
+
+.collection-info p {
+    margin: 5px 0;
+    font-size: 1rem;
+}
+
+.collection-info p:first-child {
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.connection-status {
+    font-size: 0.9rem !important;
+    margin-top: 10px !important;
+}
+
+/* Spinner de carga */
+.loading-spinner {
+    font-size: 3rem;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .IrreGraphContainer {
+        width: 90vw;
+        height: 75vh;
+    }
+    
+    .stats-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .IrreGraphContainer {
+        width: 95vw;
+        height: 70vh;
+    }
+    
+    .MainGraphContainer {
+        padding: 20px;
+    }
+    
+    .header-controls {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .header-controls h2 {
+        font-size: 1.5rem;
+    }
+    
+    .view-controls {
+        justify-content: center;
+    }
+    
+    .chart-container {
+        height: 300px;
+        padding: 15px;
+    }
+    
+    .collection-info {
+        padding: 10px;
+    }
+}
+
+/* Animaciones adicionales */
+.chart-container {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para tooltips mejorados */
+.recharts-tooltip-wrapper {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid #E6AF2E !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Efectos hover para botones */
+.view-btn, .delete-btn, .start-btn, .stop-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.view-btn::before, .delete-btn::before, .start-btn::before, .stop-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.view-btn:hover::before, .delete-btn:hover::before, .start-btn:hover::before, .stop-btn:hover::before {
+    left: 100%;
 }
