@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/tfluna/sensor'; 
+const API_URL = 'http://localhost:8000/mpu/sensor'; 
 
-export const tflunaService = {
-  async postSensortfluna(data) {
+export const mpuSensorService = {
+  async postSensorMPU(data) {
     const tokenKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
     if (!tokenKey) throw new Error('Usuario no autenticado');
     const user = JSON.parse(localStorage.getItem(tokenKey));
@@ -18,7 +18,7 @@ export const tflunaService = {
     return response.data;
   },
 
-  async getSensorTFLunaByProjectId(id_project) {
+  async getSensorMPUByProjectId(id_project) {
     const tokenKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
     if (!tokenKey) throw new Error('Usuario no autenticado');
 

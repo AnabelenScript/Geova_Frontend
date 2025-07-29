@@ -82,3 +82,27 @@ export const showConfirmAlert = async (title, text) => {
         buttonsStyling: false,
   });
 };
+
+export const showLoadingAlert = () => {
+  Swal.fire({
+    title: 'Enviando datos...',
+    html: '<b>Por favor espera</b><br><br><div class="custom-spinner"></div>',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    background: '#fff',
+    color: '#333',
+    didOpen: () => {
+      Swal.showLoading();
+    },
+    customClass: {
+      popup: 'loading-popup',
+      title: 'loading-title',
+      htmlContainer: 'loading-content'
+    }
+  });
+};
+
+export const closeLoadingAlert = () => {
+  Swal.close();
+};
