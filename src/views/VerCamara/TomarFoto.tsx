@@ -13,7 +13,12 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Tooltip
+  Tooltip,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 function TomarFoto() {
@@ -24,6 +29,7 @@ function TomarFoto() {
     inclinacion: null,
     distancia: null,
     fuerzaSenal: null,
+    temperatura: null,
     apertura: null,
     resolution: null,
     laser_detectado: null,
@@ -35,6 +41,13 @@ function TomarFoto() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState(null);
   const [isFromAPI, setIsFromAPI] = useState(false);
+  const [lastTfData, setLastTfData] = useState(null);
+  const [tfDataHistory, setTfDataHistory] = useState({
+    distancia_cm_history: [],
+    fuerzaSenal_history: [],
+    temperatura_history: []
+  });
+
   const imgRef = useRef(null);
   const { data: websocketData } = graphViewModel.useGraphData();
   const { id } = useParams();
@@ -49,6 +62,7 @@ function TomarFoto() {
             ...prevData,
             calidad: last.calidad_frame,
             nitidez: last.nitidez_score,
+            distancia_cm: last.distancia_cm,
             luminosidad: last.luminosidad_promedio,
             resolution: last.resolution,
             laser_detectado: last.laser_detectado,
@@ -67,36 +81,58 @@ function TomarFoto() {
   }, [id]);
 
   useEffect(() => {
-    if (!isFromAPI && websocketData) {
-      const { sensor, data: sensorData } = websocketData;
-      if (sensor === 'IMX477') {
-        setData(prevData => ({
-          ...prevData,
-          luminosidad: sensorData.luminosidad_promedio,
-          calidad: sensorData.calidad_frame,
-          nitidez: sensorData.nitidez_score,
-          resolution: sensorData.resolution,
-          laser_detectado: sensorData.laser_detectado,
-          probabilidad: sensorData.probabilidad_confiabilidad,
-          event: sensorData.event,
-          timestamp: sensorData.timestamp
-        }));
-      }
-      if (sensor === 'TF-Luna') {
-        setData(prevData => ({
-          ...prevData,
-          distancia: sensorData.distancia_m * 100,
-        }));
-      }
-      if (sensor === 'MPU6050') {
-        setData(prevData => ({
-          ...prevData,
-          inclinacion: sensorData.roll + sensorData.pitch,
-          apertura: sensorData.apertura,
-        }));
-      }
+    if (!isFromAPI && websocketData?.sensor === 'IMX477') {
+      const sensorData = websocketData.data;
+      setData(prevData => ({
+        ...prevData,
+        luminosidad: sensorData.luminosidad_promedio,
+        calidad: sensorData.calidad_frame,
+        nitidez: sensorData.nitidez_score,
+        resolution: sensorData.resolution,
+        laser_detectado: sensorData.laser_detectado,
+        probabilidad: sensorData.probabilidad_confiabilidad,
+        event: sensorData.event,
+        timestamp: sensorData.timestamp
+      }));
     }
   }, [websocketData, isFromAPI]);
+
+  useEffect(() => {
+    if (websocketData?.sensor === 'TF-Luna') {
+      setLastTfData(websocketData.data);
+    }
+  }, [websocketData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (lastTfData) {
+        const timestamp = new Date().toLocaleTimeString();
+
+        const distancia = lastTfData.distancia_m * 100;
+        const fuerza = lastTfData.fuerza_senal;
+        const temperatura = lastTfData.temperatura ?? 0;
+
+        setData(prevData => ({
+  ...prevData,
+  distancia,
+  fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
+  temperatura,
+  distancia_cm: lastTfData.distancia_cm,
+  event: lastTfData.event,
+  timestamp: lastTfData.timestamp
+}));
+
+
+        setTfDataHistory(prev => ({
+          distancia_cm_history: [...prev.distancia_cm_history.slice(-19), { name: timestamp, valor: distancia }],
+          fuerzaSenal_history: [...prev.fuerzaSenal_history.slice(-19), { name: timestamp, valor: fuerza }],
+          temperatura_history: [...prev.temperatura_history.slice(-19), { name: timestamp, valor: temperatura }]
+        }));
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [lastTfData]);
 
   const startStream = async () => {
     try {
@@ -135,6 +171,15 @@ function TomarFoto() {
     return ' (Mala)';
   };
 
+  const evaluarFuerzaSenal = (valor) => {
+  if (valor >= 10000) return 'Muy buena';
+  if (valor >= 4000) return 'Buena';
+  if (valor >= 2000) return 'Aceptable';
+  if (valor >= 1000) return 'Baja';
+  return 'Muy baja';
+};
+
+
   const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
   const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
@@ -159,27 +204,27 @@ function TomarFoto() {
   ];
 
   const handleGuardarMedidas = async () => {
-  const payload = {
-    id_project: parseInt(id),
-    resolution: data.resolution,
-    luminosidad_promedio: data.luminosidad ?? 0,
-    nitidez_score: data.nitidez ?? 0,
-    laser_detectado: data.laser_detectado ?? false,
-    calidad_frame: data.calidad ?? 0,
-    probabilidad_confiabilidad: data.probabilidad ?? 0,
-    event: true,
-    timestamp: data.timestamp?.toString() || new Date().toISOString().replace('T', ' ').substring(0, 23)
+    const payload = {
+      id_project: parseInt(id),
+      resolution: data.resolution,
+      luminosidad_promedio: data.luminosidad ?? 0,
+      nitidez_score: data.nitidez ?? 0,
+      laser_detectado: data.laser_detectado ?? false,
+      calidad_frame: data.calidad ?? 0,
+      probabilidad_confiabilidad: data.probabilidad ?? 0,
+      event: true,
+      timestamp: data.timestamp?.toString() || new Date().toISOString().replace('T', ' ').substring(0, 23)
+    };
+
+    console.log("🧾 Payload a enviar al API:", payload);
+
+    try {
+      await projectViewModel.handlePostSensorIMX(payload);
+      await showSuccessAlert("Datos guardados exitosamente.");
+    } catch (error) {
+      await showErrorAlert('Error al guardar los datos del sensor.');
+    }
   };
-
-  console.log("🧾 Payload a enviar al API:", payload); 
-
-  try {
-    await projectViewModel.handlePostSensorIMX(payload);
-  } catch (error) {
-    await showErrorAlert('Error al guardar los datos del sensor.');
-  }
-};
-
 
   return (
     <div className="ProjectPContainer">
@@ -266,8 +311,7 @@ function TomarFoto() {
                 formatter={(value, name, props) => {
                   const atributo = props?.payload?.atributo;
                   const evaluacion = props?.payload?.evaluacion || '';
-                  let unidad = '%';
-                  return [`${value} ${unidad}${evaluacion}`, atributo];
+                  return [`${value} %${evaluacion}`, atributo];
                 }}
               />
             </RadarChart>
@@ -277,6 +321,49 @@ function TomarFoto() {
           <button className="guardar-medidas-btn" onClick={handleGuardarMedidas}>
             Guardar medidas
           </button>
+        </div>
+      </div>
+
+      <div className="TFGraphsContainer">
+        <h2>Gráficas del sensor TF-Luna</h2>
+
+        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
+          <h4>Distancia (cm)</h4>
+          <ResponsiveContainer>
+            <LineChart data={tfDataHistory.distancia_cm_history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="cm" />
+              <Tooltip formatter={(value) => [`${value.toFixed(2)} cm`, 'Distancia']} />
+              <Line type="monotone" dataKey="valor" stroke="#8884d8" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
+          <h4>Fuerza de Señal</h4>
+          <ResponsiveContainer>
+            <LineChart data={tfDataHistory.fuerzaSenal_history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="" />
+              <Tooltip formatter={(value) => [`${value.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']}/>
+              <Line type="monotone" dataKey="valor" stroke="#82ca9d" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={{ width: '100%', height: 350, marginBottom: 50}}>
+          <h4>Temperatura (°C)</h4>
+          <ResponsiveContainer>
+            <LineChart data={tfDataHistory.temperatura_history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="°C" />
+              <Tooltip formatter={(value) => [`${value.toFixed(2)} °C`, 'Temperatura']} />
+              <Line type="monotone" dataKey="valor" stroke="#ff7300" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>

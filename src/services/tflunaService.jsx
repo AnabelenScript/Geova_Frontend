@@ -18,7 +18,7 @@ export const tflunaService = {
     return response.data;
   },
 
-  async getSensorIMXByProjectId(id_project) {
+  async getSensorTFLunaByProjectId(id_project) {
     const tokenKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
     if (!tokenKey) throw new Error('Usuario no autenticado');
 
