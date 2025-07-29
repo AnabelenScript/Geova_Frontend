@@ -135,7 +135,7 @@
 .ProfileInfo{
     width: 50%;
     background-color: rgb(255, 255, 255);
-    padding: 20px 30px;
+    padding: 20px 50px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     border-top-right-radius: 50px;
@@ -322,22 +322,25 @@
 @media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) {
   .ProfileData {
     flex-direction: row;
-    height: 60vh;
-    width: 100%;
-    padding: 20px;
-    gap: 30px;
+    flex-wrap: wrap;
+    align-items: center;
+    height: auto;
+    width: auto;
+    padding: 30px;
+    gap: 50px;
   }
 
   .ProfilePhoto {
-    width: 35%;
+    width: 45%;
     height: 100%;
   }
 
   .ProfileInfo {
-    width: 50%;
+    position: relative;
+    width: 45%;
     height: 100%;
-    padding: 10px;
-    box-sizing: border-box;
+    padding: 20px;
+    box-sizing: border-box !important;
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
   }
@@ -356,5 +359,12 @@
     justify-content: center;
     align-items: center;
     gap: 30px;
+  }
+    .ProfileOptions {
+    flex-direction: row;
+    width: 100%;
+    gap: 20px;
+    justify-content: center;
+    padding: 10px 0;
   }
 }
