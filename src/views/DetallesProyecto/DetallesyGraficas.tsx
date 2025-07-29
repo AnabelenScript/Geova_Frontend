@@ -2,6 +2,7 @@ import './DetallesyGraficas.css';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
+import { projectService } from '../../services/ProjectService';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -25,6 +26,8 @@ function DetallesProyecto() {
   const { id } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLocalAPIAvailable, setIsLocalAPIAvailable] = useState(false);
+  const [checkingLocalAPI, setCheckingLocalAPI] = useState(true);
   const navigate = useNavigate();
   const { data: graphs } = graphViewModel.useGraphData();
 
@@ -51,7 +54,15 @@ function DetallesProyecto() {
       setLoading(false);
     };
 
+    const checkLocalAPI = async () => {
+      setCheckingLocalAPI(true);
+      const isAvailable = await projectService.checkLocalAPIAvailability();
+      setIsLocalAPIAvailable(isAvailable);
+      setCheckingLocalAPI(false);
+    };
+
     fetchProject();
+    checkLocalAPI();
   }, [id]);
 
   const Handlecamera = () => {
@@ -83,38 +94,42 @@ function DetallesProyecto() {
   };
 
   const handleEditSubmit = async () => {
-  if (!id) {
-    alert('ID del proyecto no disponible.');
-    return;
-  }
-
-  const { nombreProyecto, categoria, descripcion, lat, lng, imgFile } = editData;
-
-  try {
-    const { success, error } = await projectViewModel.handleUpdateProject(
-      Number(id),
-      nombreProyecto,
-      categoria,
-      descripcion,
-      imgFile,
-      lat,
-      lng
-    );
-
-    if (success) {
-      setShowModal(false);
-      const { data } = await projectViewModel.handleGetProjectById(Number(id));
-      setProject(data);
-    } else {
-      console.error('Error al actualizar:', error);
-      alert('Error al actualizar: ' + error);
+    if (!id) {
+      alert('ID del proyecto no disponible.');
+      return;
     }
-  } catch (e) {
-    console.error('Error inesperado:', e);
-    alert('Error inesperado al actualizar el proyecto');
-  }
-};
 
+    const { nombreProyecto, categoria, descripcion, lat, lng, imgFile } = editData;
+
+    try {
+      const { success, error } = await projectViewModel.handleUpdateProject(
+        Number(id),
+        nombreProyecto,
+        categoria,
+        descripcion,
+        imgFile,
+        lat,
+        lng
+      );
+
+      if (success) {
+        setShowModal(false);
+        const { data } = await projectViewModel.handleGetProjectById(Number(id));
+        setProject(data);
+      } else {
+        console.error('Error al actualizar:', error);
+        alert('Error al actualizar: ' + error);
+      }
+    } catch (e) {
+      console.error('Error inesperado:', e);
+      alert('Error inesperado al actualizar el proyecto');
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project?.Id) return;
+    await projectViewModel.handleDeleteProject(project.Id, navigate);
+  };
 
   return (
     <div className="DetallesContainer">
@@ -123,7 +138,18 @@ function DetallesProyecto() {
           <h1>Detalles de proyecto</h1>
           <i className="bx bxs-add-to-queue"></i>
         </div>
-        <div className="DetallesEndContainer"></div>
+        <div className="DetallesEndContainer">
+          {/* Indicador de estado de la API local */}
+          <div className={`api-status ${checkingLocalAPI ? 'checking' : isLocalAPIAvailable ? 'available' : 'unavailable'}`}>
+            {checkingLocalAPI ? (
+              <span>🔄 Verificando conexión...</span>
+            ) : isLocalAPIAvailable ? (
+              <span>🟢 Raspberry Pi conectada</span>
+            ) : (
+              <span>🔴 Raspberry Pi desconectada</span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="DashSubtitle">
@@ -140,10 +166,13 @@ function DetallesProyecto() {
             <div className='editproject' onClick={openEditModal}>
               <i className='bx bxs-edit-alt'></i>
             </div>
-            <div className='deleteproject' onClick={() => projectViewModel.handleDeleteProject(project.Id, navigate)}>
+            <div 
+              className={`deleteproject ${!isLocalAPIAvailable ? 'disabled' : ''}`}
+              onClick={handleDeleteProject}
+              title={!isLocalAPIAvailable ? 'Requiere conexión a Raspberry Pi' : 'Eliminar proyecto'}
+            >
               <i className='bx bxs-trash-alt'></i>
-              </div>
-
+            </div>
           </div>
         </div>
       </div>
@@ -162,7 +191,7 @@ function DetallesProyecto() {
 
       <div className="DetailOptions">
         <h2>Descripción</h2>
-        <p>{project?.Descripcion || ''}</p>
+        <p>{project?.Descripción || ''}</p>
 
         <div className="ExtraDetails">
           <button onClick={Handlecamera}>Medir terreno</button>
@@ -195,78 +224,77 @@ function DetallesProyecto() {
       </div>
 
       {showModal && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <h2>Editar Proyecto</h2>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Editar Proyecto</h2>
 
-      <input
-        type="text"
-        placeholder="Nombre del Proyecto"
-        value={editData.nombreProyecto}
-        onChange={(e) => setEditData({ ...editData, nombreProyecto: e.target.value })}
-      />
+            <input
+              type="text"
+              placeholder="Nombre del Proyecto"
+              value={editData.nombreProyecto}
+              onChange={(e) => setEditData({ ...editData, nombreProyecto: e.target.value })}
+            />
 
-      <select
-        value={editData.categoria}
-        onChange={(e) => setEditData({ ...editData, categoria: e.target.value })}
-      >
-        <option value="">Seleccione una categoría</option>
-        <option value="Residencial">Residencial</option>
-        <option value="Comercial">Comercial</option>
-      </select>
+            <select
+              value={editData.categoria}
+              onChange={(e) => setEditData({ ...editData, categoria: e.target.value })}
+            >
+              <option value="">Seleccione una categoría</option>
+              <option value="Residencial">Residencial</option>
+              <option value="Comercial">Comercial</option>
+            </select>
 
-      <textarea
-        placeholder="Descripción"
-        value={editData.descripcion}
-        onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
-      />
+            <textarea
+              placeholder="Descripción"
+              value={editData.descripcion}
+              onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
+            />
 
-      {/* Vista previa imagen actual o seleccionada */}
-      <div className="PreviewImageContainer">
-        {editData.imgFile ? (
-          <img
-            src={URL.createObjectURL(editData.imgFile)}
-            alt="Nueva imagen seleccionada"
-            className="ProjectImagePreview"
-          />
-        ) : project?.Img ? (
-          <>
-            <p>Imagen actual:</p>
-            <img src={project.Img} alt="Imagen actual del proyecto" className="ProjectImagePreview" />
-          </>
-        ) : (
-          <p>No hay imagen registrada para este proyecto</p>
-        )}
-      </div>
+            {/* Vista previa imagen actual o seleccionada */}
+            <div className="PreviewImageContainer">
+              {editData.imgFile ? (
+                <img
+                  src={URL.createObjectURL(editData.imgFile)}
+                  alt="Nueva imagen seleccionada"
+                  className="ProjectImagePreview"
+                />
+              ) : project?.Img ? (
+                <>
+                  <p>Imagen actual:</p>
+                  <img src={project.Img} alt="Imagen actual del proyecto" className="ProjectImagePreview" />
+                </>
+              ) : (
+                <p>No hay imagen registrada para este proyecto</p>
+              )}
+            </div>
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setEditData({ ...editData, imgFile: e.target.files?.[0] || null })}
-      />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setEditData({ ...editData, imgFile: e.target.files?.[0] || null })}
+            />
 
-      <div style={{ height: '250px', marginTop: '10px' }}>
-        <MapContainer
-          center={[editData.lat || 23.6345, editData.lng || -102.5528]}
-          zoom={5}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LocationMarkerEdit
-            setLat={(lat) => setEditData((prev) => ({ ...prev, lat }))}
-            setLng={(lng) => setEditData((prev) => ({ ...prev, lng }))}
-          />
-        </MapContainer>
-      </div>
+            <div style={{ height: '250px', marginTop: '10px' }}>
+              <MapContainer
+                center={[editData.lat || 23.6345, editData.lng || -102.5528]}
+                zoom={5}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <LocationMarkerEdit
+                  setLat={(lat) => setEditData((prev) => ({ ...prev, lat }))}
+                  setLng={(lng) => setEditData((prev) => ({ ...prev, lng }))}
+                />
+              </MapContainer>
+            </div>
 
-      <div className="modal-buttons">
-        <button onClick={handleEditSubmit}>Guardar Cambios</button>
-        <button onClick={() => setShowModal(false)}>Cancelar</button>
-      </div>
-    </div>
-  </div>
-)}
-
+            <div className="modal-buttons">
+              <button onClick={handleEditSubmit}>Guardar Cambios</button>
+              <button onClick={() => setShowModal(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
