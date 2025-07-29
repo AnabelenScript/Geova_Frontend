@@ -37,11 +37,10 @@ function MedirTerrenoDual() {
   const [lastTfData, setLastTfData] = useState(null);
   const [useRealtime, setUseRealtime] = useState(true);
   
-  // 🆕 Estados para el modo dual
-  const [measurementState, setMeasurementState] = useState('initial'); // 'initial', 'first_done', 'dual_done'
+  const [measurementState, setMeasurementState] = useState('initial');
   const [lastMeasurementIds, setLastMeasurementIds] = useState({ imx: null, tf: null, mpu: null });
   const [showDualMessage, setShowDualMessage] = useState(false);
-  const [dualMessageType, setDualMessageType] = useState(''); // 'flip_camera', 'dual_complete'
+  const [dualMessageType, setDualMessageType] = useState('');
   
   const [tfDataHistory, setTfDataHistory] = useState({
     distancia_cm_history: [],
@@ -72,7 +71,6 @@ function MedirTerrenoDual() {
   const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
   const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
-  // 🆕 Función para mostrar mensaje dual
   const showDualMessageWithTimeout = (type, duration = 4000) => {
     setDualMessageType(type);
     setShowDualMessage(true);
@@ -81,7 +79,6 @@ function MedirTerrenoDual() {
     }, duration);
   };
 
-  // Carga de datos iniciales
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
@@ -89,7 +86,6 @@ function MedirTerrenoDual() {
         if (imxResponse.success && imxResponse.data.length > 0) {
           const last = imxResponse.data[imxResponse.data.length - 1];
           
-          // 🆕 Verificar si hay medición dual previa
           if (last.measurement_count === 2) {
             setMeasurementState('dual_done');
           } else if (last.measurement_count === 1) {
@@ -121,7 +117,6 @@ function MedirTerrenoDual() {
         if (tfResponse.success && tfResponse.data.length > 0) {
           const lastTF = tfResponse.data[tfResponse.data.length - 1];
           
-          // 🆕 Verificar estado de TF-Luna
           if (lastTF.measurement_count === 1 && measurementState !== 'dual_done') {
             setLastMeasurementIds(prev => ({ ...prev, tf: lastTF.id }));
           }
@@ -146,7 +141,6 @@ function MedirTerrenoDual() {
           setUseRealtime(false);
         }
 
-        // 🆕 Verificar estado de MPU
         const mpuResponse = await projectViewModel.handleGetSensorMPUByProjectId(id);
         if (mpuResponse.success && mpuResponse.data.length > 0) {
           const lastMPU = mpuResponse.data[mpuResponse.data.length - 1];
@@ -162,7 +156,6 @@ function MedirTerrenoDual() {
     fetchSensorData();
   }, [id]);
 
-  // WebSocket IMX477
   useEffect(() => {
     if (!isFromAPI && websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
@@ -180,14 +173,12 @@ function MedirTerrenoDual() {
     }
   }, [websocketData, isFromAPI]);
 
-  // WebSocket TF-Luna
   useEffect(() => {
     if (websocketData?.sensor === 'TF-Luna') {
       setLastTfData(websocketData.data);
     }
   }, [websocketData]);
 
-  // WebSocket MPU6050
   useEffect(() => {
     if (websocketData?.sensor === 'MPU6050') {
       const { roll, pitch, apertura } = websocketData.data;
@@ -291,14 +282,12 @@ function MedirTerrenoDual() {
     },
   ];
 
-  // 🆕 Función mejorada para guardar medidas con funcionalidad dual
   const handleGuardarMedidas = async () => {
     showLoadingAlert(); 
     const timestamp = new Date().toISOString().replace('Z', '');
 
     try {
       if (measurementState === 'initial') {
-        // 🔄 Primera medición - POST normal
         const payloadCamara = {
           id_project: parseInt(id),
           resolution: data.resolution,
@@ -345,7 +334,6 @@ function MedirTerrenoDual() {
         closeLoadingAlert();
 
         if (resIMX.success && resTF.success && resMPU.success) {
-          // 💾 Guardar IDs para la siguiente medición
           setLastMeasurementIds({
             imx: resIMX.data?.id,
             tf: resTF.data?.id,
@@ -355,14 +343,12 @@ function MedirTerrenoDual() {
           setMeasurementState('first_done');
           await showSuccessAlert("Primera medición guardada exitosamente.");
           
-          // 🔄 Mostrar mensaje para voltear la cámara
           showDualMessageWithTimeout('flip_camera', 5000);
         } else {
           await showErrorAlert("Error al guardar la primera medición.");
         }
 
       } else if (measurementState === 'first_done') {
-        // 🔄 Segunda medición - PUT Dual
         const payloadCamara = {
           id_project: parseInt(id),
           resolution: data.resolution,
@@ -412,14 +398,12 @@ function MedirTerrenoDual() {
           setMeasurementState('dual_done');
           await showSuccessAlert("Medición dual completada exitosamente.");
           
-          // 🎉 Mostrar mensaje de medición dual completada
           showDualMessageWithTimeout('dual_complete', 6000);
         } else {
           await showErrorAlert("Error al completar la medición dual.");
         }
 
       } else {
-        // 🔄 Ya hay medición dual completada
         closeLoadingAlert();
         await showErrorAlert("Ya existe una medición dual para este proyecto. Las distancias se sumaron y los demás datos se promediaron.");
       }
@@ -429,7 +413,6 @@ function MedirTerrenoDual() {
     }
   };
 
-  // 🆕 Componente para mostrar mensajes duales
   const DualMessage = () => {
     if (!showDualMessage) return null;
 
@@ -468,7 +451,7 @@ function MedirTerrenoDual() {
 
   return (
     <div className="ProjectPContainer">
-      {/* 🆕 Componente de mensaje dual */}
+      {/*  Componente de mensaje dual */}
       <DualMessage />
       
       <div className='ProjectFotoPContainer'>
@@ -561,7 +544,7 @@ function MedirTerrenoDual() {
           </ResponsiveContainer>
         </div>
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          {/* 🆕 Botón mejorado con indicadores de estado */}
+          {/*  Botón mejorado con indicadores de estado */}
           <button 
             className={`guardar-medidas-btn ${measurementState === 'dual_done' ? 'completed' : measurementState === 'first_done' ? 'dual-ready' : ''}`}
             onClick={handleGuardarMedidas}
@@ -572,7 +555,7 @@ function MedirTerrenoDual() {
             {measurementState === 'dual_done' && '✅ Medición dual completada'}
           </button>
           
-          {/* 🆕 Indicador de progreso */}
+          {/* Indicador de progreso */}
           <div className="measurement-progress">
             <div className={`progress-step ${measurementState !== 'initial' ? 'completed' : 'active'}`}>
               1️⃣ Primera medición
