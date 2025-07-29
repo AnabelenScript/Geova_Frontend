@@ -1,6 +1,6 @@
 .ProfileContainer{
-      background-color:#FAF6F1;
-    width: 98%;
+    background-color:#FAF6F1;
+    max-width: 98%;
     height: auto;
     border-bottom-right-radius: 30px;
     border-bottom-left-radius: 30px;
@@ -13,7 +13,7 @@
 }
 
 .ProfileTitleContainer{
-      width: 100% ;
+    width: 100% ;
     height: 20vh;
 }
 
@@ -24,28 +24,29 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 40px;
+    padding: 15px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-    clip-path: polygon( 35px 0%, calc(100% - 35px) 0%,100% 35px,100% 100%,0% 100%,0% 35px);
+    clip-path: polygon( 25px 0%, calc(100% - 25px) 0%,100% 25px,100% 100%,0% 100%,0% 25px);
 }
 
 .ProfileTitle h1{
-    font-size: 1.7em;
+    font-size :4vh;
+    margin: 0%;
+    font-weight: 600;
 }
 
-
 .ProfileTitle i{
-    font-size: 2em;
+    font-size: 5vh;
     color: #D68C0D;
 }
 
 .ProfileEndTitle {
-    margin-top: 20px;
+    margin-top: 12px;
     background-color: #FFEAB9;
     width: 100%;
     height: 5vh;
-    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 35px) 100%, 35px 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 25px) 100%, 25px 100%);
 }
 
 .ProfileData{
@@ -273,4 +274,85 @@
 .CancelEditButton:hover{
     color: white;
     background-color: #D68C0D;
+}
+
+/* 📱 Celulares en vertical */
+@media screen and (max-width: 768px) and (max-aspect-ratio: 3/4) {
+  .ProfileData {
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+    padding: 30px 20px;
+    gap: 20px;
+  }
+
+  .ProfilePhoto {
+    width: 100%;
+    height: auto;
+  }
+
+  .ProfilePhoto i {
+    font-size: 10em;
+  }
+
+  .ProfileInfo {
+    width: 100%;
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .ProfileOptions {
+    flex-direction: row;
+    width: 100%;
+    gap: 20px;
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .editiconcontainer,
+  .deleteiconcontainer {
+    font-size: 1.2em;
+  }
+}
+
+
+/* 💻 Tabletas en horizontal */
+@media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) {
+  .ProfileData {
+    flex-direction: row;
+    height: 60vh;
+    width: 100%;
+    padding: 20px;
+    gap: 30px;
+  }
+
+  .ProfilePhoto {
+    width: 35%;
+    height: 100%;
+  }
+
+  .ProfileInfo {
+    width: 50%;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+  }
+  .ProfileInfo h3{
+    text-align: left;
+    font-size: 18px;
+  }
+  .ProfileInfo p {
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .ProfileOptions {
+    width: 10%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+  }
 }

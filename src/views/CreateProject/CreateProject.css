@@ -76,22 +76,23 @@
     border-radius: 10px;
     font-size: 70px;
     cursor: pointer;
-     display: inline-block;
-  text-align: center;
-  line-height: 100px;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #D68C0D;
+    display: inline-block;
+    text-align: center;
+    line-height: 100px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #D68C0D;
 }
 
 .CreateInfo1 .AddButton:hover{
     outline: none;
-    border-color:#FFEAB9;
-    box-shadow: 0 8px 10px #f8d393f3;
+    box-sizing: border-box;
+    border: dashed #E6AF2E;
+    transition: .2s;
 }
 
 
@@ -218,8 +219,7 @@ input:hover, input:focus, select:hover {
 
 .CreateArea textarea:active, textarea:focus, textarea:hover{
     outline: none;
-    border-color:#FFEAB9;
-    box-shadow: 0 8px 10px #f8d393f3;
+    border: solid 2px #E6AF2E;
 }
 
 .CreateButton{
@@ -244,8 +244,6 @@ input:hover, input:focus, select:hover {
     transition: .1s;
 }
 
-
-
 .Info{
     display: flex;
     gap: 30px;
@@ -260,6 +258,7 @@ input:hover, input:focus, select:hover {
 .Map img{
     width: 100%;
 }
+
 .Map{
     height: 50vh;
     overflow-y: hidden;
@@ -285,4 +284,90 @@ input:hover, input:focus, select:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Para celulares en vertical */
+@media screen and (max-width: 768px) and (max-aspect-ratio: 3/4) {
+  .Info {
+    flex-direction: column;
+  }
+
+  .CreateInfo1 {
+    width: 100%;
+    height: auto;
+  }
+
+  .CreateInfo1 .AddButton {
+    font-size: 40px;
+    height: 30vh;
+  }
+
+  .CreateInfo2 {
+    width: 100%;
+  }
+
+  .CreateLabels {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .labels input, select {
+    height: 36px;
+  }
+
+  .CancelButton,
+  .CreateButton {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .buttonsContainer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .Map {
+    height: 35vh;
+  }
+}
+
+
+/* Para tablets horizontales */
+@media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) and (max-width: 1024px) {
+  .Info {
+    flex-direction: row;
+  }
+
+  .CreateInfo1 {
+    width: 57%;
+    height: auto; /* Cuadrado */
+  }
+
+  .CreateInfo1 .AddButton {
+    font-size: 60px;
+    height: 100%;
+  }
+
+  .CreateInfo2 {
+    width: 43%;
+  }
+
+  .CreateLabels {
+    flex-direction: column;
+  }
+
+  .CancelButton {
+    width: 30%;
+  }
+  .CreateButton {
+    width: 70%;
+  }
+
+  .buttonsContainer {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .Map {
+    height: 50vh;
+  }
 }
