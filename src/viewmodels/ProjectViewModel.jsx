@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
 import './alerts.css'
-import { showSuccessAlert, showErrorAlert, showConfirmAlert} from '../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showConfirmAlert, showCautionAlert} from '../utils/alerts';
 
 let selectedProjectId = null;
 let allProjects = [];
