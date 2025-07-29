@@ -40,6 +40,7 @@
 
 .main-content{
   margin-left: 35vh;      
+  width: 78%;
   transition: margin-left .3s ease;
   flex: 1;
   min-height: 100vh;
