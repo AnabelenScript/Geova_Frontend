@@ -218,7 +218,6 @@
 .profdata input:focus, input:hover {
  outline: none;
  border-color:#D68C0D;
- background-color: #fff;
 }
 
 .profdataview{
@@ -248,32 +247,35 @@
 
 .CancelEditButton{
     width: 100%;
-   height: 35px;
-   border-top-left-radius: 50px;
-   border-bottom-left-radius: 50px;
-    border: 2px solid #D68C0D;
+    height: 45px;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    border: 1px solid #D68C0D;
     background-color: white;
 
 }
 
 .GuardarEditButton{
     width: 100%;
-    height: 35px;
+    height: 45px;
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
-    border: 2px solid #D68C0D;
-    background-color: white;
+    border: 1px solid #D68C0D;
+    background-color: #FFEAB9;
 
 }
 
-.GuardarEditButton:hover{
-    color: white;
-    background-color: #D68C0D;
-}
-
+.GuardarEditButton:hover,
 .CancelEditButton:hover{
     color: white;
     background-color: #D68C0D;
+    transition: .2s;
+}
+
+.GuardarEditButton:active,
+.CancelEditButton:active{
+    transform: scale(.9);
+    transition: .2s;
 }
 
 /* 📱 Celulares en vertical */

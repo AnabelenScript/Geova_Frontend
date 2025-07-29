@@ -126,7 +126,6 @@
 .input:focus, input:hover {
  outline: none;
  border-color:#D68C0D;
- background-color: #fff;
 }
 
 .icon {

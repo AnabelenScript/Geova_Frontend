@@ -81,7 +81,6 @@
   gap: 30px;
 }
 
-
 .inputform{
   display: flex;
   flex-direction: column;
@@ -101,8 +100,6 @@
   font-size: 1em;
   width: 100%;
 }
-
-
 
 .inputform input{
   width: 100%;
@@ -141,6 +138,17 @@
   align-items: center;
 }
 
+.buttonform button:hover {
+  transform: scale(.9);
+  transition: .2s;
+}
+.buttonform button:active {
+  transform: scale(.8);
+  transition: .2s;
+  background-color: #FFEAB9;
+  color: #000;
+}
+
 /*Estilos para una pantalla mayor*/
 
 @media (min-width: 1921px) {
@@ -166,20 +174,20 @@
   }
 
   .inputform input::placeholder{
-  font-size: 18px;
-}
+    font-size: 18px;
+  }
 
-.loginbutton{
-  height: 52px;
-  font-size: 22px;
-}
-.inputform{
-  gap: 14px;
+  .loginbutton{
+    height: 52px;
+    font-size: 22px;
+  }
+  .inputform{
+    gap: 14px;
 
-}
-.buttonform{
-  gap: 10px;
-}
+  }
+  .buttonform{
+    gap: 10px;
+  }
 
 }
 
@@ -251,5 +259,11 @@
 
   .logo {
     width: 35px;
+  }
+}
+
+@media screen and (max-width: 768) {
+  .LoginContainer {
+    width: 100%;
   }
 }

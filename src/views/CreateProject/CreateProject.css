@@ -243,6 +243,10 @@ input:hover, input:focus, select:hover {
 
     transition: .1s;
 }
+.CreateButton:active, .CancelButton:active{
+    transform: scale(.9);
+    transition: .2s;
+}
 
 .Info{
     display: flex;
