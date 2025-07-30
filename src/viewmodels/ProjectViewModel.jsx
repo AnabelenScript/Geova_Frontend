@@ -303,7 +303,7 @@ async handleGetSensorTFLunaByProjectId(id_project) {
 
 async handlePostSensorMPU(sensorData) {
   try {
-    console.log('📤 Enviando datos al sensor TfLuna:', sensorData);
+    console.log('📤 Enviando datos al sensor MPU:', sensorData);
 
     const response = await mpuSensorService.postSensorMPU(sensorData);
 

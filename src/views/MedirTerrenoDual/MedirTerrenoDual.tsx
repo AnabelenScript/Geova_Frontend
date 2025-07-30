@@ -4,7 +4,10 @@ import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { cameraService } from '../../services/cameraService';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert} from '../../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert } from '../../utils/alerts';
+import Swal from 'sweetalert2';
+import alerticon from '../../assets/alerticon.svg';
+import succesfulicon from '../../assets/sucessfulicon.svg';
 
 import './MedirTerreno.css';
 
@@ -33,22 +36,32 @@ function MedirTerrenoDual() {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState(null);
-  const [isFromAPI, setIsFromAPI] = useState(false);
-  const [lastTfData, setLastTfData] = useState(null);
-  const [useRealtime, setUseRealtime] = useState(true);
   
   const [measurementState, setMeasurementState] = useState('initial');
   const [lastMeasurementIds, setLastMeasurementIds] = useState({ imx: null, tf: null, mpu: null });
   const [showDualMessage, setShowDualMessage] = useState(false);
   const [dualMessageType, setDualMessageType] = useState('');
   
-  const [tfDataHistory, setTfDataHistory] = useState({
+  // Historial de datos en tiempo real para las gráficas
+  const tfDataHistoryRef = useRef({
     distancia_cm_history: [],
     fuerzaSenal_history: [],
     temperatura_history: [],
     inclinacion_history: [],
     apertura_history: []
   });
+
+  const [tfDataHistory, setTfDataHistory] = useState(tfDataHistoryRef.current);
+
+  // Ref para el radar data en tiempo real
+  const radarDataRef = useRef([
+    { atributo: 'Calidad', valor: 0, evaluacion: '' },
+    { atributo: 'Nitidez', valor: 0 },
+    { atributo: 'Luminosidad', valor: 0 },
+    { atributo: 'Confiabilidad', valor: 0 }
+  ]);
+
+  const [radarData, setRadarData] = useState(radarDataRef.current);
 
   const imgRef = useRef(null);
   const { data: websocketData } = graphViewModel.useGraphData();
@@ -72,11 +85,84 @@ function MedirTerrenoDual() {
   const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
   const showDualMessageWithTimeout = (type, duration = 4000) => {
+    if (type === 'flip_camera') {
+      Swal.fire({
+        title: '¡Primera medición completada!',
+        text: 'Voltea la cámara hacia el lado opuesto para realizar la medición dual.',
+        imageUrl: alerticon,
+        imageWidth: 200,
+        imageHeight: 200,
+        showConfirmButton: false,
+        timer: 5000, // 5 segundos para dar tiempo a leer las instrucciones
+        background: '#fff',
+        color: '#333',
+        customClass: {
+          popup: 'succesful-popup',
+          title: 'succesful-title'
+        }
+      });
+    } else if (type === 'dual_complete') {
+      Swal.fire({
+        title: '¡Medición Dual Completada!',
+        text: 'Las distancias se han sumado y los demás datos se promediaron automáticamente.',
+        imageUrl: succesfulicon,
+        imageWidth: 200,
+        imageHeight: 200,
+        showConfirmButton: false,
+        timer: 4000, // 4 segundos para mostrar el resultado
+        background: '#fff',
+        color: '#333',
+        customClass: {
+          popup: 'succesful-popup',
+          title: 'succesful-titulo',
+          confirmButton: 'succesful-confirmar',
+          htmlContainer: 'succesful-contenido'
+        }
+      });
+    }
+    
     setDualMessageType(type);
     setShowDualMessage(true);
     setTimeout(() => {
       setShowDualMessage(false);
     }, duration);
+  };
+
+  // Función para actualizar el historial de gráficas en tiempo real
+  const updateGraphHistory = (type, value, timestamp) => {
+    const timeLabel = timestamp || new Date().toLocaleTimeString();
+    
+    tfDataHistoryRef.current[`${type}_history`] = [
+      ...tfDataHistoryRef.current[`${type}_history`].slice(-19),
+      { name: timeLabel, valor: value }
+    ];
+    
+    setTfDataHistory({ ...tfDataHistoryRef.current });
+  };
+
+  // Función para actualizar radar data en tiempo real
+  const updateRadarData = () => {
+    radarDataRef.current = [
+      {
+        atributo: 'Calidad',
+        valor: data.calidad ? Number((data.calidad * 100).toFixed(2)) : 0,
+        evaluacion: data.calidad ? evaluarFPS(data.calidad * 30) : '',
+      },
+      {
+        atributo: 'Nitidez',
+        valor: data.nitidez ? Number(normalizarNitidez(data.nitidez).toFixed(2)) : 0,
+      },
+      {
+        atributo: 'Luminosidad',
+        valor: data.luminosidad ? Number(normalizarLuminosidad(data.luminosidad).toFixed(2)) : 0,
+      },
+      {
+        atributo: 'Confiabilidad',
+        valor: data.probabilidad ? Number((data.probabilidad).toFixed(2)) : 0,
+      },
+    ];
+    
+    setRadarData([...radarDataRef.current]);
   };
 
   useEffect(() => {
@@ -93,24 +179,13 @@ function MedirTerrenoDual() {
             setLastMeasurementIds(prev => ({ ...prev, imx: last.id }));
           }
           
+          // Solo establecer datos iniciales de configuración
           setData(prevData => ({
             ...prevData,
-            calidad: last.calidad_frame,
-            nitidez: last.nitidez_score,
-            distancia: last.distancia_cm,
-            luminosidad: last.luminosidad_promedio,
             resolution: last.resolution,
             laser_detectado: last.laser_detectado,
             event: last.event,
-            probabilidad: last.probabilidad_confiabilidad,
-            timestamp: last.timestamp,
-            fuerzaSenal: last.fuerza_senal
-              ? `${last.fuerza_senal} (${evaluarFuerzaSenal(last.fuerza_senal)})`
-              : "No disponible",
-            temperatura: last.temperatura ?? 0,
-            apertura: last.apertura,
           }));
-          setIsFromAPI(true);
         }
 
         const tfResponse = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
@@ -120,25 +195,6 @@ function MedirTerrenoDual() {
           if (lastTF.measurement_count === 1 && measurementState !== 'dual_done') {
             setLastMeasurementIds(prev => ({ ...prev, tf: lastTF.id }));
           }
-          
-          const history = tfResponse.data.map((entry) => {
-            const time = new Date(entry.timestamp).toLocaleTimeString();
-            return {
-              distancia: { name: time, valor: entry.distancia_cm },
-              fuerza: { name: time, valor: entry.fuerza_senal },
-              temp: { name: time, valor: entry.temperatura }
-            };
-          });
-
-          setTfDataHistory({
-            distancia_cm_history: history.map(h => h.distancia),
-            fuerzaSenal_history: history.map(h => h.fuerza),
-            temperatura_history: history.map(h => h.temp),
-            inclinacion_history: [],
-            apertura_history: []
-          });
-
-          setUseRealtime(false);
         }
 
         const mpuResponse = await projectViewModel.handleGetSensorMPUByProjectId(id);
@@ -156,8 +212,9 @@ function MedirTerrenoDual() {
     fetchSensorData();
   }, [id]);
 
+  // WebSocket IMX477 con actualización de radar en tiempo real
   useEffect(() => {
-    if (!isFromAPI && websocketData?.sensor === 'IMX477') {
+    if (websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
       setData(prevData => ({
         ...prevData,
@@ -170,66 +227,58 @@ function MedirTerrenoDual() {
         event: sensorData.event,
         timestamp: sensorData.timestamp
       }));
-    }
-  }, [websocketData, isFromAPI]);
 
-  useEffect(() => {
-    if (websocketData?.sensor === 'TF-Luna') {
-      setLastTfData(websocketData.data);
+      // Actualizar radar data inmediatamente
+      setTimeout(() => updateRadarData(), 100);
     }
   }, [websocketData]);
 
+  // WebSocket TF-Luna con actualización de gráficas en tiempo real
   useEffect(() => {
-    if (websocketData?.sensor === 'MPU6050') {
+    if (!websocketData) return;
+
+    if (websocketData.sensor === 'TF-Luna') {
+      const tf = websocketData.data;
+      const distancia = typeof tf.distancia_m === 'number' ? tf.distancia_m * 100 : 0;
+      const fuerza = typeof tf.fuerza_senal === 'number' ? tf.fuerza_senal : 0;
+      const temperatura = typeof tf.temperatura === 'number' ? tf.temperatura : 0;
+
+      // Actualizar gráficas en tiempo real
+      updateGraphHistory('distancia_cm', distancia, tf.timestamp);
+      updateGraphHistory('fuerzaSenal', fuerza, tf.timestamp);
+      updateGraphHistory('temperatura', temperatura, tf.timestamp);
+
+      setData(prev => ({
+        ...prev,
+        distancia,
+        fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
+        temperatura,
+        timestamp: tf.timestamp
+      }));
+    }
+
+    if (websocketData.sensor === 'MPU6050') {
       const { roll, pitch, apertura } = websocketData.data;
       if (typeof roll === 'number' && typeof pitch === 'number' && typeof apertura === 'number') {
         const inclinacion = roll + pitch;
+
+        // Actualizar gráficas en tiempo real
+        updateGraphHistory('inclinacion', inclinacion);
+        updateGraphHistory('apertura', apertura);
 
         setData(prev => ({
           ...prev,
           inclinacion,
           apertura,
         }));
-
-        const now = new Date().toLocaleTimeString();
-        setTfDataHistory(prev => ({
-          ...prev,
-          inclinacion_history: [...prev.inclinacion_history.slice(-19), { name: now, valor: inclinacion }],
-          apertura_history: [...prev.apertura_history.slice(-19), { name: now, valor: apertura }],
-        }));
       }
     }
   }, [websocketData]);
 
+  // Actualizar radar data cuando cambien los datos principales
   useEffect(() => {
-    if (!useRealtime) return;
-
-    const interval = setInterval(() => {
-      if (lastTfData) {
-        const timestamp = new Date().toLocaleTimeString();
-        const distancia = lastTfData.distancia_m * 100;
-        const fuerza = lastTfData.fuerza_senal;
-        const temperatura = lastTfData.temperatura ?? 0;
-
-        setData(prev => ({
-          ...prev,
-          distancia,
-          fuerzaSenal: `${fuerza} (${evaluarFuerzaSenal(fuerza)})`,
-          temperatura,
-          timestamp: lastTfData.timestamp
-        }));
-
-        setTfDataHistory(prev => ({
-          ...prev,
-          distancia_cm_history: [...prev.distancia_cm_history.slice(-19), { name: timestamp, valor: distancia }],
-          fuerzaSenal_history: [...prev.fuerzaSenal_history.slice(-19), { name: timestamp, valor: fuerza }],
-          temperatura_history: [...prev.temperatura_history.slice(-19), { name: timestamp, valor: temperatura }]
-        }));
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [lastTfData, useRealtime]);
+    updateRadarData();
+  }, [data.calidad, data.nitidez, data.luminosidad, data.probabilidad]);
 
   const startStream = async () => {
     try {
@@ -261,26 +310,6 @@ function MedirTerrenoDual() {
       console.error('Error deteniendo stream:', error);
     }
   };
-
-  const radarData = [
-    {
-      atributo: 'Calidad',
-      valor: data.calidad ? Number((data.calidad * 100).toFixed(2)) : 0,
-      evaluacion: data.calidad ? evaluarFPS(data.calidad * 30) : '',
-    },
-    {
-      atributo: 'Nitidez',
-      valor: data.nitidez ? Number(normalizarNitidez(data.nitidez).toFixed(2)) : 0,
-    },
-    {
-      atributo: 'Luminosidad',
-      valor: data.luminosidad ? Number(normalizarLuminosidad(data.luminosidad).toFixed(2)) : 0,
-    },
-    {
-      atributo: 'Confiabilidad',
-      valor: data.probabilidad ? Number((data.probabilidad).toFixed(2)) : 0,
-    },
-  ];
 
   const handleGuardarMedidas = async () => {
     showLoadingAlert(); 
@@ -343,7 +372,7 @@ function MedirTerrenoDual() {
           setMeasurementState('first_done');
           await showSuccessAlert("Primera medición guardada exitosamente.");
           
-          showDualMessageWithTimeout('flip_camera', 5000);
+          showDualMessageWithTimeout('flip_camera', 1000);
         } else {
           await showErrorAlert("Error al guardar la primera medición.");
         }
@@ -398,7 +427,7 @@ function MedirTerrenoDual() {
           setMeasurementState('dual_done');
           await showSuccessAlert("Medición dual completada exitosamente.");
           
-          showDualMessageWithTimeout('dual_complete', 6000);
+          showDualMessageWithTimeout('dual_complete', 1000);
         } else {
           await showErrorAlert("Error al completar la medición dual.");
         }
@@ -414,46 +443,12 @@ function MedirTerrenoDual() {
   };
 
   const DualMessage = () => {
-    if (!showDualMessage) return null;
-
-    return (
-      <div className="dual-message-overlay">
-        <div className="dual-message-container">
-          {dualMessageType === 'flip_camera' && (
-            <>
-              <div className="dual-message-icon">🔄</div>
-              <h3>¡Primera medición completada!</h3>
-              <p>Ahora voltea la cámara hacia el lado opuesto para realizar la medición dual.</p>
-              <div className="dual-message-animation">
-                <span>📷</span>
-                <span className="arrow">→</span>
-                <span>🔄</span>
-                <span className="arrow">→</span>
-                <span>📷</span>
-              </div>
-            </>
-          )}
-          {dualMessageType === 'dual_complete' && (
-            <>
-              <div className="dual-message-icon">✅</div>
-              <h3>¡Medición Dual Completada!</h3>
-              <p>Las distancias se han sumado y los demás datos se promediaron automáticamente.</p>
-              <div className="dual-message-stats">
-                <span>📏 Distancias: Sumadas</span>
-                <span>📊 Otros datos: Promediados</span>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    );
+    // Ya no necesitamos este componente porque usamos SweetAlert2
+    return null;
   };
 
   return (
     <div className="ProjectPContainer">
-      {/*  Componente de mensaje dual */}
-      <DualMessage />
-      
       <div className='ProjectFotoPContainer'>
         <div className='ProjectData'>
           <label>Calidad</label>
@@ -511,7 +506,7 @@ function MedirTerrenoDual() {
       </div>
 
       <div className="RadarGraphSection">
-        <h2>Gráfica del sensor de cámara y fiabilidad de datos</h2>
+        <h2>Gráfica del sensor de cámara y fiabilidad de datos (Tiempo Real)</h2>
         <div style={{ width: '100%', height: 400 }}>
           <ResponsiveContainer>
             <RadarChart data={radarData}>
@@ -524,6 +519,7 @@ function MedirTerrenoDual() {
                 stroke="black"
                 fill="#E6AF2E"
                 fillOpacity={0.6}
+                animationDuration={300}
               />
               <Tooltip
                 wrapperStyle={{
@@ -544,98 +540,131 @@ function MedirTerrenoDual() {
           </ResponsiveContainer>
         </div>
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          {/*  Botón mejorado con indicadores de estado */}
           <button 
             className={`guardar-medidas-btn ${measurementState === 'dual_done' ? 'completed' : measurementState === 'first_done' ? 'dual-ready' : ''}`}
             onClick={handleGuardarMedidas}
             disabled={measurementState === 'dual_done'}
           >
-            {measurementState === 'initial' && '📏 Realizar primera medición'}
+            {measurementState === 'initial' && '📊 Realizar primera medición'}
             {measurementState === 'first_done' && '🔄 Completar medición dual'}
             {measurementState === 'dual_done' && '✅ Medición dual completada'}
           </button>
           
-          {/* Indicador de progreso */}
           <div className="measurement-progress">
             <div className={`progress-step ${measurementState !== 'initial' ? 'completed' : 'active'}`}>
-              1️⃣ Primera medición
+              Primera medición
             </div>
             <div className="progress-arrow">→</div>
             <div className={`progress-step ${measurementState === 'dual_done' ? 'completed' : measurementState === 'first_done' ? 'active' : ''}`}>
-              2️⃣ Medición dual
+             Medición dual
             </div>
           </div>
         </div>
       </div>
 
       <div className="TFGraphsContainer">
-        <h2>Gráficas del sensor TF-Luna</h2>
+        <h2>Gráficas del sensor TF-Luna (Tiempo Real)</h2>
 
         <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Distancia (cm)</h4>
+          <h4>Distancia (cm) - Actualización en Tiempo Real</h4>
           <ResponsiveContainer>
             <LineChart data={tfDataHistory.distancia_cm_history}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis unit="cm" />
               <Tooltip formatter={(value) => [`${value.toFixed(2)} cm`, 'Distancia']} />
-              <Line type="monotone" dataKey="valor" stroke="#8884d8" strokeWidth={2} dot={false} />
+              <Line 
+                type="monotone" 
+                dataKey="valor" 
+                stroke="#8884d8" 
+                strokeWidth={2} 
+                dot={false}
+                animationDuration={200}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Fuerza de Señal</h4>
+          <h4>Fuerza de Señal - Actualización en Tiempo Real</h4>
           <ResponsiveContainer>
             <LineChart data={tfDataHistory.fuerzaSenal_history}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip formatter={(value) => [`${value.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
-              <Line type="monotone" dataKey="valor" stroke="#82ca9d" strokeWidth={2} dot={false} />
+              <Line 
+                type="monotone" 
+                dataKey="valor" 
+                stroke="#82ca9d" 
+                strokeWidth={2} 
+                dot={false}
+                animationDuration={200}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Temperatura (°C)</h4>
+          <h4>Temperatura (°C) - Actualización en Tiempo Real</h4>
           <ResponsiveContainer>
             <LineChart data={tfDataHistory.temperatura_history}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis unit="°C" />
               <Tooltip formatter={(value) => [`${value.toFixed(2)} °C`, 'Temperatura']} />
-              <Line type="monotone" dataKey="valor" stroke="#ff7300" strokeWidth={2} dot={false} />
+              <Line 
+                type="monotone" 
+                dataKey="valor" 
+                stroke="#ff7300" 
+                strokeWidth={2} 
+                dot={false}
+                animationDuration={200}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="TFGraphsContainer">
-        <h2>Gráficas del sensor MPU</h2>
+        <h2>Gráficas del sensor MPU (Tiempo Real)</h2>
 
         <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Inclinación (°)</h4>
+          <h4>Inclinación (°) - Actualización en Tiempo Real</h4>
           <ResponsiveContainer>
             <LineChart data={tfDataHistory.inclinacion_history}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis unit="°" />
               <Tooltip formatter={(value) => [`${value.toFixed(2)} °`, 'Inclinación']} />
-              <Line type="monotone" dataKey="valor" stroke="#2e86de" strokeWidth={2} dot={false} />
+              <Line 
+                type="monotone" 
+                dataKey="valor" 
+                stroke="#2e86de" 
+                strokeWidth={2} 
+                dot={false}
+                animationDuration={200}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Apertura (°)</h4>
+          <h4>Apertura (°) - Actualización en Tiempo Real</h4>
           <ResponsiveContainer>
             <LineChart data={tfDataHistory.apertura_history}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis unit="°" />
               <Tooltip formatter={(value) => [`${value.toFixed(2)} °`, 'Apertura']} />
-              <Line type="monotone" dataKey="valor" stroke="#1abc9c" strokeWidth={2} dot={false} />
+              <Line 
+                type="monotone" 
+                dataKey="valor" 
+                stroke="#1abc9c" 
+                strokeWidth={2} 
+                dot={false}
+                animationDuration={200}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

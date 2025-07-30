@@ -66,9 +66,6 @@ const [tfDataHistory, setTfDataHistory] = useState(tfDataHistoryRef.current);
   const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
   const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
 
-  // Carga de datos iniciales
-
-  // WebSocket IMX477
   useEffect(() => {
     if (websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
@@ -86,7 +83,6 @@ const [tfDataHistory, setTfDataHistory] = useState(tfDataHistoryRef.current);
     }
   }, [websocketData]);
 
-  // WebSocket TF-Luna
   useEffect(() => {
   if (!websocketData) return;
 
