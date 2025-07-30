@@ -32,7 +32,6 @@
     overflow: hidden;
 }
 
-/* Esquinas decorativas */
 .ProjectphotoContainer::before {
     content: "";
     position: absolute;

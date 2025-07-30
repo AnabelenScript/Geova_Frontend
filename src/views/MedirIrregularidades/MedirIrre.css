@@ -224,7 +224,7 @@
 }
 
 .start-btn {
-    background-color: #28a745;
+    background-color: #E6AF2E;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -233,13 +233,13 @@
     font-size: 1rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 8px rgba(167, 146, 40, 0.4);
 }
 
 .start-btn:hover {
-    background-color: #218838;
+    background-color: #ce9000;
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+    box-shadow: 0 6px 12px rgba(167, 146, 40, 0.4);
 }
 
 .start-btn:disabled {
@@ -280,7 +280,7 @@
 }
 
 .stop-btn:hover {
-    background-color: #e0a800;
+    background-color: #febe00;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(255, 193, 7, 0.4);
 }
@@ -290,7 +290,7 @@
     padding: 15px;
     border-radius: 10px;
     text-align: center;
-    border-left: 4px solid #2196f3;
+    border-left: 4px solid #E6AF2E;
 }
 
 .collection-info p {
@@ -300,7 +300,7 @@
 
 .collection-info p:first-child {
     font-weight: bold;
-    color: #1976d2;
+    color: #E6AF2E;
 }
 
 .connection-status {

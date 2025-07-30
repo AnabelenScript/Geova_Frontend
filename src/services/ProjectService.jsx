@@ -38,8 +38,6 @@ export const projectService = {
     const response = await axios.get(`${API_URL}/user/${idUser}`);
     return response.data;
   },
-
-  // Función para verificar si la API local está disponible
   async checkLocalAPIAvailability() {
     try {
       const response = await axios.get(`${API_URL_LOCAL2}/health`, {
