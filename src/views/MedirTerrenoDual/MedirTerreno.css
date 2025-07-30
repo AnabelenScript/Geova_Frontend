@@ -1,4 +1,3 @@
-/* Contenedor principal */
 .ProjectPContainer{
     background-color: #FAF6F1;
     width: 98%;
@@ -13,17 +12,16 @@
     flex-direction: column;
 }
 
-/* Paneles de datos laterales */
 .ProjectData{
-    width: 8vw;
+    width: auto;
     height: 100%;
     display: flex;
+    gap: 0px;
     flex-direction: column;
 }
 
-/* Container principal de la cámara */
 .ProjectphotoContainer {
-    width: 60vw;
+    width: 100%;
     height: 70vh;
     background-color: transparent;
     margin: 70px 0px;
@@ -78,37 +76,30 @@
     z-index: 1;
 }
 
-/* Container interno con forma recortada */
 .MainphotoContainer{
     width: 100%;
     height: 100%;
     background-image: url(../../assets/fondo_login.png);
     background-size: cover;
     background-position: center;
-    clip-path: polygon(
-        95px 0%, 
-        calc(100% - 95px) 0%, 
-        100% 95px, 
-        100% calc(100% - 95px), 
-        calc(100% - 95px) 100%, 
-        95px 100%, 
-        0% calc(100% - 95px), 
-        0% 95px
-    );
+    clip-path: polygon( 95px 0%, 
+                        calc(100% - 95px) 0%, 
+                        100% 95px, 
+                        100% calc(100% - 95px), 
+                        calc(100% - 95px) 100%, 
+                        95px 100%, 
+                        0% calc(100% - 95px), 
+                        0% 95px );
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     padding: 60px 40px 40px 40px;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
     color: white;
     position: relative;
 }
 
-/* ===== NUEVOS ESTILOS PARA VERSION LIMPIA ===== */
-
-/* Stream de video que ocupa todo el espacio disponible */
 .camera-stream-full {
     position: absolute;
     top: 60px;
@@ -124,7 +115,6 @@
     z-index: 2;
 }
 
-/* Indicador de streaming activo - posición estratégica */
 .stream-status-indicator {
     position: absolute;
     top: 75px;
@@ -180,7 +170,6 @@
     transform: scale(1.05);
 }
 
-/* Mensaje cuando la cámara está inactiva */
 .camera-inactive-message {
     position: absolute;
     top: 50%;
@@ -204,7 +193,6 @@
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Botón de la cámara mejorado */
 .Takephotobutton {
     position: absolute;
     bottom: 15px;
@@ -213,16 +201,14 @@
     width: 6vw;
     height: 12vh;
     background-color: #FFEAB9;
-    clip-path: polygon(
-        1.6vw 0%, 
-        calc(100% - 1.6vw) 0%, 
-        100% 1.6vw, 
-        100% calc(100% - 1.6vw), 
-        calc(100% - 1.6vw) 100%, 
-        1.6vw 100%, 
-        0% calc(100% - 1.6vw), 
-        0% 1.6vw
-    );
+    clip-path: polygon( 1.6vw 0%, 
+                        calc(100% - 1.6vw) 0%, 
+                        100% 1.6vw, 
+                        100% calc(100% - 1.6vw), 
+                        calc(100% - 1.6vw) 100%, 
+                        1.6vw 100%, 
+                        0% calc(100% - 1.6vw), 
+                        0% 1.6vw);
     box-sizing: border-box;
     padding: 8px;
     display: flex;
@@ -237,16 +223,14 @@
     background-color: #E6AF2E;
     width: 100%;
     height: 100%;
-    clip-path: polygon(
-        1.5vw 0%, 
-        calc(100% - 1.5vw) 0%, 
-        100% 1.5vw, 
-        100% calc(100% - 1.5vw), 
-        calc(100% - 1.5vw) 100%, 
-        1.5vw 100%, 
-        0% calc(100% - 1.5vw), 
-        0% 1.5vw
-    );
+    clip-path: polygon( 1.5vw 0%, 
+                        calc(100% - 1.5vw) 0%, 
+                        100% 1.5vw, 
+                        100% calc(100% - 1.5vw), 
+                        calc(100% - 1.5vw) 100%, 
+                        1.5vw 100%, 
+                        0% calc(100% - 1.5vw), 
+                        0% 1.5vw);
     cursor: pointer;
     font-size: 2rem;
     color: white;
@@ -271,242 +255,39 @@
     50% { opacity: 0.6; }
 }
 
-/* ===== ESTILOS ORIGINALES MANTENIDOS ===== */
-
 /* Estilos de los datos laterales */
 .ProjectData label {
+    position: relative;
+    width: 100%;
     font-size: 1.1rem;
     font-weight: bold;
-    color: white;
-    margin-bottom: 8px;
-    font-family: Arial, Helvetica, sans-serif;
+    color: #000;
+    margin: 0px;
     padding: 5px;
     text-align: center;
-    border-radius: 10px;
-    background-color: #E6AF2E;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: #fff;
     transition: all 0.3s ease;
 }
 
-.ProjectData label:hover {
-    background-color: #d4941a;
-    transform: translateY(-2px);
-}
-
 .ProjectData span {
+    position: relative;
+    width: 100%;
     font-size: 1.2rem;
     color: #333;
-    padding: 12px 8px;
+    padding: 8px 5px;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #FFF;
-    border-radius: 8px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     margin-bottom: 12px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     font-weight: 500;
     min-height: 40px;
-}
-
-.ProjectData span:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    transform: translateY(-1px);
-}
-
-/* Responsividad */
-@media (max-width: 1200px) {
-    .ProjectPContainer {
-        flex-direction: column;
-        height: auto;
-        gap: 30px;
-    }
-    
-    .ProjectData {
-        width: 90%;
-        height: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    
-    .ProjectphotoContainer {
-        width: 90%;
-        height: 50vh;
-        margin: 20px 0;
-    }
-    
-    .MainphotoContainer {
-        gap: 20px;
-        padding: 40px 20px 20px 20px;
-    }
-    
-    .camera-stream-full {
-        top: 40px;
-        left: 20px;
-        right: 20px;
-        bottom: 80px;
-        width: calc(100% - 40px);
-        height: calc(100% - 120px);
-    }
-    
-    .stream-status-indicator {
-        top: 55px;
-        right: 35px;
-    }
-    
-    .Takephotobutton {
-        width: 80px;
-        height: 80px;
-        bottom: 10px;
-    }
-    
-    .camera-inactive-message h2 {
-        font-size: 1.6rem;
-    }
-    
-    .camera-inactive-message p {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .ProjectPContainer {
-        padding: 20px;
-        gap: 20px;
-    }
-    
-    .ProjectphotoContainer {
-        height: 40vh;
-        width: 95%;
-    }
-    
-    .MainphotoContainer {
-        padding: 30px 15px 15px 15px;
-    }
-    
-    .camera-stream-full {
-        top: 30px;
-        left: 15px;
-        right: 15px;
-        bottom: 70px;
-        width: calc(100% - 30px);
-        height: calc(100% - 100px);
-    }
-    
-    .stream-status-indicator {
-        top: 45px;
-        right: 30px;
-        font-size: 0.75rem;
-        padding: 6px 12px;
-    }
-    
-    .camera-inactive-message h2 {
-        font-size: 1.4rem;
-    }
-    
-    .camera-inactive-message p {
-        font-size: 0.9rem;
-    }
-    
-    .ProjectData {
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-    }
-    
-    .ProjectData label,
-    .ProjectData span {
-        flex: 1;
-        min-width: 120px;
-        margin: 5px;
-    }
-    
-    .ProjectData span {
-        font-size: 1rem;
-        padding: 8px;
-        min-height: 35px;
-    }
-    
-    .Takephotobutton {
-        width: 70px;
-        height: 70px;
-    }
-    
-    .TakeButton {
-        font-size: 1.5rem;
-    }
-    
-    .stream-error-overlay {
-        padding: 15px;
-        max-width: 90%;
-    }
-}
-
-@media (max-width: 480px) {
-    .ProjectPContainer {
-        padding: 15px;
-        gap: 15px;
-    }
-    
-    .ProjectphotoContainer {
-        height: 35vh;
-        width: 98%;
-        margin: 10px 0;
-    }
-    
-    .MainphotoContainer {
-        padding: 25px 10px 10px 10px;
-    }
-    
-    .camera-stream-full {
-        top: 25px;
-        left: 10px;
-        right: 10px;
-        bottom: 60px;
-        width: calc(100% - 20px);
-        height: calc(100% - 85px);
-    }
-    
-    .stream-status-indicator {
-        top: 40px;
-        right: 25px;
-        font-size: 0.7rem;
-        padding: 4px 8px;
-    }
-    
-    .camera-inactive-message h2 {
-        font-size: 1.2rem;
-    }
-    
-    .camera-inactive-message p {
-        font-size: 0.8rem;
-    }
-    
-    .ProjectData {
-        gap: 8px;
-    }
-    
-    .ProjectData label {
-        font-size: 0.9rem;
-        padding: 4px;
-    }
-    
-    .ProjectData span {
-        font-size: 0.9rem;
-        padding: 6px;
-        min-height: 30px;
-    }
-    
-    .Takephotobutton {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .TakeButton {
-        font-size: 1.2rem;
-    }
-}
+}   
 
 /* Mejoras para accesibilidad */
 .TakeButton:focus {
@@ -579,7 +360,9 @@
   transform: scale(0.98);
 }
 
-.TFGraphsContainer{
+.TFGraphsContainer, .MPUGraphsContainer {
+  display: flex;
+  flex-wrap: wrap;
   margin-top: 40px;
   padding: 20px;
   width: 80%;
@@ -589,9 +372,66 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.TFGraphsContainer h2 {
+.TFGraphsContainer h2, .MPUGraphsContainer h2 {
+  width: 100%;
   text-align: center;
   margin-bottom: 20px;
+}
+
+.TFGraphsContainer>div, .MPUGraphsContainer>div {
+    position: relative;
+    width: 50% !important;
+}
+
+.TFGraphsContainer>div:last-child{
+    position: relative;
+    width: 100% !important;
+}
+
+@media (max-width: 768px), (max-aspect-ratio: 3/2) {
+    .ProjectFotoPContainer {
+        display: flex;
+        flex-direction: column;
+    }
+
+  .ProjectData {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0px;
+    width: 100%;
+  }
+  .ProjectphotoContainer {
+    margin: 0%;
+  }
+
+  .ProjectData label,
+  .ProjectData span {
+    width: auto;
+    margin-bottom: 10px;
+  }
+
+  /* Agrupa visualmente el label + span como un "bloque" */
+  .ProjectData label {
+    border-radius: 10px 0px 0px 10px;
+    align-content: center;
+    padding-left: 8px;
+  }
+
+  .ProjectData span {
+        border-radius: 0px 10px 10px 0px;
+        margin-right: 10px;
+        padding-right: 8px;
+  }
+
+  .TFGraphsContainer {
+    flex-direction: column;
+  }
+  .TFGraphsContainer div {
+    width: 100% !important;
+  }
 }
 
 .dual-message-overlay {
