@@ -333,7 +333,7 @@ tfDataHistoryRef.current.apertura_history = [
           />
           {!isStreaming && !streamError && (
             <div className="camera-inactive-message">
-              <h2>📷 Cámara Inactiva</h2>
+              <h2>Cámara Inactiva</h2>
               <p>Presiona el botón para activar el streaming</p>
             </div>
           )}
@@ -342,7 +342,6 @@ tfDataHistoryRef.current.apertura_history = [
               className={`TakeButton ${isStreaming ? 'active' : ''}`}
               onClick={isStreaming ? stopStream : startStream}
             >
-              {isStreaming ? '⏹️' : '📷'}
             </button>
           </div>
         </div>
@@ -444,7 +443,7 @@ tfDataHistoryRef.current.apertura_history = [
 
       
 </div>
-<div className="TFGraphsContainer">
+<div className="MPUGraphsContainer">
   <h2>Gráficas del sensor MPU</h2>
 
   <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
