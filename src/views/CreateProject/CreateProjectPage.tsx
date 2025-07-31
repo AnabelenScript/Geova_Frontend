@@ -1,5 +1,6 @@
 import './CreateProject.css';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -41,26 +42,30 @@ function CreateProject() {
     reader.readAsDataURL(file);
   };
 
-  const handleCreate = async () => {
-    const { success } = await projectViewModel.handleCreateProject(
-      nombreProyecto,
-      categoria,
-      descripcion,
-      imgFile,
-      lat,
-      lng
-    );
+  const navigate = useNavigate();
 
-    if (success) {
-      setNombreProyecto('');
-      setCategoria('');
-      setDescripcion('');
-      setImgFile(null);
-      setImgPreview('');
-      setLat(null);
-      setLng(null);
-    }
-  };
+const handleCreate = async () => {
+  const { success } = await projectViewModel.handleCreateProject(
+    nombreProyecto,
+    categoria,
+    descripcion,
+    imgFile,
+    lat,
+    lng
+  );
+
+  if (success) {
+    setNombreProyecto('');
+    setCategoria('');
+    setDescripcion('');
+    setImgFile(null);
+    setImgPreview('');
+    setLat(null);
+    setLng(null);
+
+    navigate('/dashboard');
+  }
+};
 
   return (
     <div className="CreateContainer">

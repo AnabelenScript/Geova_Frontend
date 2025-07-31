@@ -575,7 +575,7 @@ function MedirTerrenoDual() {
               <Line 
                 type="monotone" 
                 dataKey="valor" 
-                stroke="#8884d8" 
+                stroke="#E6AF2E" 
                 strokeWidth={2} 
                 dot={false}
                 animationDuration={200}
@@ -595,7 +595,7 @@ function MedirTerrenoDual() {
               <Line 
                 type="monotone" 
                 dataKey="valor" 
-                stroke="#82ca9d" 
+                stroke="#E6AF2E" 
                 strokeWidth={2} 
                 dot={false}
                 animationDuration={200}
@@ -615,7 +615,7 @@ function MedirTerrenoDual() {
               <Line 
                 type="monotone" 
                 dataKey="valor" 
-                stroke="#ff7300" 
+                stroke="#E6AF2E" 
                 strokeWidth={2} 
                 dot={false}
                 animationDuration={200}
@@ -641,7 +641,7 @@ function MedirTerrenoDual() {
               <Line 
                 type="monotone" 
                 dataKey="valor" 
-                stroke="#2e86de" 
+                stroke="#E6AF2E" 
                 strokeWidth={2} 
                 dot={false}
                 animationDuration={200}
@@ -661,7 +661,7 @@ function MedirTerrenoDual() {
               <Line 
                 type="monotone" 
                 dataKey="valor" 
-                stroke="#1abc9c" 
+                stroke="#E6AF2E" 
                 strokeWidth={2} 
                 dot={false}
                 animationDuration={200}
@@ -670,6 +670,7 @@ function MedirTerrenoDual() {
           </ResponsiveContainer>
         </div>
       </div>
+    </div>
     </div>
   );
 }

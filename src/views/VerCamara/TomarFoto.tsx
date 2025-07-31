@@ -406,20 +406,20 @@ tfDataHistoryRef.current.apertura_history = [
             <XAxis dataKey="name" />
             <YAxis unit="cm" />
             <Tooltip formatter={(value) => [`${value.toFixed(2)} cm`, 'Distancia']} />
-            <Line type="monotone" dataKey="valor" stroke="#8884d8" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-        <h4>Fuerza de Señal</h4>
+        <h4>Fuerza de Señal basada en 2 bytes</h4>
         <ResponsiveContainer>
           <LineChart data={tfDataHistory.fuerzaSenal_history}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip formatter={(value) => [`${value.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
-            <Line type="monotone" dataKey="valor" stroke="#82ca9d" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -432,7 +432,7 @@ tfDataHistoryRef.current.apertura_history = [
             <XAxis dataKey="name" />
             <YAxis unit="°C" />
             <Tooltip formatter={(value) => [`${value.toFixed(2)} °C`, 'Temperatura']} />
-            <Line type="monotone" dataKey="valor" stroke="#ff7300" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -450,7 +450,7 @@ tfDataHistoryRef.current.apertura_history = [
         <XAxis dataKey="name" />
         <YAxis unit="°" />
         <Tooltip formatter={(value) => [`${value.toFixed(2)} °`, 'Inclinación']} />
-        <Line type="monotone" dataKey="valor" stroke="#2e86de" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   </div>
@@ -463,7 +463,7 @@ tfDataHistoryRef.current.apertura_history = [
         <XAxis dataKey="name" />
         <YAxis unit="°" />
         <Tooltip formatter={(value) => [`${value.toFixed(2)} °`, 'Apertura']} />
-        <Line type="monotone" dataKey="valor" stroke="#1abc9c" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   </div>
