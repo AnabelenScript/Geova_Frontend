@@ -9,6 +9,7 @@ function GraphViewer() {
   const [dataIMX, setDataIMX] = useState(null);
   const [dataTF, setDataTF] = useState(null);
   const [dataMPU, setDataMPU] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const evaluarFPS = (fps) => {
     if (fps >= 24) return ' (Buena)';
@@ -29,6 +30,7 @@ function GraphViewer() {
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       try {
         const imx = await projectViewModel.handleGetSensorIMXByProjectId(id);
         const tf = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
@@ -45,11 +47,53 @@ function GraphViewer() {
         }
       } catch (error) {
         console.error('Error obteniendo datos de sensores:', error);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchData();
   }, [id]);
+  const hasData = dataIMX || dataTF || dataMPU;
+
+  if (loading) {
+    return (
+      <div className="GraphContainer" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '400px',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        <div>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>⏳</div>
+          Cargando datos de sensores...
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasData) {
+    return (
+      <div className="GraphContainer" style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '400px',
+        fontSize: '18px',
+        color: '#666',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}></div>
+        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>No hay mediciones registradas</h3>
+        <p style={{ margin: '0', color: '#666' }}>
+          Realiza una medición desde el módulo de captura para ver las gráficas aquí.
+        </p>
+      </div>
+    );
+  }
 
   const radarData = dataIMX ? [
     {
@@ -87,10 +131,10 @@ function GraphViewer() {
   }] : [];
 
   const inclinacion = dataMPU ? (dataMPU.roll + dataMPU.pitch) : 0;
-  const inclinacionData = [{
+  const inclinacionData = dataMPU ? [{
     name: 'Último',
     valor: inclinacion,
-  }];
+  }] : [];
 
   const aperturaData = dataMPU ? [{
     name: 'Último',
@@ -124,70 +168,80 @@ function GraphViewer() {
         </>
       )}
 
-      <div style={{ marginTop: '40px' }}>
-        <h3>Distancia (cm)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={distanceData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis unit="cm" />
-            <Tooltip formatter={(value) => [`${value?.toFixed(2)} cm`, 'Distancia']} />
-            <Line type="monotone" dataKey="valor" stroke="#8884d8" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {distanceData.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h3>Distancia (cm)</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={distanceData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="cm" />
+              <Tooltip formatter={(value) => [`${value?.toFixed(2)} cm`, 'Distancia']} />
+              <Line type="monotone" dataKey="valor" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      <div style={{ marginTop: '40px' }}>
-        <h3>Fuerza de Señal</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={fuerzaData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value) => [`${value?.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
-            <Line type="monotone" dataKey="valor" stroke="#82ca9d" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {fuerzaData.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h3>Fuerza de Señal</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={fuerzaData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(value) => [`${value?.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
+              <Line type="monotone" dataKey="valor" stroke="#82ca9d" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      <div style={{ marginTop: '40px' }}>
-        <h3>Temperatura (°C)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={tempData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis unit="°C" />
-            <Tooltip formatter={(value) => [`${value?.toFixed(2)} °C`, 'Temperatura']} />
-            <Line type="monotone" dataKey="valor" stroke="#ff7300" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {tempData.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h3>Temperatura (°C)</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={tempData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="°C" />
+              <Tooltip formatter={(value) => [`${value?.toFixed(2)} °C`, 'Temperatura']} />
+              <Line type="monotone" dataKey="valor" stroke="#ff7300" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      <div style={{ marginTop: '40px' }}>
-        <h3>Inclinación (°)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={inclinacionData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis unit="°" />
-            <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Inclinación']} />
-            <Line type="monotone" dataKey="valor" stroke="#2e86de" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {inclinacionData.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h3>Inclinación (°)</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={inclinacionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="°" />
+              <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Inclinación']} />
+              <Line type="monotone" dataKey="valor" stroke="#2e86de" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      <div style={{ marginTop: '40px' }}>
-        <h3>Apertura (°)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={aperturaData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis unit="°" />
-            <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Apertura']} />
-            <Line type="monotone" dataKey="valor" stroke="#1abc9c" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {aperturaData.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h3>Apertura (°)</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={aperturaData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis unit="°" />
+              <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Apertura']} />
+              <Line type="monotone" dataKey="valor" stroke="#1abc9c" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }

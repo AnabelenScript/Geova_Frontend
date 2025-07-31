@@ -148,9 +148,9 @@ function DetallesProyecto() {
             {checkingLocalAPI ? (
               <span>🔄 Verificando conexión...</span>
             ) : isLocalAPIAvailable ? (
-              <span>🟢 Raspberry Pi conectada</span>
+              <span>Raspberry Pi conectada</span>
             ) : (
-              <span>🔴 Raspberry Pi desconectada</span>
+              <span>Raspberry Pi desconectada</span>
             )}
           </div>
         </div>
@@ -195,7 +195,7 @@ function DetallesProyecto() {
 
       <div className="DetailOptions">
         <h2>Descripción</h2>
-        <p>{project?.Descripción || ''}</p>
+        <p>{project?.Descripcion || ''}</p>
 
         <div className="ExtraDetails">
           <button onClick={Handlecamera}>Medir terreno</button>

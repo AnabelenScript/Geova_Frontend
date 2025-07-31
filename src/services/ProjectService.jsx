@@ -38,8 +38,6 @@ export const projectService = {
     const response = await axios.get(`${API_URL}/user/${idUser}`);
     return response.data;
   },
-
-  // Función para verificar si la API local está disponible
   async checkLocalAPIAvailability() {
     try {
       const response = await axios.get(`${API_URL_LOCAL2}/health`, {
@@ -71,17 +69,17 @@ export const projectService = {
   },
 
   async deleteProjectByTFLuna(id) {
-    const response = await axios.delete(`${API_URL}/tfluna/sensor/project/${id}`);
+    const response = await axios.delete(`${API_URL_LOCAL2}/tfluna/sensor/project/${id}`);
     return response.data;
   },
 
   async deleteProjectByIMX477(id) {
-    const response = await axios.delete(`${API_URL}/imx477/sensor/project/${id}`);
+    const response = await axios.delete(`${API_URL_LOCAL2}/imx477/sensor/project/${id}`);
     return response.data;
   },
 
   async deleteProjectByMPU6050(id) {
-    const response = await axios.delete(`${API_URL}/mpu/sensor/project/${id}`);
+    const response = await axios.delete(`${API_URL_LOCAL2}/mpu/sensor/project/${id}`);
     return response.data;
   },
 

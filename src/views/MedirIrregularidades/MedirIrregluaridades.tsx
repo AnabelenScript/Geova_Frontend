@@ -24,11 +24,9 @@ function MedirIrregularidades() {
   });
   const [viewMode, setViewMode] = useState('2D');
   
-  const lastDataTimeRef = useRef(null);
-  const noDataTimeoutRef = useRef(null);
-  const collectionTimeoutRef = useRef(null);
   const postQueueRef = useRef([]);
   const isProcessingPostRef = useRef(false);
+  const isCollectingRef = useRef(false);
 
   // Hook para inicializar y verificar datos existentes
   useEffect(() => {
@@ -42,9 +40,7 @@ function MedirIrregularidades() {
     setIsLoading(true);
     
     try {
-      // Verificar si existen datos previos para el proyecto actual
       const existingData = await hcService.getMeasurements(currentProjectId);
-      
       if (existingData && existingData.measurements && existingData.measurements.length > 0) {
         setHasExistingData(true);
         setMeasurements(transformMeasurementsForChart(existingData.measurements));
@@ -87,13 +83,9 @@ function MedirIrregularidades() {
       try {
         await hcService.createMeasurement(measurementData);
         console.log(`📏 Medición guardada: ${measurementData.distancia_cm} cm (Proyecto: ${measurementData.id_project})`);
-        
-        // Pequeña pausa para evitar saturar el servidor
         await new Promise(resolve => setTimeout(resolve, 100));
-        
       } catch (error) {
         console.error('Error guardando medición:', error);
-        // Reintentamos una vez más
         try {
           await new Promise(resolve => setTimeout(resolve, 500));
           await hcService.createMeasurement(measurementData);
@@ -110,31 +102,25 @@ function MedirIrregularidades() {
   const startDataCollection = async () => {
     try {
       setIsCollecting(true);
+      isCollectingRef.current = true;
       setMeasurements([]);
       setCollectionStats({
         total: 0,
         lastDistance: null,
         startTime: new Date()
       });
-
-      // Limpiar cola de POST
       postQueueRef.current = [];
       isProcessingPostRef.current = false;
-
-      // Conectar al WebSocket
-      hcService.connectToWebSocket();
       
-      // Suscribirse a los datos
+      hcService.connectToWebSocket();
       hcService.subscribe(handleWebSocketMessage);
-
-      // Configurar timeout para detectar fin de recolección
-      resetNoDataTimeout();
 
       console.log(`🎯 Iniciando recolección de datos HC-SR04 para proyecto ${currentProjectId}...`);
       
     } catch (error) {
       console.error('Error iniciando recolección:', error);
       setIsCollecting(false);
+      isCollectingRef.current = false;
     }
   };
 
@@ -143,87 +129,96 @@ function MedirIrregularidades() {
       setConnectionStatus(message.status);
       return;
     }
-
-    if (message.type === 'data' && message.payload && isCollecting) {
-      const distance = parseFloat(message.payload.distancia_cm || message.payload.altura);
+    
+    if (message.type === 'data' && message.payload && isCollectingRef.current) {
+      console.log('🔍 Procesando mensaje WebSocket:', message.payload);
       
-      if (distance && distance > 0) {
-        lastDataTimeRef.current = Date.now();
+      // Verificar que sea específicamente del sensor HC-SR04
+      if (message.payload.sensor === 'HC-SR04') {
+        console.log('✅ Mensaje del sensor HC-SR04 detectado:', message.payload);
         
-        // IMPORTANTE: Sobrescribir el id_project del WebSocket con el de la URL
-        // El WebSocket siempre envía id_project=1, pero nosotros usamos el correcto
-        const measurementData = {
-          ...message.payload, // Mantener todos los datos originales
-          id_project: currentProjectId, // SOBRESCRIBIR con el ID correcto desde la URL
-          distancia_cm: distance,
-          event: true
-        };
+        if (message.payload.data) {
+          const sensorData = message.payload.data;
+          console.log('📊 Datos del sensor:', sensorData);
+          
+          const distance = parseFloat(sensorData.distancia_cm);
+          console.log('📏 Distancia extraída:', distance);
+          
+          if (distance && distance > 0) {
+            console.log(`📏 Datos HC-SR04 válidos recibidos: ${distance} cm`);
+            
+            // Crear el objeto de medición con el ID del proyecto actual
+            const measurementData = {
+              distancia_cm: distance,
+              id_project: currentProjectId,
+              event: true,
+              timestamp: sensorData.timestamp || new Date().toISOString()
+            };
+            
+            console.log('📦 Objeto de medición creado:', measurementData);
+            
+            // Agregar a la cola de procesamiento
+            postQueueRef.current.push(measurementData);
+            console.log(`📤 Agregado a cola. Total en cola: ${postQueueRef.current.length}`);
 
-        // Agregar a la cola de POST para procesamiento asíncrono
-        postQueueRef.current.push(measurementData);
-        
-        // Procesar cola si no se está procesando ya
-        if (!isProcessingPostRef.current) {
-          processPostQueue();
+            // Procesar la cola si no se está procesando ya
+            if (!isProcessingPostRef.current) {
+              processPostQueue();
+            }
+
+            // Actualizar la visualización en tiempo real
+            setMeasurements(prev => {
+              const newMeasurement = {
+                punto: prev.length + 1,
+                distancia: distance,
+                altura: distance,
+                timestamp: measurementData.timestamp,
+                x: Math.floor(prev.length / 10),
+                y: prev.length % 10,
+                z: distance
+              };
+              console.log('📈 Nueva medición para gráfico:', newMeasurement);
+              return [...prev, newMeasurement];
+            });
+
+            // Actualizar estadísticas
+            setCollectionStats(prev => ({
+              ...prev,
+              total: prev.total + 1,
+              lastDistance: distance
+            }));
+          } else {
+            console.log('❌ Distancia inválida o cero:', distance);
+          }
+        } else {
+          console.log('❌ No hay datos en el payload del HC-SR04');
         }
-        
-        // Actualizar estado local inmediatamente para la UI
-        setMeasurements(prev => {
-          const newMeasurement = {
-            punto: prev.length + 1,
-            distancia: distance,
-            altura: distance,
-            timestamp: new Date().toISOString(),
-            x: Math.floor(prev.length / 10),
-            y: prev.length % 10,
-            z: distance
-          };
-          return [...prev, newMeasurement];
-        });
-
-        setCollectionStats(prev => ({
-          ...prev,
-          total: prev.total + 1,
-          lastDistance: distance
-        }));
-
-        // Resetear timeout de sin datos
-        resetNoDataTimeout();
+      } else {
+        console.log('⏭️ Mensaje ignorado, no es del sensor HC-SR04:', message.payload.sensor);
+      }
+    } else {
+      if (!isCollectingRef.current) {
+        console.log('⏸️ No recolectando datos, mensaje ignorado');
       }
     }
-  };
-
-  const resetNoDataTimeout = () => {
-    if (noDataTimeoutRef.current) {
-      clearTimeout(noDataTimeoutRef.current);
-    }
-    
-    noDataTimeoutRef.current = setTimeout(() => {
-      console.log('⏰ Sin datos por 10 segundos, finalizando recolección...');
-      stopDataCollection();
-    }, 10000);
   };
 
   const stopDataCollection = async () => {
     try {
       setIsCollecting(false);
+      isCollectingRef.current = false;
       
-      // Limpiar timeouts
-      if (noDataTimeoutRef.current) {
-        clearTimeout(noDataTimeoutRef.current);
-      }
-      
-      // Procesar cualquier POST pendiente en la cola
+      // Procesar cualquier medición pendiente en la cola
       if (postQueueRef.current.length > 0) {
         console.log(`📤 Procesando ${postQueueRef.current.length} mediciones pendientes...`);
         await processPostQueue();
       }
-      
-      // Desconectar WebSocket
+
+      // Desconectar del WebSocket
       hcService.unsubscribe(handleWebSocketMessage);
       hcService.disconnectWebSocket();
       
-      // Recargar datos desde la base de datos para asegurar consistencia
+      // Recargar los datos para mostrar la información actualizada
       await initializeComponent();
       
       console.log(`✅ Recolección finalizada para proyecto ${currentProjectId}. Total de mediciones: ${collectionStats.total}`);
@@ -253,18 +248,11 @@ function MedirIrregularidades() {
   };
 
   const cleanup = () => {
-    if (noDataTimeoutRef.current) {
-      clearTimeout(noDataTimeoutRef.current);
-    }
-    if (collectionTimeoutRef.current) {
-      clearTimeout(collectionTimeoutRef.current);
-    }
     hcService.unsubscribe(handleWebSocketMessage);
     hcService.disconnectWebSocket();
-    
-    // Limpiar cola de POST
     postQueueRef.current = [];
     isProcessingPostRef.current = false;
+    isCollectingRef.current = false;
   };
 
   const render2DChart = () => (
@@ -364,8 +352,6 @@ function MedirIrregularidades() {
               </button>
             </div>
           </div>
-
-          {/* Estadísticas */}
           <div className="stats-container">
             <div className="stat-item">
               <span className="stat-label">Total de puntos:</span>
@@ -394,8 +380,6 @@ function MedirIrregularidades() {
               </div>
             )}
           </div>
-
-          {/* Gráfico */}
           <div className="chart-container">
             {measurements.length > 0 ? (
               viewMode === '2D' ? render2DChart() : render3DChart()
@@ -406,8 +390,6 @@ function MedirIrregularidades() {
               </div>
             )}
           </div>
-
-          {/* Controles */}
           <div className="action-controls">
             {hasExistingData && !isCollecting ? (
               <button 
@@ -415,7 +397,7 @@ function MedirIrregularidades() {
                 onClick={deleteAllMeasurements}
                 disabled={isLoading}
               >
-                🗑️ Eliminar mediciones
+                Eliminar mediciones
               </button>
             ) : (
               <div className="collection-controls">
@@ -425,7 +407,7 @@ function MedirIrregularidades() {
                     onClick={startDataCollection}
                     disabled={isLoading}
                   >
-                    📏 Iniciar medición
+                    Iniciar medición
                   </button>
                 ) : (
                   <div className="collecting-status">
@@ -433,10 +415,10 @@ function MedirIrregularidades() {
                       className="stop-btn"
                       onClick={stopDataCollection}
                     >
-                      ⏹️ Detener medición
+                      Detener medición
                     </button>
                     <div className="collection-info">
-                      <p>📡 Recolectando datos... ({collectionStats.total} puntos)</p>
+                      <p>📡 Recolectando datos HC-SR04... ({collectionStats.total} puntos)</p>
                       {collectionStats.lastDistance && (
                         <p>Última distancia: {collectionStats.lastDistance} cm</p>
                       )}
