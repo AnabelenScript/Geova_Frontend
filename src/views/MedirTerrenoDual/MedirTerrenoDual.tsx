@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { cameraService } from '../../services/cameraService';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert } from '../../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert, showConfirmAlert } from '../../utils/alerts';
 import Swal from 'sweetalert2';
 import alerticon from '../../assets/alerticon.svg';
 import succesfulicon from '../../assets/sucessfulicon.svg';
@@ -37,8 +37,10 @@ function MedirTerrenoDual() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState(null);
   
-  const [measurementState, setMeasurementState] = useState('initial');
+  // Estados mejorados para manejar múltiples mediciones
+  const [measurementState, setMeasurementState] = useState('no_measurements'); // no_measurements, has_measurements, first_done, dual_done
   const [lastMeasurementIds, setLastMeasurementIds] = useState({ imx: null, tf: null, mpu: null });
+  const [availableMeasurements, setAvailableMeasurements] = useState([]);
   const [showDualMessage, setShowDualMessage] = useState(false);
   const [dualMessageType, setDualMessageType] = useState('');
   
@@ -65,7 +67,7 @@ function MedirTerrenoDual() {
 
   const imgRef = useRef(null);
   const { data: websocketData } = graphViewModel.useGraphData();
-  const { id } = useParams();
+  const { id } = useParams(); // Este es el id_project
 
   const evaluarFPS = (fps) => {
     if (fps >= 24) return ' (Buena)';
@@ -93,7 +95,7 @@ function MedirTerrenoDual() {
         imageWidth: 200,
         imageHeight: 200,
         showConfirmButton: false,
-        timer: 5000, // 5 segundos para dar tiempo a leer las instrucciones
+        timer: 5000,
         background: '#fff',
         color: '#333',
         customClass: {
@@ -109,7 +111,7 @@ function MedirTerrenoDual() {
         imageWidth: 200,
         imageHeight: 200,
         showConfirmButton: false,
-        timer: 4000, // 4 segundos para mostrar el resultado
+        timer: 4000,
         background: '#fff',
         color: '#333',
         customClass: {
@@ -126,18 +128,6 @@ function MedirTerrenoDual() {
     setTimeout(() => {
       setShowDualMessage(false);
     }, duration);
-  };
-
-  // Función para actualizar el historial de gráficas en tiempo real
-  const updateGraphHistory = (type, value, timestamp) => {
-    const timeLabel = timestamp || new Date().toLocaleTimeString();
-    
-    tfDataHistoryRef.current[`${type}_history`] = [
-      ...tfDataHistoryRef.current[`${type}_history`].slice(-19),
-      { name: timeLabel, valor: value }
-    ];
-    
-    setTfDataHistory({ ...tfDataHistoryRef.current });
   };
 
   // Función para actualizar radar data en tiempo real
@@ -167,52 +157,100 @@ function MedirTerrenoDual() {
 
   useEffect(() => {
     const fetchSensorData = async () => {
+      if (!id) {
+        console.error('ID del proyecto no encontrado');
+        return;
+      }
+
       try {
         const imxResponse = await projectViewModel.handleGetSensorIMXByProjectId(id);
-        if (imxResponse.success && imxResponse.data.length > 0) {
-          const last = imxResponse.data[imxResponse.data.length - 1];
+        const tfResponse = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
+        const mpuResponse = await projectViewModel.handleGetSensorMPUByProjectId(id);
+
+        if (imxResponse.success && imxResponse.data.length > 0 &&
+            tfResponse.success && tfResponse.data.length > 0 &&
+            mpuResponse.success && mpuResponse.data.length > 0) {
           
-          if (last.measurement_count === 2) {
-            setMeasurementState('dual_done');
-          } else if (last.measurement_count === 1) {
-            setMeasurementState('first_done');
-            setLastMeasurementIds(prev => ({ ...prev, imx: last.id }));
+          // Encontrar mediciones agrupadas por measurement_count
+          const measurements = [];
+          const maxLength = Math.max(imxResponse.data.length, tfResponse.data.length, mpuResponse.data.length);
+          
+          for (let i = 0; i < maxLength; i++) {
+            const imx = imxResponse.data[i];
+            const tf = tfResponse.data[i];
+            const mpu = mpuResponse.data[i];
+            
+            if (imx && tf && mpu) {
+              measurements.push({
+                imx: imx,
+                tf: tf,
+                mpu: mpu,
+                index: i
+              });
+            }
           }
-          
-          // Solo establecer datos iniciales de configuración
+
+          setAvailableMeasurements(measurements);
+
+          // Verificar si hay alguna medición en progreso (measurement_count = 1)
+          const pendingMeasurement = measurements.find(m => 
+            m.imx.measurement_count === 1 && 
+            m.tf.measurement_count === 1 && 
+            m.mpu.measurement_count === 1
+          );
+
+          // Contar mediciones completas (measurement_count = 2)
+          const completedMeasurements = measurements.filter(m => 
+            m.imx.measurement_count === 2 && 
+            m.tf.measurement_count === 2 && 
+            m.mpu.measurement_count === 2
+          );
+
+          if (pendingMeasurement) {
+            setMeasurementState('first_done');
+            // ✅ CORRECCIÓN CRÍTICA: Guardar los IDs correctamente
+            setLastMeasurementIds({
+              imx: pendingMeasurement.imx.id,
+              tf: pendingMeasurement.tf.id,
+              mpu: pendingMeasurement.mpu.id
+            });
+            console.log('🔍 DEBUG - IDs cargados desde BD:', {
+              imx: pendingMeasurement.imx.id,
+              tf: pendingMeasurement.tf.id,
+              mpu: pendingMeasurement.mpu.id
+            });
+          } else if (measurements.length > 0) {
+            if (completedMeasurements.length === measurements.length) {
+              setMeasurementState('dual_done');
+            } else {
+              setMeasurementState('has_measurements');
+            }
+          } else {
+            setMeasurementState('no_measurements');
+          }
+
+          // Establecer datos de configuración del último registro
+          const lastIMX = imxResponse.data[imxResponse.data.length - 1];
           setData(prevData => ({
             ...prevData,
-            resolution: last.resolution,
-            laser_detectado: last.laser_detectado,
-            event: last.event,
+            resolution: lastIMX.resolution,
+            laser_detectado: lastIMX.laser_detectado,
+            event: lastIMX.event,
           }));
-        }
-
-        const tfResponse = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
-        if (tfResponse.success && tfResponse.data.length > 0) {
-          const lastTF = tfResponse.data[tfResponse.data.length - 1];
-          
-          if (lastTF.measurement_count === 1 && measurementState !== 'dual_done') {
-            setLastMeasurementIds(prev => ({ ...prev, tf: lastTF.id }));
-          }
-        }
-
-        const mpuResponse = await projectViewModel.handleGetSensorMPUByProjectId(id);
-        if (mpuResponse.success && mpuResponse.data.length > 0) {
-          const lastMPU = mpuResponse.data[mpuResponse.data.length - 1];
-          if (lastMPU.measurement_count === 1 && measurementState !== 'dual_done') {
-            setLastMeasurementIds(prev => ({ ...prev, mpu: lastMPU.id }));
-          }
+        } else {
+          setMeasurementState('no_measurements');
+          setAvailableMeasurements([]);
         }
       } catch (error) {
         console.error('Error al cargar datos:', error);
+        setMeasurementState('no_measurements');
       }
     };
 
     fetchSensorData();
   }, [id]);
 
-  // WebSocket IMX477 con actualización de radar en tiempo real
+  // WebSocket IMX477 - IGUAL QUE EN TOMAR FOTO
   useEffect(() => {
     if (websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
@@ -228,14 +266,15 @@ function MedirTerrenoDual() {
         timestamp: sensorData.timestamp
       }));
 
-      // Actualizar radar data inmediatamente
       setTimeout(() => updateRadarData(), 100);
     }
   }, [websocketData]);
 
-  // WebSocket TF-Luna con actualización de gráficas en tiempo real
+  // WebSocket TF-Luna y MPU6050 - IGUAL QUE EN TOMAR FOTO
   useEffect(() => {
     if (!websocketData) return;
+
+    const now = new Date().toLocaleTimeString();
 
     if (websocketData.sensor === 'TF-Luna') {
       const tf = websocketData.data;
@@ -243,10 +282,20 @@ function MedirTerrenoDual() {
       const fuerza = typeof tf.fuerza_senal === 'number' ? tf.fuerza_senal : 0;
       const temperatura = typeof tf.temperatura === 'number' ? tf.temperatura : 0;
 
-      // Actualizar gráficas en tiempo real
-      updateGraphHistory('distancia_cm', distancia, tf.timestamp);
-      updateGraphHistory('fuerzaSenal', fuerza, tf.timestamp);
-      updateGraphHistory('temperatura', temperatura, tf.timestamp);
+      tfDataHistoryRef.current.distancia_cm_history = [
+        ...tfDataHistoryRef.current.distancia_cm_history,
+        { name: now, valor: distancia }
+      ].slice(-20);
+
+      tfDataHistoryRef.current.fuerzaSenal_history = [
+        ...tfDataHistoryRef.current.fuerzaSenal_history,
+        { name: now, valor: fuerza }
+      ].slice(-20);
+
+      tfDataHistoryRef.current.temperatura_history = [
+        ...tfDataHistoryRef.current.temperatura_history,
+        { name: now, valor: temperatura }
+      ].slice(-20);
 
       setData(prev => ({
         ...prev,
@@ -255,6 +304,8 @@ function MedirTerrenoDual() {
         temperatura,
         timestamp: tf.timestamp
       }));
+
+      setTfDataHistory({ ...tfDataHistoryRef.current });
     }
 
     if (websocketData.sensor === 'MPU6050') {
@@ -262,20 +313,27 @@ function MedirTerrenoDual() {
       if (typeof roll === 'number' && typeof pitch === 'number' && typeof apertura === 'number') {
         const inclinacion = roll + pitch;
 
-        // Actualizar gráficas en tiempo real
-        updateGraphHistory('inclinacion', inclinacion);
-        updateGraphHistory('apertura', apertura);
+        tfDataHistoryRef.current.inclinacion_history = [
+          ...tfDataHistoryRef.current.inclinacion_history,
+          { name: now, valor: inclinacion }
+        ].slice(-20);
+
+        tfDataHistoryRef.current.apertura_history = [
+          ...tfDataHistoryRef.current.apertura_history,
+          { name: now, valor: apertura }
+        ].slice(-20);
 
         setData(prev => ({
           ...prev,
           inclinacion,
           apertura,
         }));
+
+        setTfDataHistory({ ...tfDataHistoryRef.current });
       }
     }
   }, [websocketData]);
 
-  // Actualizar radar data cuando cambien los datos principales
   useEffect(() => {
     updateRadarData();
   }, [data.calidad, data.nitidez, data.luminosidad, data.probabilidad]);
@@ -311,140 +369,365 @@ function MedirTerrenoDual() {
     }
   };
 
+  // Función para mostrar opciones cuando hay mediciones existentes
+  const showMeasurementOptions = async () => {
+    // Filtrar solo mediciones normales (measurement_count = 1) que puedan convertirse en duales
+    const normalMeasurements = availableMeasurements.filter(m => 
+      m.imx.measurement_count === 1 && 
+      m.tf.measurement_count === 1 && 
+      m.mpu.measurement_count === 1
+    );
+
+    // Contar mediciones duales (measurement_count = 2)
+    const dualMeasurements = availableMeasurements.filter(m =>
+      m.imx.measurement_count === 2 && 
+      m.tf.measurement_count === 2 && 
+      m.mpu.measurement_count === 2
+    );
+
+    if (normalMeasurements.length === 0) {
+      // No hay mediciones normales disponibles para convertir en duales
+      const result = await Swal.fire({
+        title: 'Opciones de Medición',
+        html: `
+          <p>Estado actual del proyecto:</p>
+          <ul style="text-align: left; margin: 10px 0;">
+            <li>📊 Mediciones duales completadas: ${dualMeasurements.length}</li>
+            <li>📏 Mediciones normales pendientes: ${normalMeasurements.length}</li>
+          </ul>
+          <p>¿Qué deseas hacer?</p>
+        `,
+        imageUrl: alerticon,
+        imageWidth: 150,
+        imageHeight: 150,
+        showCancelButton: true,
+        confirmButtonText: '📊 Crear nueva medición',
+        cancelButtonText: '❌ Cancelar',
+        background: '#fff',
+        customClass: {
+          popup: 'succesful-popup',
+          confirmButton: 'succesful-confirmar',
+          cancelButton: 'cancel-button'
+        }
+      });
+
+      return result.isConfirmed ? 'create_new' : 'cancel';
+    } else {
+      // Hay mediciones normales disponibles para convertir en duales
+      const options = normalMeasurements.map((measurement, i) => ({
+        value: measurement.index,
+        text: `Medición ${i + 1} (ID: ${measurement.imx.id}) - ${new Date(measurement.imx.timestamp).toLocaleString()}`
+      }));
+
+      const { value: selectedOption } = await Swal.fire({
+        title: 'Opciones de Medición',
+        html: `
+          <p>Estado actual del proyecto:</p>
+          <ul style="text-align: left; margin: 10px 0;">
+            <li>📊 Mediciones duales completadas: ${dualMeasurements.length}</li>
+            <li>📏 Mediciones normales disponibles: ${normalMeasurements.length}</li>
+          </ul>
+          <p>¿Qué deseas hacer?</p>
+        `,
+        imageUrl: alerticon,
+        imageWidth: 150,
+        imageHeight: 150,
+        input: 'radio',
+        inputOptions: {
+          'create_new': '📊 Crear nueva medición normal',
+          ...options.reduce((acc, opt) => ({
+            ...acc,
+            [`convert_${opt.value}`]: `🔄 Convertir en dual: ${opt.text}`
+          }), {})
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Debes seleccionar una opción';
+          }
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar',
+        background: '#fff',
+        customClass: {
+          popup: 'succesful-popup',
+          confirmButton: 'succesful-confirmar',
+          cancelButton: 'cancel-button'
+        }
+      });
+
+      if (selectedOption) {
+        if (selectedOption === 'create_new') {
+          return 'create_new';
+        } else if (selectedOption.startsWith('convert_')) {
+          const measurementIndex = parseInt(selectedOption.replace('convert_', ''));
+          const selectedMeasurement = normalMeasurements.find(m => m.index === measurementIndex);
+          if (selectedMeasurement) {
+            setLastMeasurementIds({
+              imx: selectedMeasurement.imx.id,
+              tf: selectedMeasurement.tf.id,
+              mpu: selectedMeasurement.mpu.id
+            });
+            return 'convert_existing';
+          }
+        }
+      }
+      
+      return 'cancel';
+    }
+  };
+
   const handleGuardarMedidas = async () => {
+    if (!id) {
+      await showErrorAlert("Error: ID del proyecto no encontrado");
+      return;
+    }
+
     showLoadingAlert(); 
     const timestamp = new Date().toISOString().replace('Z', '');
 
     try {
-      if (measurementState === 'initial') {
-        const payloadCamara = {
-          id_project: parseInt(id),
-          resolution: data.resolution,
-          luminosidad_promedio: data.luminosidad ?? 0,
-          nitidez_score: data.nitidez ?? 0,
-          laser_detectado: data.laser_detectado ?? false,
-          calidad_frame: data.calidad ?? 0,
-          probabilidad_confiabilidad: data.probabilidad ?? 0,
-          event: true,
-          timestamp,
-        };
-
-        const fuerzaParseada = parseFloat(String(data.fuerzaSenal).split(" ")[0]) || 0;
-
-        const payloadTF = {
-          id_project: parseInt(id),
-          distancia_cm: data.distancia ?? 0,
-          distancia_m: (data.distancia ?? 0) / 100,
-          fuerza_senal: fuerzaParseada,
-          temperatura: data.temperatura ?? 0,
-          event: true,
-          timestamp,
-        };
-
-        const payloadMPU = {
-          id_project: parseInt(id),
-          ax: websocketData?.data?.ax ?? 0,
-          ay: websocketData?.data?.ay ?? 0,
-          az: websocketData?.data?.az ?? 0,
-          gx: websocketData?.data?.gx ?? 0,
-          gy: websocketData?.data?.gy ?? 0,
-          gz: websocketData?.data?.gz ?? 0,
-          roll: websocketData?.data?.roll ?? 0,
-          pitch: websocketData?.data?.pitch ?? 0,
-          apertura: data.apertura ?? 0,
-          event: true,
-          timestamp,
-        };
-
-        const resIMX = await projectViewModel.handlePostSensorIMX(payloadCamara);
-        const resTF = await projectViewModel.handlePostSensorTFLuna(payloadTF);
-        const resMPU = await projectViewModel.handlePostSensorMPU(payloadMPU);
-
+      // Si no hay mediciones, crear la primera
+      if (measurementState === 'no_measurements') {
+        await createFirstMeasurement(timestamp);
+      }
+      // Si hay mediciones existentes, preguntar qué hacer
+      else if (measurementState === 'has_measurements') {
         closeLoadingAlert();
-
-        if (resIMX.success && resTF.success && resMPU.success) {
-          setLastMeasurementIds({
-            imx: resIMX.data?.id,
-            tf: resTF.data?.id,
-            mpu: resMPU.data?.id
-          });
-          
-          setMeasurementState('first_done');
-          await showSuccessAlert("Primera medición guardada exitosamente.");
-          
-          showDualMessageWithTimeout('flip_camera', 1000);
+        const option = await showMeasurementOptions();
+        
+        if (option === 'create_new') {
+          showLoadingAlert();
+          await createFirstMeasurement(timestamp);
+        } else if (option === 'convert_existing') {
+          showLoadingAlert();
+          await completeDualMeasurement(timestamp);
         } else {
-          await showErrorAlert("Error al guardar la primera medición.");
+          return; // Usuario canceló
         }
-
-      } else if (measurementState === 'first_done') {
-        const payloadCamara = {
-          id_project: parseInt(id),
-          resolution: data.resolution,
-          luminosidad_promedio: data.luminosidad ?? 0,
-          nitidez_score: data.nitidez ?? 0,
-          laser_detectado: data.laser_detectado ?? false,
-          calidad_frame: data.calidad ?? 0,
-          probabilidad_confiabilidad: data.probabilidad ?? 0,
-          event: true,
-          timestamp,
-        };
-
-        const fuerzaParseada = parseFloat(String(data.fuerzaSenal).split(" ")[0]) || 0;
-
-        const payloadTF = {
-          id_project: parseInt(id),
-          distancia_cm: data.distancia ?? 0,
-          distancia_m: (data.distancia ?? 0) / 100,
-          fuerza_senal: fuerzaParseada,
-          temperatura: data.temperatura ?? 0,
-          event: true,
-          timestamp,
-        };
-
-        const payloadMPU = {
-          id_project: parseInt(id),
-          ax: websocketData?.data?.ax ?? 0,
-          ay: websocketData?.data?.ay ?? 0,
-          az: websocketData?.data?.az ?? 0,
-          gx: websocketData?.data?.gx ?? 0,
-          gy: websocketData?.data?.gy ?? 0,
-          gz: websocketData?.data?.gz ?? 0,
-          roll: websocketData?.data?.roll ?? 0,
-          pitch: websocketData?.data?.pitch ?? 0,
-          apertura: data.apertura ?? 0,
-          event: true,
-          timestamp,
-        };
-
-        const resIMX = await projectViewModel.handleUpdateDualSensorIMX(lastMeasurementIds.imx, payloadCamara);
-        const resTF = await projectViewModel.handleUpdateDualSensorTFLuna(lastMeasurementIds.tf, payloadTF);
-        const resMPU = await projectViewModel.handleUpdateDualSensorMPU(lastMeasurementIds.mpu, payloadMPU);
-
+      }
+      // Si hay una medición pendiente, completar el dual
+      else if (measurementState === 'first_done') {
+        await completeDualMeasurement(timestamp);
+      }
+      // Si ya está completo, mostrar error
+      else {
         closeLoadingAlert();
-
-        if (resIMX.success && resTF.success && resMPU.success) {
-          setMeasurementState('dual_done');
-          await showSuccessAlert("Medición dual completada exitosamente.");
-          
-          showDualMessageWithTimeout('dual_complete', 1000);
-        } else {
-          await showErrorAlert("Error al completar la medición dual.");
-        }
-
-      } else {
-        closeLoadingAlert();
-        await showErrorAlert("Ya existe una medición dual para este proyecto. Las distancias se sumaron y los demás datos se promediaron.");
+        await showErrorAlert("Ya existen mediciones duales completas para este proyecto.");
       }
     } catch (error) {
       closeLoadingAlert();
-      await showErrorAlert("Error al procesar la medición.");
+      console.error('🔍 DEBUG - Error en handleGuardarMedidas:', error);
+      await showErrorAlert("Error al procesar la medición: " + error.message);
     }
   };
 
-  const DualMessage = () => {
-    // Ya no necesitamos este componente porque usamos SweetAlert2
-    return null;
+  const createFirstMeasurement = async (timestamp) => {
+    const payloadCamara = {
+      id_project: parseInt(id), // Usando id directamente como id_project
+      resolution: data.resolution,
+      luminosidad_promedio: data.luminosidad ?? 0,
+      nitidez_score: data.nitidez ?? 0,
+      laser_detectado: data.laser_detectado ?? false,
+      calidad_frame: data.calidad ?? 0,
+      probabilidad_confiabilidad: data.probabilidad ?? 0,
+      event: true,
+      timestamp,
+    };
+
+    const fuerzaParseada = parseFloat(String(data.fuerzaSenal).split(" ")[0]) || 0;
+
+    const payloadTF = {
+      id_project: parseInt(id), // Usando id directamente como id_project
+      distancia_cm: data.distancia ?? 0,
+      distancia_m: (data.distancia ?? 0) / 100,
+      fuerza_senal: fuerzaParseada,
+      temperatura: data.temperatura ?? 0,
+      event: true,
+      timestamp,
+    };
+
+    const payloadMPU = {
+      id_project: parseInt(id), // Usando id directamente como id_project
+      ax: websocketData?.data?.ax ?? 0,
+      ay: websocketData?.data?.ay ?? 0,
+      az: websocketData?.data?.az ?? 0,
+      gx: websocketData?.data?.gx ?? 0,
+      gy: websocketData?.data?.gy ?? 0,
+      gz: websocketData?.data?.gz ?? 0,
+      roll: websocketData?.data?.roll ?? 0,
+      pitch: websocketData?.data?.pitch ?? 0,
+      apertura: data.apertura ?? 0,
+      event: true,
+      timestamp,
+    };
+
+    console.log('🔍 DEBUG - Payloads primera medición:', {
+      payloadCamara,
+      payloadTF,
+      payloadMPU,
+      websocketData: websocketData?.data
+    });
+
+    const resIMX = await projectViewModel.handlePostSensorIMX(payloadCamara);
+    const resTF = await projectViewModel.handlePostSensorTFLuna(payloadTF);
+    const resMPU = await projectViewModel.handlePostSensorMPU(payloadMPU);
+
+    closeLoadingAlert();
+
+    console.log('🔍 DEBUG - Respuestas POST:', { resIMX, resTF, resMPU });
+
+    if (resIMX.success && resTF.success && resMPU.success) {
+      setLastMeasurementIds({
+        imx: resIMX.data?.id,
+        tf: resTF.data?.id,
+        mpu: resMPU.data?.id
+      });
+      
+      setMeasurementState('first_done');
+      await showSuccessAlert("Primera medición guardada exitosamente.");
+      
+      showDualMessageWithTimeout('flip_camera', 1000);
+    } else {
+      await showErrorAlert("Error al guardar la primera medición.");
+    }
+  };
+
+  const completeDualMeasurement = async (timestamp) => {
+    // ✅ VALIDACIÓN CRÍTICA: Verificar que tenemos los IDs antes de proceder
+    if (!lastMeasurementIds.imx || !lastMeasurementIds.tf || !lastMeasurementIds.mpu) {
+      console.error('❌ ERROR - IDs de medición no disponibles:', lastMeasurementIds);
+      await showErrorAlert("Error: No se encontraron los IDs de la primera medición.");
+      return;
+    }
+
+    console.log('🔍 DEBUG - IDs para completar dual:', lastMeasurementIds);
+
+    const payloadCamara = {
+      id_project: parseInt(id),
+      resolution: data.resolution,
+      luminosidad_promedio: data.luminosidad ?? 0,
+      nitidez_score: data.nitidez ?? 0,
+      laser_detectado: data.laser_detectado ?? false,
+      calidad_frame: data.calidad ?? 0,
+      probabilidad_confiabilidad: data.probabilidad ?? 0,
+      event: true,
+      timestamp,
+    };
+
+    const fuerzaParseada = parseFloat(String(data.fuerzaSenal).split(" ")[0]) || 0;
+
+    const payloadTF = {
+      id_project: parseInt(id),
+      distancia_cm: data.distancia ?? 0,
+      distancia_m: (data.distancia ?? 0) / 100,
+      fuerza_senal: fuerzaParseada,
+      temperatura: data.temperatura ?? 0,
+      event: true,
+      timestamp,
+    };
+
+    const payloadMPU = {
+      id_project: parseInt(id),
+      ax: websocketData?.data?.ax ?? 0,
+      ay: websocketData?.data?.ay ?? 0,
+      az: websocketData?.data?.az ?? 0,
+      gx: websocketData?.data?.gx ?? 0,
+      gy: websocketData?.data?.gy ?? 0,
+      gz: websocketData?.data?.gz ?? 0,
+      roll: websocketData?.data?.roll ?? 0,
+      pitch: websocketData?.data?.pitch ?? 0,
+      apertura: data.apertura ?? 0,
+      event: true,
+      timestamp,
+    };
+
+    console.log('🔍 DEBUG - Payloads segunda medición:', {
+      payloadCamara,
+      payloadTF,
+      payloadMPU,
+      lastMeasurementIds
+    });
+
+    // ✅ CORRECCIÓN: Usar los IDs específicos de cada sensor para las llamadas PUT
+    const resIMX = await projectViewModel.handleUpdateDualSensorIMX(lastMeasurementIds.imx, payloadCamara);
+    const resTF = await projectViewModel.handleUpdateDualSensorTFLuna(lastMeasurementIds.tf, payloadTF);
+    const resMPU = await projectViewModel.handleUpdateDualSensorMPU(lastMeasurementIds.mpu, payloadMPU);
+
+    closeLoadingAlert();
+
+    console.log('🔍 DEBUG - Respuestas PUT:', { resIMX, resTF, resMPU });
+
+    if (resIMX.success && resTF.success && resMPU.success) {
+      setMeasurementState('dual_done');
+      await showSuccessAlert("Medición dual completada exitosamente.");
+      
+      showDualMessageWithTimeout('dual_complete', 1000);
+    } else {
+      await showErrorAlert("Error al completar la medición dual.");
+    }
+  };
+
+  const getButtonText = () => {
+    switch (measurementState) {
+      case 'no_measurements':
+        return '📊 Realizar primera medición';
+      case 'has_measurements':
+        return '🔄 Gestionar mediciones';
+      case 'first_done':
+        return '🔄 Completar medición dual';
+      case 'dual_done':
+        return '✅ Todas las mediciones completadas';
+      default:
+        return '📊 Realizar medición';
+    }
+  };
+
+  const getButtonClass = () => {
+    switch (measurementState) {
+      case 'dual_done':
+        return 'guardar-medidas-btn completed';
+      case 'first_done':
+        return 'guardar-medidas-btn dual-ready';
+      default:
+        return 'guardar-medidas-btn';
+    }
+  };
+
+  const getProgressSteps = () => {
+    if (measurementState === 'no_measurements') {
+      return (
+        <div className="measurement-progress">
+          <div className="progress-step active">Crear primera medición</div>
+          <div className="progress-arrow">→</div>
+          <div className="progress-step">Medición dual</div>
+        </div>
+      );
+    } else if (measurementState === 'has_measurements') {
+      return (
+        <div className="measurement-progress">
+          <div className="progress-step completed">Mediciones existentes ({availableMeasurements.length})</div>
+          <div className="progress-arrow">→</div>
+          <div className="progress-step active">Gestionar</div>
+        </div>
+      );
+    } else if (measurementState === 'first_done') {
+      return (
+        <div className="measurement-progress">
+          <div className="progress-step completed">Primera medición</div>
+          <div className="progress-arrow">→</div>
+          <div className="progress-step active">Medición dual</div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="measurement-progress">
+          <div className="progress-step completed">Primera medición</div>
+          <div className="progress-arrow">→</div>
+          <div className="progress-step completed">Medición dual</div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -540,24 +823,14 @@ function MedirTerrenoDual() {
         </div>
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <button 
-            className={`guardar-medidas-btn ${measurementState === 'dual_done' ? 'completed' : measurementState === 'first_done' ? 'dual-ready' : ''}`}
+            className={getButtonClass()}
             onClick={handleGuardarMedidas}
             disabled={measurementState === 'dual_done'}
           >
-            {measurementState === 'initial' && '📊 Realizar primera medición'}
-            {measurementState === 'first_done' && '🔄 Completar medición dual'}
-            {measurementState === 'dual_done' && '✅ Medición dual completada'}
+            {getButtonText()}
           </button>
           
-          <div className="measurement-progress">
-            <div className={`progress-step ${measurementState !== 'initial' ? 'completed' : 'active'}`}>
-              Primera medición
-            </div>
-            <div className="progress-arrow">→</div>
-            <div className={`progress-step ${measurementState === 'dual_done' ? 'completed' : measurementState === 'first_done' ? 'active' : ''}`}>
-             Medición dual
-            </div>
-          </div>
+          {getProgressSteps()}
         </div>
       </div>
 
@@ -625,8 +898,6 @@ function MedirTerrenoDual() {
         </div>
       </div>
 
-      <div className="MPUGraphsContainer">
-        <h2>Gráficas del sensor MPU</h2>
       <div className="MPUGraphsContainer">
         <h2>Gráficas del sensor MPU (Tiempo Real)</h2>
 
