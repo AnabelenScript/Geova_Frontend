@@ -28,8 +28,8 @@
   display: flex;
   justify-content: center; 
   align-items: stretch;
-  gap: 5  px;
-  padding: 5px 20px;
+  gap:10px;
+  padding: 50px 10px;
   font-family: Arial, Helvetica, sans-serif;
   flex-direction: row;
   transition: all 0.3s ease-in-out;
@@ -201,7 +201,20 @@
 }
 .register-mode {
   transition: all 0.3s ease-in-out;
- 
+}
+
+.LoginContainer.register-machine {
+  padding: 10px 20px;
+}
+
+.LoginContainer.register-machine input {
+  height: 36px;
+  font-size: 14px;
+
+}
+
+.LoginContainer.register-machine label {
+  font-size: 14px;
 }
 
 @media screen and (max-aspect-ratio: 3/2) {

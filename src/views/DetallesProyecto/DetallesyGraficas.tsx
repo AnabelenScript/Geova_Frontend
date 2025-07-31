@@ -202,6 +202,7 @@ function DetallesProyecto() {
           <button onClick={Handlecameradual}>Medir terreno Dual</button>
           <button onClick={handleIrregularidades}>Medir irregularidades</button>
           <div className="categorycontainer">
+            <i class="fa-solid fa-table-cells-large"></i>
             <p>Categoría: {project?.Categoria || ''}</p>
           </div>
         </div>
@@ -254,28 +255,30 @@ function DetallesProyecto() {
               value={editData.descripcion}
               onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
             />
-            <div className="PreviewImageContainer">
-              {editData.imgFile ? (
-                <img
-                  src={URL.createObjectURL(editData.imgFile)}
-                  alt="Nueva imagen seleccionada"
-                  className="ProjectImagePreview"
-                />
-              ) : project?.Img ? (
-                <>
-                  <p>Imagen actual:</p>
-                  <img src={project.Img} alt="Imagen actual del proyecto" className="ProjectImagePreview" />
-                </>
-              ) : (
-                <p>No hay imagen registrada para este proyecto</p>
-              )}
+            <div className='ModalImageContainer'>
+              <div className="PreviewImageContainer">
+                {editData.imgFile ? (
+                  <img
+                    src={URL.createObjectURL(editData.imgFile)}
+                    alt="Nueva imagen seleccionada"
+                    className="ProjectImagePreview"
+                  />
+                ) : project?.Img ? (
+                  <>
+                    <p>Imagen actual:</p>
+                    <img src={project.Img} alt="Imagen actual del proyecto" className="ProjectImagePreview" />
+                  </>
+                ) : (
+                  <p>No hay imagen registrada para este proyecto</p>
+                )}
+              </div>
+              
+              <input className='modal-input.image'
+                type="file"
+                accept="image/*"
+                onChange={(e) => setEditData({ ...editData, imgFile: e.target.files?.[0] || null })}
+              />
             </div>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setEditData({ ...editData, imgFile: e.target.files?.[0] || null })}
-            />
 
             <div style={{ height: '250px', marginTop: '10px' }}>
               <MapContainer
@@ -292,8 +295,8 @@ function DetallesProyecto() {
             </div>
 
             <div className="modal-buttons">
-              <button onClick={handleEditSubmit}>Guardar Cambios</button>
               <button onClick={() => setShowModal(false)}>Cancelar</button>
+              <button onClick={handleEditSubmit}>Guardar Cambios</button>
             </div>
           </div>
         </div>

@@ -233,7 +233,6 @@ function GraphViewer() {
     [dataIMX.length, dataTF.length, dataMPU.length]
   );
 
-  // ✅ AHORA LOS useMemo PUEDEN USAR LOS COMPONENTES YA DEFINIDOS
   const imxSection = useMemo(() => {
     if (dataIMX.length === 0) return null;
     
@@ -472,6 +471,7 @@ function GraphViewer() {
       {tfTempSection}
       {mpuInclinationSection}
       {mpuApertureSection}
+
     </div>
   );
 }

@@ -166,6 +166,7 @@
 
 .profdata p{
     color: black;
+    margin: 0px;
 }
 
 .deleteiconcontainer{
@@ -319,7 +320,7 @@
 
 
 /* 💻 Tabletas en horizontal */
-@media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) {
+@media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) and (max-width: 1000px) {
   .ProfileData {
     flex-direction: row;
     flex-wrap: wrap;
