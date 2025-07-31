@@ -289,7 +289,7 @@ function GraphViewer() {
     return (
       <div className="SensorSection">
         <div className="GraphHeaderContainer">
-          <h2>Sensor TF Luna - Fuerza de Señal</h2>
+          <h2>Sensor TF Luna - Fuerza de Señal basada en 2 bytes</h2>
           <div className="graph-count">{dataTF.length} mediciones</div>
         </div>
         <div className="GraphScrollContainer">
@@ -299,7 +299,7 @@ function GraphViewer() {
                 key={`tf-signal-${index}-${data.id || index}`}
                 data={data}
                 index={index}
-                title="Fuerza de Señal"
+                title="Fuerza de Señal basada en 2 bytes"
                 dataKey="fuerza_senal"
                 unit=""
                 colors={['#D68C0D', '#e8e8e8']}
