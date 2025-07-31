@@ -28,8 +28,8 @@
   display: flex;
   justify-content: center; 
   align-items: stretch;
-  gap: 5  px;
-  padding: 20px;
+  gap:10px;
+  padding: 50px 10px;
   font-family: Arial, Helvetica, sans-serif;
   flex-direction: row;
   transition: all 0.3s ease-in-out;
