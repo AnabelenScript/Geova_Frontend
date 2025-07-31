@@ -58,7 +58,6 @@
     border-radius: 20px;
     overflow: hidden;
     box-sizing: border-box;
-    
 }
 
 /* Esquina superior izquierda */
@@ -193,33 +192,225 @@
     overflow-y: hidden;
      border: solid 2px #E6AF2E;
      border-radius: 20px;
-     
 }
 
 .MapDetail img{
      width: 100%;
 }
 
+/* Estilos anteriores de las gráficas - removidos */
 .GraphSection {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
 }
 
-.GraphCard {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.GraphContainer{
+/* Nuevos estilos para el contenedor de gráficas */
+.GraphContainer {
     width: 100%;
     padding: 0 40px;
     box-sizing: border-box;
+    margin-bottom: 20px;
 }
 
+/* Estilos para las secciones de sensores */
+.SensorSection {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.GraphHeaderContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #E6AF2E;
+}
+
+.GraphHeaderContainer h2 {
+    color: #333;
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.loading-indicator {
+    color: #D68C0D;
+    font-size: 0.9rem;
+    animation: pulse 1.5s infinite;
+}
+
+.graph-count {
+    background-color: #FFEAB9;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.GraphScrollContainer {
+    width: 100%;
+    height: 450px;
+    border: 2px solid #E6AF2E;
+    border-radius: 15px;
+    background-color: #fff;
+    overflow: hidden;
+    position: relative;
+}
+
+.GraphScrollContent {
+    display: flex;
+    height: 100%;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+/* Estilo personalizado para la barra de scroll horizontal */
+.GraphScrollContent::-webkit-scrollbar {
+    height: 8px;
+}
+
+.GraphScrollContent::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.GraphScrollContent::-webkit-scrollbar-thumb {
+    background: #E6AF2E;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.GraphScrollContent::-webkit-scrollbar-thumb:hover {
+    background: #D68C0D;
+}
+
+.GraphCard {
+    min-width: 400px;
+    max-width: 400px;
+    height: 380px;
+    background-color: #fff;
+    border: 2px solid #E6AF2E;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0; /* Evita que las cards se contraigan */
+}
+
+.GraphCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.GraphCardHeader {
+    background-color: #E6AF2E;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid #D68C0D;
+}
+
+.GraphCardTitle {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.GraphCardDate {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 4px 8px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.GraphCardContent {
+    flex: 1;
+    padding: 15px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.GraphLoadingMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.NoGraphsMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    text-align: center;
+    gap: 15px;
+}
+
+.NoGraphsMessage i {
+    font-size: 4rem;
+    color: #E6AF2E;
+    opacity: 0.7;
+}
+
+.NoGraphsMessage p {
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+.NoGraphsMessage small {
+    font-size: 0.9rem;
+    color: #999;
+    max-width: 250px;
+    line-height: 1.4;
+}
+
+/* Estilos específicos para las gráficas de rueda */
+.pie-center-text-value {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+}
+
+.pie-center-text-unit {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+}
+
+/* Ajustes para el contenido de las cards con gráficas de rueda */
+.GraphCardContent .recharts-wrapper {
+  margin: 0 auto;
+}
+
+.GraphCardContent .recharts-legend-wrapper {
+  padding-top: 10px !important;
+}
+
+/* Estilos para tooltips de las gráficas de rueda */
+.recharts-tooltip-wrapper {
+  z-index: 100;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
 
 .ProjectImage {
   max-width: 100%;
@@ -267,7 +458,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro */
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -452,4 +643,57 @@
   border: 5px solid transparent;
   border-top-color: #333;
   z-index: 1000;
+}
+
+/* Responsive design para las gráficas */
+@media (max-width: 768px) {
+  .GraphCard {
+    min-width: 350px;
+    max-width: 350px;
+    height: 350px;
+  }
+  
+  .GraphHeaderContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .GraphScrollContainer {
+    height: 400px;
+  }
+  
+  .GraphScrollContent {
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .SensorSection {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .GraphCard {
+    min-width: 300px;
+    max-width: 300px;
+    height: 320px;
+  }
+  
+  .GraphScrollContainer {
+    height: 350px;
+  }
+  
+  .GraphScrollContent {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .SensorSection {
+    margin-bottom: 25px;
+  }
+  
+  .GraphHeaderContainer h2 {
+    font-size: 1.5rem;
+  }
 }

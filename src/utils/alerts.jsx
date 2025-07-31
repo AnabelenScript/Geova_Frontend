@@ -1,3 +1,4 @@
+//src/utils/alerts.jsx
 import Swal from 'sweetalert2';
 import succesfulicon from '../assets/sucessfulicon.svg';
 import alerticon from '../assets/alerticon.svg';
@@ -105,4 +106,28 @@ export const showLoadingAlert = () => {
 
 export const closeLoadingAlert = () => {
   Swal.close();
+};
+
+export const showDeleteConfirmAlert = async (text) => {
+  return Swal.fire({
+    title: '¿Estás seguro?',
+    text,
+    imageUrl: alerticon,
+    imageWidth: 200,
+    imageHeight: 200,
+    showCancelButton: true,
+    showConfirmButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    background: '#ffffffff',
+    color: '#333',
+    customClass: {
+      popup: 'custom-swal-popup',
+      confirmButton: 'custom-swal-confirm custom-swal-delete', // Usar ambas clases
+      cancelButton: 'custom-swal-cancel',
+      actions: 'custom-swal-actions',
+      title: 'custom-swal-title'
+    },
+    buttonsStyling: false,
+  });
 };

@@ -1,60 +1,428 @@
-import './GraphViewer.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 
 function GraphViewer() {
   const { id } = useParams();
-  const [dataIMX, setDataIMX] = useState(null);
-  const [dataTF, setDataTF] = useState(null);
-  const [dataMPU, setDataMPU] = useState(null);
+  const [dataIMX, setDataIMX] = useState([]);
+  const [dataTF, setDataTF] = useState([]);
+  const [dataMPU, setDataMPU] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const evaluarFPS = (fps) => {
+  const [dataFetched, setDataFetched] = useState(false);
+  const evaluarFPS = useCallback((fps) => {
     if (fps >= 24) return ' (Buena)';
     if (fps >= 15) return ' (Media)';
     return ' (Mala)';
-  };
+  }, []);
 
-  const evaluarFuerzaSenal = (valor) => {
+  const evaluarFuerzaSenal = useCallback((valor) => {
     if (valor >= 10000) return 'Muy buena';
     if (valor >= 4000) return 'Buena';
     if (valor >= 2000) return 'Aceptable';
     if (valor >= 1000) return 'Baja';
     return 'Muy baja';
-  };
+  }, []);
 
-  const normalizarLuminosidad = (lum) => Math.min((lum / 255) * 100, 100);
-  const normalizarNitidez = (nit) => Math.min((nit / 500) * 100, 100);
+  const normalizarLuminosidad = useCallback((lum) => Math.min((lum / 255) * 100, 100), []);
+  const normalizarNitidez = useCallback((nit) => Math.min((nit / 500) * 100, 100), []);
+
+  const formatDate = useCallback((fecha) => {
+    const date = new Date(fecha);
+    return isNaN(date.getTime()) ? 'Fecha inválida' : date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }, []);
+  const IMXRadarCard = React.memo(({ data, index }) => {
+    const radarData = useMemo(() => [
+      {
+        atributo: 'Calidad',
+        valor: Number((data.calidad_frame * 100).toFixed(2)),
+        evaluacion: evaluarFPS(data.calidad_frame * 30),
+      },
+      {
+        atributo: 'Nitidez',
+        valor: Number(normalizarNitidez(data.nitidez_score).toFixed(2)),
+      },
+      {
+        atributo: 'Luminosidad',
+        valor: Number(normalizarLuminosidad(data.luminosidad_promedio).toFixed(2)),
+      },
+      {
+        atributo: 'Confiabilidad',
+        valor: Number((data.probabilidad_confiabilidad).toFixed(2)),
+      },
+    ], [data]);
+
+    const formattedDate = useMemo(() => 
+      formatDate(data.fecha || data.timestamp), 
+      [data.fecha, data.timestamp]
+    );
+
+    return (
+      <div className="GraphCard">
+        <div className="GraphCardHeader">
+          <h4 className="GraphCardTitle">Medición #{index + 1}</h4>
+          <span className="GraphCardDate">{formattedDate}</span>
+        </div>
+        <div className="GraphCardContent">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart data={radarData}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="atributo" />
+              <PolarRadiusAxis angle={30} domain={[0, 100]} />
+              <Radar
+                name="Valores"
+                dataKey="valor"
+                stroke="black"
+                fill="#E6AF2E"
+                fillOpacity={0.6}
+              />
+              <Tooltip formatter={(value, name, props) => {
+                const atributo = props?.payload?.atributo;
+                const evaluacion = props?.payload?.evaluacion || '';
+                return [`${value} %${evaluacion}`, atributo];
+              }} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  });
+  const PieGraphCard = React.memo(({ data, index, title, dataKey, unit, colors, formatter, maxValue }) => {
+    const { pieData, value } = useMemo(() => {
+      const val = data[dataKey] || 0;
+      const percentage = maxValue ? Math.min((val / maxValue) * 100, 100) : val;
+      const remaining = 100 - percentage;
+      
+      return {
+        value: val,
+        pieData: [
+          {
+            name: title,
+            value: percentage,
+            rawValue: val,
+            unit: unit
+          },
+          {
+            name: 'Restante',
+            value: remaining,
+            rawValue: maxValue ? maxValue - val : 100 - val,
+            unit: unit
+          }
+        ]
+      };
+    }, [data, dataKey, title, unit, maxValue]);
+
+    const formattedDate = useMemo(() => 
+      formatDate(data.fecha || data.timestamp), 
+      [data.fecha, data.timestamp]
+    );
+
+    const tooltipFormatter = useCallback((value, name, props) => {
+      if (name === 'Restante') return null;
+      const rawValue = props.payload.rawValue;
+      return formatter ? formatter(rawValue) : [`${rawValue?.toFixed(2)} ${unit}`, title];
+    }, [formatter, unit, title]);
+
+    const legendFormatter = useCallback((value, entry) => {
+      if (value === 'Restante') return null;
+      return <span style={{ color: entry.color }}>{value}</span>;
+    }, []);
+
+    return (
+      <div className="GraphCard">
+        <div className="GraphCardHeader">
+          <h4 className="GraphCardTitle">{title} - Medición #{index + 1}</h4>
+          <span className="GraphCardDate">{formattedDate}</span>
+        </div>
+        <div className="GraphCardContent">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={120}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                <Cell fill={colors[0]} />
+                <Cell fill={colors[1]} />
+              </Pie>
+              <Tooltip 
+                formatter={tooltipFormatter}
+                labelFormatter={() => ''}
+              />
+              <Legend formatter={legendFormatter} />
+              <text 
+                x="50%" 
+                y="45%" 
+                textAnchor="middle" 
+                dominantBaseline="middle" 
+                className="pie-center-text-value"
+                fontSize="24"
+                fontWeight="bold"
+                fill="#333"
+              >
+                {value?.toFixed(1)}
+              </text>
+              <text 
+                x="50%" 
+                y="55%" 
+                textAnchor="middle" 
+                dominantBaseline="middle" 
+                className="pie-center-text-unit"
+                fontSize="14"
+                fill="#666"
+              >
+                {unit}
+              </text>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  });
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const imx = await projectViewModel.handleGetSensorIMXByProjectId(id);
-        const tf = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
-        const mpu = await projectViewModel.handleGetSensorMPUByProjectId(id);
+    if (!dataFetched) {
+      async function fetchData() {
+        setLoading(true);
+        try {
+          const imx = await projectViewModel.handleGetSensorIMXByProjectId(id);
+          const tf = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
+          const mpu = await projectViewModel.handleGetSensorMPUByProjectId(id);
 
-        if (imx.success && imx.data.length > 0) {
-          setDataIMX(imx.data[imx.data.length - 1]);
+          if (imx.success && imx.data.length > 0) {
+            setDataIMX(imx.data);
+          }
+          if (tf.success && tf.data.length > 0) {
+            setDataTF(tf.data);
+          }
+          if (mpu.success && mpu.data.length > 0) {
+            setDataMPU(mpu.data);
+          }
+          
+          setDataFetched(true);
+        } catch (error) {
+          console.error('Error obteniendo datos de sensores:', error);
+        } finally {
+          setLoading(false);
         }
-        if (tf.success && tf.data.length > 0) {
-          setDataTF(tf.data[tf.data.length - 1]);
-        }
-        if (mpu.success && mpu.data.length > 0) {
-          setDataMPU(mpu.data[mpu.data.length - 1]);
-        }
-      } catch (error) {
-        console.error('Error obteniendo datos de sensores:', error);
-      } finally {
-        setLoading(false);
       }
-    }
 
-    fetchData();
+      fetchData();
+    }
+  }, [id, dataFetched]);
+
+  useEffect(() => {
+    setDataFetched(false);
+    setDataIMX([]);
+    setDataTF([]);
+    setDataMPU([]);
   }, [id]);
-  const hasData = dataIMX || dataTF || dataMPU;
+
+  const hasData = useMemo(() => 
+    dataIMX.length > 0 || dataTF.length > 0 || dataMPU.length > 0, 
+    [dataIMX.length, dataTF.length, dataMPU.length]
+  );
+
+  const imxSection = useMemo(() => {
+    if (dataIMX.length === 0) return null;
+    
+    return (
+      <div className="SensorSection">
+        <div className="GraphHeaderContainer">
+          <h2>Sensor IMX - Calidad, Nitidez y Confiabilidad</h2>
+          <div className="graph-count">{dataIMX.length} mediciones</div>
+        </div>
+        <div className="GraphScrollContainer">
+          <div className="GraphScrollContent">
+            {dataIMX.map((data, index) => (
+              <IMXRadarCard key={`imx-${index}-${data.id || index}`} data={data} index={index} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }, [dataIMX]);
+
+  const tfDistanceSection = useMemo(() => {
+    if (dataTF.length === 0) return null;
+    
+    return (
+      <div className="SensorSection">
+        <div className="GraphHeaderContainer">
+          <h2>Sensor TF Luna - Distancia</h2>
+          <div className="graph-count">{dataTF.length} mediciones</div>
+        </div>
+        <div className="GraphScrollContainer">
+          <div className="GraphScrollContent">
+            {dataTF.map((data, index) => (
+              <PieGraphCard
+                key={`tf-dist-${index}-${data.id || index}`}
+                data={data}
+                index={index}
+                title="Distancia"
+                dataKey="distancia_cm"
+                unit="cm"
+                colors={['#D68C0D', '#e8e8e8']}
+                maxValue={500}
+                formatter={(value) => [`${value?.toFixed(2)} cm`, 'Distancia']}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }, [dataTF]);
+
+  const tfSignalSection = useMemo(() => {
+    if (dataTF.length === 0) return null;
+    
+    return (
+      <div className="SensorSection">
+        <div className="GraphHeaderContainer">
+          <h2>Sensor TF Luna - Fuerza de Señal</h2>
+          <div className="graph-count">{dataTF.length} mediciones</div>
+        </div>
+        <div className="GraphScrollContainer">
+          <div className="GraphScrollContent">
+            {dataTF.map((data, index) => (
+              <PieGraphCard
+                key={`tf-signal-${index}-${data.id || index}`}
+                data={data}
+                index={index}
+                title="Fuerza de Señal"
+                dataKey="fuerza_senal"
+                unit=""
+                colors={['#D68C0D', '#e8e8e8']}
+                maxValue={15000}
+                formatter={(value) => [`${value?.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }, [dataTF, evaluarFuerzaSenal]);
+
+  const tfTempSection = useMemo(() => {
+    if (dataTF.length === 0) return null;
+
+    const temperaturas = dataTF.map(data => data.temperatura || 0);
+    const media = temperaturas.reduce((sum, temp) => sum + temp, 0) / temperaturas.length;
+    const varianza = temperaturas.reduce((sum, temp) => sum + Math.pow(temp - media, 2), 0) / temperaturas.length;
+    const desviacionEstandar = Math.sqrt(varianza);
+
+    const dataMedia = { temperatura: media, fecha: new Date() };
+    const dataDesviacion = { temperatura: desviacionEstandar, fecha: new Date() };
+    
+    return (
+      <div className="SensorSection">
+        <div className="GraphHeaderContainer">
+          <h2>Sensor TF Luna - Temperatura (Estadísticas)</h2>
+          <div className="graph-count">{dataTF.length} mediciones analizadas</div>
+        </div>
+        <div className="GraphScrollContainer">
+          <div className="GraphScrollContent">
+            <PieGraphCard
+              key="tf-temp-media"
+              data={dataMedia}
+              index={0}
+              title="Media de Temperatura"
+              dataKey="temperatura"
+              unit="°C"
+              colors={['#D68C0D', '#e8e8e8']}
+              maxValue={80}
+              formatter={(value) => [`${value?.toFixed(2)} °C`, 'Media']}
+            />
+            <PieGraphCard
+              key="tf-temp-desviacion"
+              data={dataDesviacion}
+              index={1}
+              title="Desviación Estándar"
+              dataKey="temperatura"
+              unit="°C"
+              colors={['#D68C0D', '#e8e8e8']}
+              maxValue={20}
+              formatter={(value) => [`${value?.toFixed(2)} °C`, 'Desv. Est.']}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }, [dataTF]);
+
+  const mpuInclinationSection = useMemo(() => {
+    if (dataMPU.length === 0) return null;
+    
+    return (
+      <div className="SensorSection">
+        <div className="GraphHeaderContainer">
+          <h2>Sensor MPU - Inclinación</h2>
+          <div className="graph-count">{dataMPU.length} mediciones</div>
+        </div>
+        <div className="GraphScrollContainer">
+          <div className="GraphScrollContent">
+            {dataMPU.map((data, index) => {
+              const inclinacion = Math.abs(data.roll + data.pitch);
+              const dataWithInclinacion = { ...data, inclinacion };
+              return (
+                <PieGraphCard
+                  key={`mpu-incl-${index}-${data.id || index}`}
+                  data={dataWithInclinacion}
+                  index={index}
+                  title="Inclinación"
+                  dataKey="inclinacion"
+                  unit="°"
+                  colors={['#D68C0D', '#e8e8e8']}
+                  maxValue={90}
+                  formatter={(value) => [`${value?.toFixed(2)} °`, 'Inclinación']}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }, [dataMPU]);
+
+  const mpuApertureSection = useMemo(() => {
+    if (dataMPU.length === 0) return null;
+    
+    return (
+      <div className="SensorSection">
+        <div className="GraphHeaderContainer">
+          <h2>Sensor MPU - Apertura</h2>
+          <div className="graph-count">{dataMPU.length} mediciones</div>
+        </div>
+        <div className="GraphScrollContainer">
+          <div className="GraphScrollContent">
+            {dataMPU.map((data, index) => (
+              <PieGraphCard
+                key={`mpu-apt-${index}-${data.id || index}`}
+                data={data}
+                index={index}
+                title="Apertura"
+                dataKey="apertura"
+                unit="°"
+                colors={['#D68C0D', '#e8e8e8']}
+                maxValue={180}
+                formatter={(value) => [`${value?.toFixed(2)} °`, 'Apertura']}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }, [dataMPU]);
 
   if (loading) {
     return (
@@ -86,7 +454,7 @@ function GraphViewer() {
         color: '#666',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '20px' }}></div>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}>📊</div>
         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>No hay mediciones registradas</h3>
         <p style={{ margin: '0', color: '#666' }}>
           Realiza una medición desde el módulo de captura para ver las gráficas aquí.
@@ -95,153 +463,15 @@ function GraphViewer() {
     );
   }
 
-  const radarData = dataIMX ? [
-    {
-      atributo: 'Calidad',
-      valor: Number((dataIMX.calidad_frame * 100).toFixed(2)),
-      evaluacion: evaluarFPS(dataIMX.calidad_frame * 30),
-    },
-    {
-      atributo: 'Nitidez',
-      valor: Number(normalizarNitidez(dataIMX.nitidez_score).toFixed(2)),
-    },
-    {
-      atributo: 'Luminosidad',
-      valor: Number(normalizarLuminosidad(dataIMX.luminosidad_promedio).toFixed(2)),
-    },
-    {
-      atributo: 'Confiabilidad',
-      valor: Number((dataIMX.probabilidad_confiabilidad).toFixed(2)),
-    },
-  ] : [];
-
-  const distanceData = dataTF ? [{
-    name: 'Último',
-    valor: dataTF.distancia_cm,
-  }] : [];
-
-  const fuerzaData = dataTF ? [{
-    name: 'Último',
-    valor: dataTF.fuerza_senal,
-  }] : [];
-
-  const tempData = dataTF ? [{
-    name: 'Último',
-    valor: dataTF.temperatura,
-  }] : [];
-
-  const inclinacion = dataMPU ? (dataMPU.roll + dataMPU.pitch) : 0;
-  const inclinacionData = dataMPU ? [{
-    name: 'Último',
-    valor: inclinacion,
-  }] : [];
-
-  const aperturaData = dataMPU ? [{
-    name: 'Último',
-    valor: dataMPU.apertura,
-  }] : [];
-
   return (
-    <div className="Charts">
-      {radarData.length > 0 && (
-        <>
-          <h3>Calidad, nitidez y confiabilidad</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <RadarChart data={radarData}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="atributo" />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} />
-              <Radar
-                name="Valores"
-                dataKey="valor"
-                stroke="black"
-                fill="#E6AF2E"
-                fillOpacity={0.6}
-              />
-              <Tooltip formatter={(value, name, props) => {
-                const atributo = props?.payload?.atributo;
-                const evaluacion = props?.payload?.evaluacion || '';
-                return [`${value} %${evaluacion}`, atributo];
-              }} />
-            </RadarChart>
-          </ResponsiveContainer>
-        </>
-      )}
+    <div className="GraphContainer">
+      {imxSection}
+      {tfDistanceSection}
+      {tfSignalSection}
+      {tfTempSection}
+      {mpuInclinationSection}
+      {mpuApertureSection}
 
-      {distanceData.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>Distancia (cm)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={distanceData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="cm" />
-              <Tooltip formatter={(value) => [`${value?.toFixed(2)} cm`, 'Distancia']} />
-              <Line type="monotone" dataKey="valor" stroke="#8884d8" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {fuerzaData.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>Fuerza de Señal</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={fuerzaData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip formatter={(value) => [`${value?.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
-              <Line type="monotone" dataKey="valor" stroke="#82ca9d" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {tempData.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>Temperatura (°C)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={tempData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="°C" />
-              <Tooltip formatter={(value) => [`${value?.toFixed(2)} °C`, 'Temperatura']} />
-              <Line type="monotone" dataKey="valor" stroke="#ff7300" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {inclinacionData.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>Inclinación (°)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={inclinacionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="°" />
-              <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Inclinación']} />
-              <Line type="monotone" dataKey="valor" stroke="#2e86de" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {aperturaData.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>Apertura (°)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={aperturaData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="°" />
-              <Tooltip formatter={(value) => [`${value?.toFixed(2)} °`, 'Apertura']} />
-              <Line type="monotone" dataKey="valor" stroke="#1abc9c" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import { hcService } from '../../services/HcService';
+import { showDeleteConfirmAlert, showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
 function MedirIrregularidades() {
   const { id } = useParams();
@@ -229,7 +230,9 @@ function MedirIrregularidades() {
   };
 
   const deleteAllMeasurements = async () => {
-    if (!window.confirm(`¿Estás seguro de que quieres eliminar todas las mediciones del proyecto ${currentProjectId}?`)) {
+    const result = await showDeleteConfirmAlert(`
+      Todas las mediciones del proyecto ${currentProjectId} serán eliminadas. Esta acción no se puede deshacer. ¿Estás seguro?`);
+    if (!result.isConfirmed) {
       return;
     }
 
@@ -238,10 +241,10 @@ function MedirIrregularidades() {
       await hcService.deleteMeasurements(currentProjectId);
       setMeasurements([]);
       setHasExistingData(false);
-      console.log(`🗑️ Todas las mediciones del proyecto ${currentProjectId} han sido eliminadas`);
+      await showSuccessAlert(`Todas las mediciones del proyecto ${currentProjectId} han sido eliminadas`);
     } catch (error) {
       console.error('Error eliminando mediciones:', error);
-      alert('Error eliminando las mediciones');
+      await showErrorAlert('Error eliminando las mediciones');
     } finally {
       setIsLoading(false);
     }
