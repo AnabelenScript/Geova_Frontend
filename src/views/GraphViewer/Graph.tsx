@@ -1,3 +1,4 @@
+import './GraphViewer.css';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
@@ -141,7 +142,7 @@ function GraphViewer() {
   }] : [];
 
   return (
-    <div className="GraphContainer">
+    <div className="Charts">
       {radarData.length > 0 && (
         <>
           <h3>Calidad, nitidez y confiabilidad</h3>

@@ -487,7 +487,6 @@ function MedirTerrenoDual() {
                 className={`TakeButton ${isStreaming ? 'active' : ''}`}
                 onClick={isStreaming ? stopStream : startStream}
               >
-                {isStreaming ? '⏹️' : '📷'}
               </button>
             </div>
           </div>
@@ -626,7 +625,9 @@ function MedirTerrenoDual() {
         </div>
       </div>
 
-      <div className="TFGraphsContainer">
+      <div className="MPUGraphsContainer">
+        <h2>Gráficas del sensor MPU</h2>
+      <div className="MPUGraphsContainer">
         <h2>Gráficas del sensor MPU (Tiempo Real)</h2>
 
         <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
