@@ -93,7 +93,7 @@ function Dashboard() {
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >
-            <option value="">Ordenar por...</option>
+            <option value=""> Ordenar por...</option>
             <option value="az">Nombre A-Z</option>
             <option value="recientes">Fecha reciente</option>
             <option value="antiguos">Fecha antigua</option>
