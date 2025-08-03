@@ -2,6 +2,9 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
+    "allowJs": true,
+    "checkJs": false,
+    "isolatedModules": true,
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,

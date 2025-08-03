@@ -1,0 +1,11 @@
+.Charts {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.Charts>div {
+    width: 50%;
+}
+.Charts>div:last-child {
+    width: 100%;
+}
