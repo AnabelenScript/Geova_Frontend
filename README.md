@@ -208,7 +208,7 @@ Geova_Frontend/
 
 | Sensor | Tipo | Función |
 |--------|------|---------|
-| **HC-SR04** | Ultrasónico | Medición de distancia (2cm - 4m) |
+| **HC-SR04** | Ultrasónico | Medición de irregularidades de terreno (2cm - 4m) |
 | **TF-Luna** | LiDAR | Medición de distancia precisa (0.2m - 8m) |
 | **MPU6050** | Giroscopio/Acelerómetro | Orientación y movimiento 3D |
 | **IMX477** | Cámara Sony| Captura de imágenes de alta resolución, y sirve para ver el puntero laser infrarrojo del sensor LIDAR|
