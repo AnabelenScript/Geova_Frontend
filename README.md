@@ -261,7 +261,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 
 ## 👥 Autores
 
-- **Equipo GEOVA** - *Desarrollo inicial* - [AnabelenScript](https://github.com/AnabelenScript) - [JosephAntony37900] (https://github.com/JosephAntony37900) - [alejandroimen] (https://github.com/alejandroimen)
+- **Equipo GEOVA** - *Desarrollo inicial* - [AnabelenScript](https://github.com/AnabelenScript) - [JosephAntony37900](https://github.com/JosephAntony37900) - [alejandroimen](https://github.com/alejandroimen)
 
 ---
 
