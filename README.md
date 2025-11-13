@@ -1,8 +1,8 @@
-# 🌍 GEOVA - Sistema de Medición Topográfica con Sensores IoT
+# GEOVA - Sistema de Medición Topográfica con Sensores IoT
 
 <div align="center">
 
-![GEOVA Banner](./public/Maquina.png)
+![GEOVA Banner](./public/Geova.png)
 
 **Sistema inteligente de medición y monitoreo topográfico en tiempo real**
 
