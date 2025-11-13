@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { graphService } from '../services/GraphService';
 
-const GRAPH_WS_URL = 'wss://geova-bd.namixcode.cc/ws';
+const GRAPH_WS_URL = 'wss://socket.geova.pro/ws';
 
 export const graphViewModel = {
   useGraphData() {

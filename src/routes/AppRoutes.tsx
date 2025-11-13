@@ -1,30 +1,36 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import Login from '../views/Login/LoginForm'
-import CreateProject from '../views/CreateProject/CreateProjectPage';
-import Layout from '../views/Navbar/Layout';
-import TomarFoto from '../views/VerCamara/TomarFoto';
-import Dashboard from '../views/Dashboard/Dashboard';
-import DetallesProyecto from '../views/DetallesProyecto/DetallesyGraficas';
-import MainMenu from '../views/MainMenu/MainMenu';
-import MedirIrregularidades from '../views/MedirIrregularidades/MedirIrregluaridades';
-import Profile from '../views/Profile/Profile';
-import MedirTerrenoDual from '../views/MedirTerrenoDual/MedirTerrenoDual';
+import { lazy, Suspense } from 'react';
+
+// Lazy load components
+const Login = lazy(() => import('../views/Login/LoginForm'));
+const CreateProject = lazy(() => import('../views/CreateProject/CreateProjectPage'));
+const Layout = lazy(() => import('../views/Navbar/Layout'));
+const TomarFoto = lazy(() => import('../views/VerCamara/TomarFoto'));
+const Dashboard = lazy(() => import('../views/Dashboard/Dashboard'));
+const DetallesProyecto = lazy(() => import('../views/DetallesProyecto/DetallesyGraficas'));
+const MainMenu = lazy(() => import('../views/MainMenu/MainMenu'));
+const MedirIrregularidades = lazy(() => import('../views/MedirIrregularidades/MedirIrregluaridades'));
+const Profile = lazy(() => import('../views/Profile/Profile'));
+const MedirTerrenoDual = lazy(() => import('../views/MedirTerrenoDual/MedirTerrenoDual'));
+
 function AppRoutes() {
   return (
     <HashRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/" element={<Layout />}>
-          <Route path="create" element={<CreateProject />} />
-          <Route path="dashboard/detalles/:id/takephoto" element={<TomarFoto />} />
-          <Route path="dashboard/detalles/:id/takephotodual" element={<MedirTerrenoDual />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
-          <Route path="dashboard/detalles/:id/irregularidades" element={<MedirIrregularidades />} />
-          <Route path="menu" element={<MainMenu />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
-      </Routes>
+      <Suspense fallback={<div>Cargando...</div>}>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Layout />}>
+            <Route path="create" element={<CreateProject />} />
+            <Route path="dashboard/detalles/:id/takephoto" element={<TomarFoto />} />
+            <Route path="dashboard/detalles/:id/takephotodual" element={<MedirTerrenoDual />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
+            <Route path="dashboard/detalles/:id/irregularidades" element={<MedirIrregularidades />} />
+            <Route path="menu" element={<MainMenu />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </HashRouter>
   );
 }
