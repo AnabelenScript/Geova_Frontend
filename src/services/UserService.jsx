@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://geova-api1.namixcode.cc/users';
+const API_URL = 'https://go.geova.pro/users';
 //https://geova-api1.namixcode.cc/users
 
 export const userService = {

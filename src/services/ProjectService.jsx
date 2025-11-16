@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://geova-api1.namixcode.cc/projects';
+const API_URL = 'https://go.geova.pro/projects';
 const API_URL_LOCAL2 = 'http://localhost:8000';
 
 //https://geova-api1.namixcode.cc/projects

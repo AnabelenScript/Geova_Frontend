@@ -2,7 +2,7 @@
 class HcService {
   constructor() {
     this.baseUrl = 'http://localhost:8000';
-    this.wsUrl = 'wss://geova-bd.namixcode.cc/ws';
+    this.wsUrl = 'wss://socket.geova.pro/ws';
     this.websocket = null;
     this.subscribers = [];
     this.isWsConnected = false;

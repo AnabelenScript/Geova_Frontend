@@ -942,7 +942,6 @@ function MedirTerrenoDual() {
         </div>
       </div>
     </div>
-    </div>
   );
 }
 
