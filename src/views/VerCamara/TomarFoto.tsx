@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { cameraService } from '../../services/cameraService';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert} from '../../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert} from '../../utils/modals/alerts';
 
 import './TomarFoto.css';
 

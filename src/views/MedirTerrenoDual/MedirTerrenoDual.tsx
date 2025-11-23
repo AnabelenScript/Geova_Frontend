@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { cameraService } from '../../services/cameraService';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert, showConfirmAlert } from '../../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showLoadingAlert, closeLoadingAlert, showConfirmAlert } from '../../utils/modals/alerts';
 import Swal from 'sweetalert2';
 import alerticon from '../../assets/alerticon.svg';
 import succesfulicon from '../../assets/sucessfulicon.svg';
