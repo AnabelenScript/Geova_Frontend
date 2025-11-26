@@ -1,10 +1,11 @@
-//src/utils/alerts.jsx
 import Swal from 'sweetalert2';
+import type { SweetAlertResult } from 'sweetalert2';
 import succesfulicon from '../assets/sucessfulicon.svg';
 import alerticon from '../assets/alerticon.svg';
-import erroricon from '../assets/erroricon.svg'
+import erroricon from '../assets/erroricon.svg';
 
-export const showSuccessAlert = async (text) => {
+
+export const showSuccessAlert = async (text: string): Promise<SweetAlertResult<any>> => {
   return Swal.fire({
     title: '¡Éxito!',
     text,
@@ -19,12 +20,12 @@ export const showSuccessAlert = async (text) => {
       popup: 'succesful-popup',
       title: 'succesful-titulo',
       confirmButton: 'succesful-confirmar',
-      htmlContainer: 'succesful-contenido'
-    }
+      htmlContainer: 'succesful-contenido',
+    },
   });
 };
 
-export const showErrorAlert = async (text) => {
+export const showErrorAlert = async (text: string): Promise<SweetAlertResult<any>> => {
   return Swal.fire({
     title: 'Error',
     text,
@@ -37,12 +38,12 @@ export const showErrorAlert = async (text) => {
     color: '#333',
     customClass: {
       popup: 'succesful-popup',
-      title: 'succesful-title'
-    }
+      title: 'succesful-title',
+    },
   });
 };
 
-export const showCautionAlert = async (text) => {
+export const showCautionAlert = async (text: string): Promise<SweetAlertResult<any>> => {
   return Swal.fire({
     text,
     background: '#fff',
@@ -54,13 +55,15 @@ export const showCautionAlert = async (text) => {
     color: '#333',
     customClass: {
       popup: 'succesful-popup',
-      title: 'succesful-title'
-    }
+      title: 'succesful-title',
+    },
   });
 };
 
-
-export const showConfirmAlert = async (title, text) => {
+export const showConfirmAlert = async (
+  title: string,
+  text: string
+): Promise<SweetAlertResult<any>> => {
   return Swal.fire({
     title,
     text,
@@ -68,23 +71,23 @@ export const showConfirmAlert = async (title, text) => {
     imageWidth: 200,
     imageHeight: 200,
     showCancelButton: true,
-        showConfirmButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar',
-        background: '#ffffffff',
-        color: '#333',
-        customClass: {
-            popup: 'custom-swal-popup',
-            confirmButton: 'custom-swal-confirm',
-            cancelButton: 'custom-swal-cancel',
-            actions: 'custom-swal-actions',
-            title: 'custom-swal-title'
-        },
-        buttonsStyling: false,
+    showConfirmButton: true,
+    confirmButtonText: 'Guardar',
+    cancelButtonText: 'Cancelar',
+    background: '#ffffffff',
+    color: '#333',
+    customClass: {
+      popup: 'custom-swal-popup',
+      confirmButton: 'custom-swal-confirm',
+      cancelButton: 'custom-swal-cancel',
+      actions: 'custom-swal-actions',
+      title: 'custom-swal-title',
+    },
+    buttonsStyling: false,
   });
 };
 
-export const showLoadingAlert = () => {
+export const showLoadingAlert = (): void => {
   Swal.fire({
     title: 'Enviando datos...',
     html: '<b>Por favor espera</b><br><br><div class="custom-spinner"></div>',
@@ -99,16 +102,17 @@ export const showLoadingAlert = () => {
     customClass: {
       popup: 'loading-popup',
       title: 'loading-title',
-      htmlContainer: 'loading-content'
-    }
+      htmlContainer: 'loading-content',
+    },
   });
 };
 
-export const closeLoadingAlert = () => {
+
+export const closeLoadingAlert = (): void => {
   Swal.close();
 };
 
-export const showDeleteConfirmAlert = async (text) => {
+export const showDeleteConfirmAlert = async (text: string): Promise<SweetAlertResult<any>> => {
   return Swal.fire({
     title: '¿Estás seguro?',
     text,
@@ -123,10 +127,10 @@ export const showDeleteConfirmAlert = async (text) => {
     color: '#333',
     customClass: {
       popup: 'custom-swal-popup',
-      confirmButton: 'custom-swal-confirm custom-swal-delete', // Usar ambas clases
+      confirmButton: 'custom-swal-confirm custom-swal-delete',
       cancelButton: 'custom-swal-cancel',
       actions: 'custom-swal-actions',
-      title: 'custom-swal-title'
+      title: 'custom-swal-title',
     },
     buttonsStyling: false,
   });
