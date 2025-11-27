@@ -1,79 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-    --font-alan-sans: 'Alan Sans', sans-serif;
-
-    /* Colores base modo claro */
-    --background: 96 27% 97%; /* #F8FAF5 */
-    --foreground: 96 9% 16%;   /* #2A2E25 */
-    --card: 0 0% 100%;
-    --card-foreground: 96 9% 16%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 96 9% 16%;
-    --primary: 42 77% 54%; /* #E6AF2E */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 96 9% 89%;
-    --secondary-foreground: 96 9% 16%;
-    --muted: 96 9% 89%;
-    --muted-foreground: 96 9% 45%;
-    --accent: 96 9% 89%;
-    --accent-foreground: 96 9% 16%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0%; /* negro */
-    --input: 0 0% 0%; /* negro */
-    --ring: 42 77% 54%; /* amarillo */
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 42 77% 54%; /* #E6AF2E */
-    --primary-foreground: 0 0% 0%; /* negro sobre amarillo */
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 100%; /* blanco */
-    --input: 0 0% 100%; /* blanco */
-    --ring: 42 77% 54%; /* amarillo */
-  }
-
-  /* Ajustes globales */
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  body {
-    padding: 0;
-    margin: 0;
-    font-family: var(--font-alan-sans), sans-serif;
-  }
+body{
+  border: 0;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
 }
 
-/* Utilidades personalizadas */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  .backdrop-invert {
-    backdrop-filter: blur(4px) invert(1);
-  }
+* {
+  font-family: Arial, Helvetica, sans-serif;
 }
+
