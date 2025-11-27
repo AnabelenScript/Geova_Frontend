@@ -45,7 +45,6 @@ export const getLoginBackgroundClasses = (darkMode: boolean, backgroundImage: st
   };
 };
 
-
 export const getLoginContainerClasses = (darkMode: boolean, isRegister: boolean) => {
   return {
     className: `

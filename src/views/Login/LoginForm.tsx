@@ -7,7 +7,7 @@ import {
 } from "../../utils/ui/DarkMode";
 
 import maquinaImg from "../../assets/Maquina1.svg";
-import logoImg from "../../assets/Geova_logo.png";
+import logoImg from "../../assets/Geova_logo.svg";
 
 interface FormState {
   username: string;
@@ -85,9 +85,9 @@ function Login() {
               ${isLogin ? "w-1/2" : "w-full"}
             `}
             >
-              <div className="flex flex-col items-center gap-4">
+              <div className="py-4 flex flex-col items-center gap-4 bg-[hsl(var(--header))]">
                 <img src={logoImg} alt="Logo" className="w-32 h-auto" />
-                <h1 className="text-3xl font-bold text-foreground">
+                <h1 className="text-3xl font-bold text-[hsl(var(--header-text))]">
                   {isLogin ? "Login" : "Sign up"}
                 </h1>
               </div>
