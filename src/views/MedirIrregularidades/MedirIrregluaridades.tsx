@@ -7,7 +7,7 @@ import {
   ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import { hcService } from '../../services/HcService';
-import { showDeleteConfirmAlert, showSuccessAlert, showErrorAlert } from '../../utils/modals/alerts';
+import { showDeleteConfirmAlert, showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
 function MedirIrregularidades() {
   const { id } = useParams();
