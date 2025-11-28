@@ -283,3 +283,14 @@
     width: 100%;
   }
 }
+
+.input-elements {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-error {
+  color: rgb(190, 0, 0);
+  font-size: 14px;
+}
