@@ -15,21 +15,19 @@
 }
 
 .LoginContainer {
-  width: 55vw;
-  height: auto;
+  width: 75vw;
+  height: 100%;
   overflow: visible;
-  background-color: rgba(255, 255, 255, 0.386);
-  backdrop-filter: blur(4px) invert(1);     
-  -webkit-backdrop-filter: blur(10px) invert(1); 
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(1px) invert(1);     
+  -webkit-backdrop-filter: blur(2px) invert(1); 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   filter: invert(1);
-  border-radius: 20px;
   z-index: 3;
   display: flex;
   justify-content: center; 
-  align-items: stretch;
-  gap:10px;
-  padding: 50px 10px;
+  align-items: center;
+  gap: 36px;
   font-family: Arial, Helvetica, sans-serif;
   flex-direction: row;
   transition: all 0.3s ease-in-out;
@@ -39,36 +37,41 @@
   position: relative;         
   min-width: 25vw;
   max-width: 100%;
-  height: auto;   
+  height: 100%;   
   display: flex;
   justify-content: center;
-  align-items: center;           
+  align-items: end;          
   z-index: 2;
   overflow: visible;   
 }
 
 .Machine img {
-  position: absolute;             
-  top: 0;
   width: auto;
-  height: 85vh;              
+  height: 100vh;              
   z-index: 1;
   pointer-events: none;
 
 }
 
 .Machine.register-machine img {
-  height: 90vh;
-  top: 6vh;
+  height: 100vh;
 }
 
 .Formtitle{
+  background-color: var(--dark-blue);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  height: 50px;
+  gap: 8px;
+  height: auto;
   font-size: 0.8em;
+  padding: 24px;
+}
+
+.Formtitle * {
+  margin: 0;
+  color: var(--white);
 }
 
 .logo{
@@ -76,12 +79,19 @@
 }
 
 .FormContainer{
-  width: 48%;
+  width: 40%;
+  box-sizing: border-box;
   height: auto;
-  padding: 10px 10px 0px 10px;
+  max-height: 90vh;
+  background-color: rgba(255, 255, 255, 0.4);
+  padding:  0px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  backdrop-filter: blur(1px);    
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);   
+  border-radius: 24px;
+  overflow: hidden;
 }
 
 .inputform{
@@ -97,11 +107,17 @@
 .Form{
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   justify-content: center;
   align-items: center;
   font-size: 1em;
   width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: scroll;
+}
+.Form::-webkit-scrollbar {
+    display: none;
 }
 
 .inputform input{
@@ -122,12 +138,12 @@
   height: 40px;
   box-sizing: border-box;
   border: transparent;
-  margin: 0;
+  margin: 4px 0;
   width: 100%;
   padding: 5px;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  background-color: #E6AF2E;
+  background-color: var(--yellow);
   font-size: 1.1em;
 }
 
@@ -151,11 +167,27 @@
   background-color: #FFEAB9;
   color: #000;
 }
+.buttonform p {
+  margin: 2px 0;
+  font-size: 14px;
+}
+
+
+.LoginContainer.register-machine .Form {
+  gap: 2px;
+  padding: 12px 24px;
+}
+
+.LoginContainer.register-machine .Form {
+  gap: 2px;
+  padding: 12px 24px;
+}
 
 /*Estilos para una pantalla mayor*/
 
 @media (min-width: 1921px) {
   .FormContainer {
+    height: auto;
     width: 42%;
     padding-top: 55px;
     gap: 40px;
@@ -195,7 +227,6 @@
 }
 
 .login-mode {
-  height: 70%; 
   transition: all 0.3s ease-in-out;
 
 }
@@ -204,16 +235,32 @@
 }
 
 .LoginContainer.register-machine {
-  padding: 10px 20px;
+  height: 100vh;
+  width: 75vw;
+  box-sizing: border-box;
 }
 
 .LoginContainer.register-machine input {
   height: 36px;
   font-size: 14px;
-
 }
 
 .LoginContainer.register-machine label {
+  font-size: 14px;
+}
+
+.inputform input:focus {
+  border: solid 1.5px var(--yellow);
+  outline: none;
+}
+
+.input-error {
+  border: solid 1.5px var(--red) !important;
+}
+
+.error-text {
+  margin: 4px 0 0 0;
+  color: var(--red);
   font-size: 14px;
 }
 
@@ -227,20 +274,22 @@
 
   .LoginContainer {
     flex-direction: column;
-    width: 45vw;
+    width: 100vw;
     height: auto;
-    padding: 20px 15px;
+    padding: 48px;
     align-items: center;
+    box-sizing: border-box;
+    border-radius: 24px;
   }
 
-  /* 🚫 Ocultar imagen en pantallas 2:3 horizontales */
+  /* Ocultar imagen en pantallas 2:3 horizontales */
   .Machine {
     display: none !important;
   }
 
   .FormContainer {
     width: 100%;
-    padding: 20px 10px;
+    padding: 0px;
     gap: 20px;
   }
 
@@ -280,6 +329,6 @@
 
 @media screen and (max-width: 768) {
   .LoginContainer {
-    width: 100%;
+    width: 100vw;
   }
 }
