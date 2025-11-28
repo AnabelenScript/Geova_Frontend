@@ -152,7 +152,7 @@
   flex-direction: column;
   width: 90%;
   padding: 0;
-  margin: 0;
+  margin: 0 0 8px 0;
   justify-content: center;
   align-items: center;
 }
@@ -170,17 +170,18 @@
 .buttonform p {
   margin: 2px 0;
   font-size: 14px;
+  text-align: center;
 }
 
 
 .LoginContainer.register-machine .Form {
-  gap: 2px;
+  gap: 4px;
   padding: 12px 24px;
+  justify-content: start;
 }
 
-.LoginContainer.register-machine .Form {
-  gap: 2px;
-  padding: 12px 24px;
+.FormContainer.register-mode {
+  min-height: 95vh;
 }
 
 /*Estilos para una pantalla mayor*/
@@ -248,6 +249,7 @@
 .LoginContainer.register-machine label {
   font-size: 14px;
 }
+
 
 .inputform input:focus {
   border: solid 1.5px var(--yellow);

@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./LoginForm.css";
 import { usersViewModel } from "../../viewmodels/UserViewModel";
 import maquinaImg from "../../assets/Maquina.png";
-import logoImg from "../../assets/Geova_logo.png";
+import logoImg from "../../assets/Geova_logo.svg";
 import Obligatorio from "../../utils/ui/span-obligatorio";
 
 interface FormState {

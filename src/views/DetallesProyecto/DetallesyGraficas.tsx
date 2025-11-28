@@ -139,7 +139,9 @@ function DetallesProyecto() {
     <div className="DetallesContainer">
       <div className="DetallesTitleContainer">
         <div className="DetallesTitle">
-          <h1>Detalles de proyecto</h1>
+          <h1>
+            {loading ? 'Cargando...' : project?.NombreProyecto || 'Proyecto no encontrado'}
+          </h1>
           <i className="bx bxs-add-to-queue"></i>
         </div>
         <div className="DetallesEndContainer">
@@ -158,32 +160,10 @@ function DetallesProyecto() {
 
       <div className="DashSubtitle">
         <div className="DashSub1">
-          <h2 className="Dsub1">
-            {loading ? 'Cargando...' : project?.NombreProyecto || 'Proyecto no encontrado'}
-          </h2>
-          <p className="Dsub2">
-            {loading ? '' : project?.Fecha ? formatDate(project.Fecha) : 'Fecha no disponible'}
-          </p>
-        </div>
-        <div className="DashSub2">
-          <div className='ProjectOptions'>
-            <div className='editproject' onClick={openEditModal}>
-              <i className='bx bxs-edit-alt'></i>
-            </div>
-            <div 
-              className={`deleteproject ${!isLocalAPIAvailable ? 'disabled' : ''}`}
-              onClick={handleDeleteProject}
-              title={!isLocalAPIAvailable ? 'Requiere conexión a Raspberry Pi' : 'Eliminar proyecto'}
-            >
-              <i className='bx bxs-trash-alt'></i>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="ProjectphotoDetail">
-        <div className="corner-top-right"></div>
-        <div className="corner-bottom-left"></div>
         <div className="PhotoContainer">
           {project?.Img ? (
             <img src={project.Img} alt="Proyecto" className="ProjectImage" />
@@ -193,18 +173,36 @@ function DetallesProyecto() {
         </div>
       </div>
 
+      <div className="categorycontainer">
+        <p>{project?.Categoria || 'Categoría'}</p>
+      </div>
+
       <div className="DetailOptions">
-        <h2>Descripción</h2>
+        <div className='SubtitleContainer'>
+          <h2>Información</h2>
+          <div className='ProjectOptions'>
+              <div className='editproject' onClick={openEditModal}>
+                <i className='bx bxs-edit-alt'></i>
+              </div>
+              <div 
+                className={`deleteproject ${!isLocalAPIAvailable ? 'disabled' : ''}`}
+                onClick={handleDeleteProject}
+                title={!isLocalAPIAvailable ? 'Requiere conexión a Raspberry Pi' : 'Eliminar proyecto'}
+              >
+                <i className='bx bxs-trash-alt'></i>
+              </div>
+          </div>
+        </div>
+        <p className="Dsub2">
+          {loading ? '' : project?.Fecha ? formatDate(project.Fecha) : 'Fecha no disponible'}
+        </p>
+        <h3 className='SectionTitle'>DESCRIPCIÓN</h3>
         <p>{project?.Descripcion || ''}</p>
 
         <div className="ExtraDetails">
           <button onClick={Handlecamera}>Medir terreno</button>
           <button onClick={Handlecameradual}>Medir terreno Dual</button>
           <button onClick={handleIrregularidades}>Medir irregularidades</button>
-          <div className="categorycontainer">
-            <i class="fa-solid fa-table-cells-large"></i>
-            <p>Categoría: {project?.Categoria || ''}</p>
-          </div>
         </div>
 
         <h2>Ubicación</h2>
