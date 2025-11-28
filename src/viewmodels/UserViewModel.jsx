@@ -4,16 +4,12 @@ import {
   showConfirmAlert,
   showDeleteConfirmAlert,
   showLoadingAlert,
-  closeLoadingAlert
+  closeLoadingAlert,
 } from "../utils/alerts";
 
-import { userService } from '../services/UserService';
+import { userService } from "../services/UserService";
 
 export const usersViewModel = {
-
-  // -----------------------------
-  // REGISTRO
-  // -----------------------------
   async handleRegister(username, nombre, apellidos, email, password) {
     try {
       const user = { username, nombre, apellidos, email, password };
@@ -25,11 +21,13 @@ export const usersViewModel = {
       await showSuccessAlert("Tu cuenta ha sido creada correctamente.");
 
       return { success: true, data: response };
-
     } catch (error) {
       closeLoadingAlert();
 
-      const backendMsg = error.response?.data?.details || error.response?.data?.error || error.message;
+      const backendMsg =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message;
 
       await showErrorAlert(backendMsg);
 
@@ -37,27 +35,25 @@ export const usersViewModel = {
     }
   },
 
-  // -----------------------------
-  // LOGIN
-  // -----------------------------
   async handleLogin(email, password) {
     try {
       showLoadingAlert();
       const response = await userService.login(email, password);
       closeLoadingAlert();
 
-      localStorage.setItem('token', response.token);
+      localStorage.setItem("token", response.token);
 
       if (response.user?.id) {
         const userKey = `loggeduser:${response.user.id}`;
         localStorage.setItem(userKey, JSON.stringify(response.user));
       }
 
-      await showSuccessAlert(`Bienvenid@, ${response.user?.nombre || "usuario"}`);
+      await showSuccessAlert(
+        `Bienvenid@, ${response.user?.nombre || "usuario"}`
+      );
 
-      window.location.href = '#/menu';
+      window.location.href = "#/menu";
       return { success: true, data: response };
-
     } catch (error) {
       closeLoadingAlert();
 
@@ -68,39 +64,40 @@ export const usersViewModel = {
     }
   },
 
-  // -----------------------------
-  // OBTENER USUARIO LOGGEADO
-  // -----------------------------
   async handleGetLoggedUser() {
     try {
-      const key = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
-      if (!key) return { success: false, error: "Usuario no encontrado en localStorage" };
+      const key = Object.keys(localStorage).find((k) =>
+        k.startsWith("loggeduser:")
+      );
+      if (!key)
+        return {
+          success: false,
+          error: "Usuario no encontrado en localStorage",
+        };
 
       const userId = key.split(":")[1];
       const response = await userService.getUserById(userId);
 
       return { success: true, data: response };
-
     } catch (error) {
       const msg = error.response?.data?.details || error.message;
       return { success: false, error: msg };
     }
   },
 
-  // -----------------------------
-  // ACTUALIZAR USUARIO
-  // -----------------------------
   async handleUpdateUser(id, updatedUser) {
     try {
       const response = await userService.updateUser(id, updatedUser);
       return { success: true, data: response };
     } catch (error) {
-      const msg = error.response?.data?.details || error.response?.data?.error || error.message;
+      const msg =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message;
       return { success: false, error: msg };
     }
   },
 
-  // Con alerta integrada
   async handleUpdateUserWithAlert(id, updatedUser, setUser, setEditMode) {
     const result = await usersViewModel.handleUpdateUser(id, updatedUser);
 
@@ -113,20 +110,19 @@ export const usersViewModel = {
     }
   },
 
-  // -----------------------------
-  // ELIMINAR USUARIO
-  // -----------------------------
   async handleDeleteUser(id) {
     try {
       const response = await userService.deleteUser(id);
       return { success: true, data: response };
     } catch (error) {
-      const msg = error.response?.data?.details || error.response?.data?.error || error.message;
+      const msg =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message;
       return { success: false, error: msg };
     }
   },
 
-  // Con alerta integrada
   async handleDeleteUserWithAlert(id) {
     const confirm = await showDeleteConfirmAlert(
       "Esta acción eliminará tu cuenta permanentemente."
@@ -143,52 +139,80 @@ export const usersViewModel = {
         await showErrorAlert(response.error);
       }
     }
-  }, 
+  },
 
   async validateLoginOrRegister(form, isLogin) {
-  let errors = {};
-  let ok = true;
+    let errors = {};
+    let ok = true;
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
-  const nameRegex = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+    const nameRegex = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
 
-  // EMAIL
-  if (!form.email.trim()) {
-    errors.email = true;
-    ok = false;
-  } else if (!emailRegex.test(form.email)) {
-    errors.email = true;
-    ok = false;
-  }
+    if (isLogin) {
+      if (!form.email.trim()) {
+        errors.email = "Este campo es obligatorio.";
+        ok = false;
+      } else if (!emailRegex.test(form.email)) {
+        errors.email = "Formato de correo inválido.";
+        ok = false;
+      }
 
-  // PASSWORD
-  if (!form.password.trim() || form.password.length < 6) {
-    errors.password = true;
-    ok = false;
-  }
+      if (!form.password.trim()) {
+        errors.password = "Este campo es obligatorio.";
+        ok = false;
+      }
 
-  if (!isLogin) {
-    // USERNAME
-    if (!form.username.trim() || !usernameRegex.test(form.username)) {
-      errors.username = true;
+      return { ok, errors };
+    }
+
+    if (!form.email.trim()) {
+      errors.email = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!emailRegex.test(form.email)) {
+      errors.email = "Formato de correo inválido.";
       ok = false;
     }
 
-    // NAME
-    if (!form.nombre.trim() || !nameRegex.test(form.nombre)) {
-      errors.nombre = true;
+    if (!form.password.trim()) {
+      errors.password = "Este campo es obligatorio.";
+      ok = false;
+    } else if (form.password.length < 8) {
+      errors.password = "Debe tener al menos 8 caracteres.";
+      ok = false;
+    } else if (!/[A-Z]/.test(form.password)) {
+      errors.password = "Debe incluir al menos una mayúscula.";
+      ok = false;
+    } else if (!/[0-9]/.test(form.password)) {
+      errors.password = "Debe incluir al menos un número.";
+      ok = false;
+    } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(form.password)) {
+      errors.password = "Debe incluir un carácter especial.";
       ok = false;
     }
 
-    // LAST NAME
-    if (!form.apellidos.trim() || !nameRegex.test(form.apellidos)) {
-      errors.apellidos = true;
+    if (!form.username.trim()) {
+      errors.username = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!usernameRegex.test(form.username)) {
+      errors.username = "Mínimo 3 caracteres (solo letras, números o _).";
       ok = false;
     }
-  }
 
-  return { ok, errors };
-}
-
+    if (!form.nombre.trim()) {
+      errors.nombre = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!nameRegex.test(form.nombre)) {
+      errors.nombre = "Solo letras, mínimo 2 caracteres.";
+      ok = false;
+    }
+    if (!form.apellidos.trim()) {
+      errors.apellidos = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!nameRegex.test(form.apellidos)) {
+      errors.apellidos = "Solo letras, mínimo 2 caracteres.";
+      ok = false;
+    }
+    return { ok, errors };
+  },
 };
