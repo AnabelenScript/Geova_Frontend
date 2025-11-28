@@ -1,25 +1,24 @@
 .DetallesContainer{
-    background-color:#FAF6F1;
     width: 98%;
-    height: auto;
+    min-height: 100vh;
     border-bottom-right-radius: 30px;
     border-bottom-left-radius: 30px;
     padding:  40px 40px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 20px;
     align-items: center;
-    font-family: Arial, Helvetica, sans-serif;
+    box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
 }
 
 .DetallesTitleContainer{
     width: 100% ;
-    height: 20vh;
+    height: auto;
 }
 
 .DetallesTitle {
-    background-color: #FFEAB9;
+    background-color: #303E51;
     width: 100%;
     height: 10vh;
     display: flex;
@@ -28,7 +27,8 @@
     padding: 15px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-    clip-path: polygon( 25px 0%, calc(100% - 25px) 0%,100% 25px,100% 100%,0% 100%,0% 25px);
+    border-radius: 12px;
+    color: white;
 }
 
 .DetallesTitle h1{
@@ -39,8 +39,9 @@
 
 .DetallesTitle i{
     font-size: 5vh;
-    color: #D68C0D;
+    color: #ffffff;
 }
+
 
 .DetallesEndContainer {
     margin-top: 12px;
@@ -68,45 +69,8 @@
     left: 0;
     width: 80px;
     height: 80px;
-    background-color: #E6AF2E;
+    background-color: var(--yellow);
     clip-path: polygon(0 0, 100% 0, 0% 100%);
-    z-index: 1;
-}
-
-/* Esquina inferior derecha */
-.ProjectphotoDetail::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 80px;
-    height: 80px;
-    background-color: #E6AF2E;
-    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
-    z-index: 1;
-}
-
-/* Esquina superior derecha */
-.ProjectphotoDetail .corner-top-right {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 80px;
-    height: 80px;
-    background-color: #E6AF2E;
-    clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
-    z-index: 1;
-}
-
-/* Esquina inferior izquierda */
-.ProjectphotoDetail .corner-bottom-left {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 80px;
-    height: 80px;
-    background-color: #E6AF2E;
-    clip-path: polygon(0% 100%, 100% 100%, 0% 0%);
     z-index: 1;
 }
 
@@ -114,8 +78,7 @@
     width: 100%;
     height: 100%;
     background-image: url(../../assets/fondo_login.png);
-    clip-path: polygon(95px 0%,calc(100% - 95px) 0%, 100% 95px,100% calc(100% - 95px),calc(100% - 95px) 100%, 95px 100%,0% calc(100% - 95px),0% 95px                        
-    );
+    clip-path: polygon(95px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 95px);
     justify-content: center;
     display: flex;
     flex-direction: column;
@@ -160,8 +123,8 @@
     background-color: #E6AF2E;
     color: black;
 }
-.ExtraDetails .categorycontainer{
-    background-color: white;
+.categorycontainer{
+    background-color: var(--soft-yellow);
     margin: 0;
     min-height: 6vh;
     box-sizing: border-box;
@@ -174,15 +137,12 @@
     display: flex;
     justify-content: center;
 }
-.ExtraDetails .categorycontainer p {
+.categorycontainer p {
   margin: 0;
   font-size: 16px;
+  font-weight: 500;
   text-align: center;
-}
-.categorycontainer i {
-  margin-right: 8px;
-  color: #D68C0D;
-  font-size: 20px;
+  color: var(--dark-yellow);
 }
 
 .MapDetail{
@@ -419,6 +379,12 @@
   height: 100%;
 }
 
+.SubtitleContainer{
+  display: flex;
+  justify-content: space-between;
+}
+
+
 .ProjectOptions{
   display: flex;
   align-items: center;
@@ -428,20 +394,25 @@
 }
 
 .deleteproject{
-    color: red;
-    padding: 4px;
+    background-color: var(--red);
+    padding: 12px;
     display: flex;
     justify-content: center;
-    border-radius: 40px;
+    border-radius: 8px;
     cursor: pointer;
+
 }
 .editproject{
-    color: #D68C0D;
-    padding: 4px;
+    background-color: var(--dark-blue);
+    padding: 12px;
     display: flex;
     justify-content: center;
-    border-radius: 40px;
+    border-radius: 8px;
     cursor: pointer;
+}
+
+.deleteproject i, .editproject i {
+  color: var(--white);
 }
 
 .deleteproject:hover{
@@ -643,6 +614,19 @@
   border: 5px solid transparent;
   border-top-color: #333;
   z-index: 1000;
+}
+
+.Dsub2 {
+  color: var(--black-70);
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0%;
+}
+
+.SectionTitle {
+  color: var(--black-70);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* Responsive design para las gráficas */
