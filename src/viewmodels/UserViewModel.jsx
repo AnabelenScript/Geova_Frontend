@@ -1,218 +1,218 @@
-import Swal from 'sweetalert2';
-import { userService } from '../services/UserService';
-import alerticon from '../assets/alerticon.svg'
-import erroricon from '../assets/erroricon.svg'
-import succesfulicon from '../assets/sucessfulicon.svg';
-import './alerts.css'
+import {
+  showSuccessAlert,
+  showErrorAlert,
+  showConfirmAlert,
+  showDeleteConfirmAlert,
+  showLoadingAlert,
+  closeLoadingAlert,
+} from "../utils/alerts";
+
+import { userService } from "../services/UserService";
 
 export const usersViewModel = {
-    async handleRegister(username, nombre, apellidos, email, password) {
-        try {
-            const user = { username, nombre, apellidos, email, password };
-            const response = await userService.register(user);
-             await Swal.fire({
-      title: '¡Registro exitoso!',
-      text: 'Tu cuenta ha sido creada correctamente.',
-      imageUrl: succesfulicon,
-      imageWidth: 200,
-      imageHeight: 200,
-      showConfirmButton: false,
-      timer: 2000,
-      customClass: {
-        popup: 'succesful-popup',
-        title: 'succesful-titulo',
-        htmlContainer: 'succesful-contenido'
-      },
-      buttonsStyling: false
-    }); 
-     
-    return { success: true, data: response };
-   
-    
-  } catch (error) {
-    await Swal.fire({
-      title: 'Error',
-      text: error.response?.data || error.message,
-      icon: 'error',
-      customClass: {
-        popup: 'error-popup',
-        title: 'error-titulo',
-        confirmButton: 'error-confirmar',
-        content: 'error-contenido'
-      },
-      buttonsStyling: false
-    });
-    return { success: false, error };
-  }
-    },
-
-    async handleLogin(email, password) {
+  async handleRegister(username, nombre, apellidos, email, password) {
     try {
-        const response = await userService.login(email, password);
-        localStorage.setItem('token', response.token);
+      const user = { username, nombre, apellidos, email, password };
 
-        if (response.user?.id) {
-            const userKey = `loggeduser:${response.user.id}`;
-            localStorage.setItem(userKey, JSON.stringify(response.user));
-            console.log(`Usuario guardado en localStorage con clave ${userKey}`);
-        }
+      showLoadingAlert();
+      const response = await userService.register(user);
+      closeLoadingAlert();
 
-        await Swal.fire({
-            title: '¡Inicio de sesión exitoso!',
-            text: `Bienvenid@, ${response.user?.nombre || 'usuario'}`,
-            confirmButton: false,
-            imageUrl: succesfulicon, 
-            imageWidth: 200,
-            timer: 1500,
-            showConfirmButton: false, 
-            imageHeight: 200,
-            customClass: {
-                popup: 'succesful-popup',
-                title: 'succesful-titulo',
-                confirmButton: 'succesful-confirmar',
-                 htmlContainer: 'succesful-contenido'
+      await showSuccessAlert("Tu cuenta ha sido creada correctamente.");
 
-            },
-        });
-        window.location.href = '#/menu';
-        return { success: true, data: response };
-
+      return { success: true, data: response };
     } catch (error) {
-        await Swal.fire({
-            title: 'Error de inicio de sesión',
-            text: 'Datos incorrectos',
-            confirmButton: false,
-            imageUrl: erroricon, 
-            imageWidth: 200,
-            timer: 2000,
-            showConfirmButton: false, 
-            imageHeight: 200,
-            customClass: {
-                popup: 'succesful-popup',
-                title: 'succesful-titulo',
-                confirmButton: 'succesful-confirmar',
-                 htmlContainer: 'succesful-contenido'
+      closeLoadingAlert();
 
-            },
-            buttonsStyling: false
-        });
+      const backendMsg =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message;
 
-        return { success: false, error: error.response?.data || error.message };
+      await showErrorAlert(backendMsg);
+
+      return { success: false, error: backendMsg };
     }
-},
+  },
 
-    async handleGetLoggedUser() {
-        try {
-            const key = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
-            if (!key) {
-                return { success: false, error: 'Usuario no encontrado en localStorage' };
-            }
+  async handleLogin(email, password) {
+    try {
+      showLoadingAlert();
+      const response = await userService.login(email, password);
+      closeLoadingAlert();
 
-            const userId = key.split(':')[1];
-            const response = await userService.getUserById(userId);
-            return { success: true, data: response };
-        } catch (error) {
-            return { success: false, error: error.response?.data || error.message };
-        }
-    },
+      localStorage.setItem("token", response.token);
 
-    async handleUpdateUser(id, updatedUser) {
-        try {
-            const response = await userService.updateUser(id, updatedUser);
-            return { success: true, data: response };
-        } catch (error) {
-            return { success: false, error: error.response?.data || error.message };
-        }
-    },
+      if (response.user?.id) {
+        const userKey = `loggeduser:${response.user.id}`;
+        localStorage.setItem(userKey, JSON.stringify(response.user));
+      }
 
-    async handleDeleteUser(id) {
-        try {
-            const response = await userService.deleteUser(id);
-            return { success: true, data: response };
-        } catch (error) {
-            return { success: false, error: error.response?.data || error.message };
-        }
-    },
+      await showSuccessAlert(
+        `Bienvenid@, ${response.user?.nombre || "usuario"}`
+      );
 
-    
-async handleUpdateUserWithAlert(id, updatedUser, setUser, setEditMode) {
+      window.location.href = "#/menu";
+      return { success: true, data: response };
+    } catch (error) {
+      closeLoadingAlert();
+
+      const msg = error.response?.data?.details || "Datos incorrectos";
+      await showErrorAlert(msg);
+
+      return { success: false, error: msg };
+    }
+  },
+
+  async handleGetLoggedUser() {
+    try {
+      const key = Object.keys(localStorage).find((k) =>
+        k.startsWith("loggeduser:")
+      );
+      if (!key)
+        return {
+          success: false,
+          error: "Usuario no encontrado en localStorage",
+        };
+
+      const userId = key.split(":")[1];
+      const response = await userService.getUserById(userId);
+
+      return { success: true, data: response };
+    } catch (error) {
+      const msg = error.response?.data?.details || error.message;
+      return { success: false, error: msg };
+    }
+  },
+
+  async handleUpdateUser(id, updatedUser) {
+    try {
+      const response = await userService.updateUser(id, updatedUser);
+      return { success: true, data: response };
+    } catch (error) {
+      const msg =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message;
+      return { success: false, error: msg };
+    }
+  },
+
+  async handleUpdateUserWithAlert(id, updatedUser, setUser, setEditMode) {
     const result = await usersViewModel.handleUpdateUser(id, updatedUser);
+
     if (result.success) {
-        Swal.fire({
-            title: '¡Actualizado!',
-            text: 'Tu perfil se ha actualizado correctamente.',
-            imageUrl: succesfulicon, 
-            imageWidth: 200,
-            showConfirmButton: false, 
-            imageHeight: 200,
-            customClass: {
-                popup: 'succesful-popup',
-                title: 'succesful-titulo',
-                confirmButton: 'succesful-confirmar',
-                 htmlContainer: 'succesful-contenido'
-
-            },
-            buttonsStyling: false
-        });
-        setUser(updatedUser);
-        setEditMode(false);
+      await showSuccessAlert("Tu perfil se ha actualizado correctamente.");
+      setUser(updatedUser);
+      setEditMode(false);
     } else {
-        Swal.fire({
-            title: 'Error',
-            text: result.error,
-            icon: 'error',
-            
-            customClass: {
-                popup: 'error-popup',
-                title: 'error-titulo',
-                confirmButton: 'error-confirmar',
-                content: 'error-contenido',
-            },
-            buttonsStyling: false
-        });
+      await showErrorAlert(result.error);
     }
-},
+  },
 
-    async handleDeleteUserWithAlert(id) {
-    const confirm = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción eliminará tu cuenta permanentemente.',
-        imageUrl: alerticon, 
-        imageWidth: 200,
-        imageHeight: 200,
-        imageAlt: 'Alerta de eliminación',
-        showCancelButton: true,
-        showConfirmButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar',
-        background: '#ffffffff',
-        color: '#333',
-        customClass: {
-            popup: 'custom-swal-popup',
-            confirmButton: 'custom-swal-confirm',
-            cancelButton: 'custom-swal-cancel',
-            actions: 'custom-swal-actions',
-            title: 'custom-swal-title'
-        },
-        buttonsStyling: false,
-    });
+  async handleDeleteUser(id) {
+    try {
+      const response = await userService.deleteUser(id);
+      return { success: true, data: response };
+    } catch (error) {
+      const msg =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message;
+      return { success: false, error: msg };
+    }
+  },
+
+  async handleDeleteUserWithAlert(id) {
+    const confirm = await showDeleteConfirmAlert(
+      "Esta acción eliminará tu cuenta permanentemente."
+    );
 
     if (confirm.isConfirmed) {
-        const response = await usersViewModel.handleDeleteUser(id);
-        if (response.success) {
-            await Swal.fire({
-                title: '¡Eliminado!',
-                text: 'Tu cuenta ha sido eliminada.',
-                icon: 'success',
-                confirmButtonColor: '#3085d6'
-            });
-            localStorage.clear();
-            window.location.href = '/login';
-        } else {
-            Swal.fire('Error', response.error, 'error');
-        }
+      const response = await usersViewModel.handleDeleteUser(id);
+
+      if (response.success) {
+        await showSuccessAlert("Tu cuenta ha sido eliminada.");
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        await showErrorAlert(response.error);
+      }
     }
-}
+  },
 
+  async validateLoginOrRegister(form, isLogin) {
+    let errors = {};
+    let ok = true;
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+    const nameRegex = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
+
+    if (isLogin) {
+      if (!form.email.trim()) {
+        errors.email = "Este campo es obligatorio.";
+        ok = false;
+      } else if (!emailRegex.test(form.email)) {
+        errors.email = "Formato de correo inválido.";
+        ok = false;
+      }
+
+      if (!form.password.trim()) {
+        errors.password = "Este campo es obligatorio.";
+        ok = false;
+      }
+
+      return { ok, errors };
+    }
+
+    if (!form.email.trim()) {
+      errors.email = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!emailRegex.test(form.email)) {
+      errors.email = "Formato de correo inválido.";
+      ok = false;
+    }
+
+    if (!form.password.trim()) {
+      errors.password = "Este campo es obligatorio.";
+      ok = false;
+    } else if (form.password.length < 8) {
+      errors.password = "Debe tener al menos 8 caracteres.";
+      ok = false;
+    } else if (!/[A-Z]/.test(form.password)) {
+      errors.password = "Debe incluir al menos una mayúscula.";
+      ok = false;
+    } else if (!/[0-9]/.test(form.password)) {
+      errors.password = "Debe incluir al menos un número.";
+      ok = false;
+    } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(form.password)) {
+      errors.password = "Debe incluir un carácter especial.";
+      ok = false;
+    }
+
+    if (!form.username.trim()) {
+      errors.username = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!usernameRegex.test(form.username)) {
+      errors.username = "Mínimo 3 caracteres (solo letras, números o _).";
+      ok = false;
+    }
+
+    if (!form.nombre.trim()) {
+      errors.nombre = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!nameRegex.test(form.nombre)) {
+      errors.nombre = "Solo letras, mínimo 2 caracteres.";
+      ok = false;
+    }
+    if (!form.apellidos.trim()) {
+      errors.apellidos = "Este campo es obligatorio.";
+      ok = false;
+    } else if (!nameRegex.test(form.apellidos)) {
+      errors.apellidos = "Solo letras, mínimo 2 caracteres.";
+      ok = false;
+    }
+    return { ok, errors };
+  },
 };
