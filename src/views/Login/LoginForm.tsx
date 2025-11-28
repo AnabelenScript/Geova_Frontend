@@ -1,9 +1,9 @@
-import { useState } from 'react'; 
-import './LoginForm.css';
-import { usersViewModel } from '../../viewmodels/UserViewModel';
-import maquinaImg from '../../assets/Maquina.png';
-import logoImg from '../../assets/Geova_logo.png';
-import Obligatorio from '../../utils/ui/span-obligatorio';
+import { useState } from "react";
+import "./LoginForm.css";
+import { usersViewModel } from "../../viewmodels/UserViewModel";
+import maquinaImg from "../../assets/Maquina.png";
+import logoImg from "../../assets/Geova_logo.png";
+import Obligatorio from "../../utils/ui/span-obligatorio";
 
 interface FormState {
   username: string;
@@ -13,49 +13,51 @@ interface FormState {
   password: string;
 }
 
+interface ErrorState {
+  username?: boolean;
+  nombre?: boolean;
+  apellidos?: boolean;
+  email?: boolean;
+  password?: boolean;
+}
+
 function Login() {
   const [isLogin, setIsLogin] = useState(true);
+
   const [form, setForm] = useState<FormState>({
-    username: '',
-    nombre: '',
-    apellidos: '',
-    email: '',
-    password: ''
+    username: "",
+    nombre: "",
+    apellidos: "",
+    email: "",
+    password: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<ErrorState>({});
 
-  const toggleMode = () => setIsLogin(!isLogin);
+  const toggleMode = () => {
+    setErrors({});
+    setIsLogin(!isLogin);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
 
-    setErrors(prev => ({
+    // marca error solo si el campo está vacío
+    setErrors((prev) => ({
       ...prev,
-      [name]: value.trim() === "" ? true : false,
+      [name]: value.trim() === "",
     }));
   };
 
-  const validateFields = () => {
-    let newErrors: Record<string, boolean> = {};
-
-    if (!isLogin) {
-      newErrors.username = form.username.trim() === "";
-      newErrors.nombre = form.nombre.trim() === "";
-      newErrors.apellidos = form.apellidos.trim() === "";
-    }
-
-    newErrors.email = form.email.trim() === "";
-    newErrors.password = form.password.trim() === "";
-
-    setErrors(newErrors);
-    return !Object.values(newErrors).includes(true);
-  };
-
   const handleSubmit = async () => {
-    if (!validateFields()) return;
+    const result = await usersViewModel.validateLoginOrRegister(form, isLogin);
+
+    if (!result.ok) {
+      setErrors(result.errors);
+      return;
+    }
 
     if (isLogin) {
       await usersViewModel.handleLogin(form.email, form.password);
@@ -72,91 +74,99 @@ function Login() {
 
   return (
     <div className="Login">
-      <div className={`LoginContainer ${!isLogin ? 'register-machine' : ''}`}>
-        <div className={`Machine ${isLogin ? '' : 'register-machine'}`}>
+      <div className={`LoginContainer ${!isLogin ? "register-machine" : ""}`}>
+        <div className={`Machine ${isLogin ? "" : "register-machine"}`}>
           <img src={maquinaImg} alt="Máquina" />
         </div>
 
-        <div className={`FormContainer ${isLogin ? 'login-mode' : 'register-mode'}`}>
+        <div className={`FormContainer ${isLogin ? "login-mode" : "register-mode"}`}>
           <div className="Formtitle">
-            <img src={logoImg} alt="Logo" className='logo' />
-            <h1>{isLogin ? 'Login' : 'Sign up'}</h1>
+            <img src={logoImg} alt="Logo" className="logo" />
+            <h1>{isLogin ? "Login" : "Sign Up"}</h1>
           </div>
 
-          <div className='Form'>
-
+          <div className="Form">
             {!isLogin && (
               <>
-                <div className='inputform'>
+                {/* USERNAME */}
+                <div className="inputform">
                   <div className="input-elements">
                     <label>Username</label>
-                    <Obligatorio show={errors.username} />
+                    <Obligatorio show={!!errors.username} />
                   </div>
-                  <input 
-                    type="text" 
-                    name="username" 
-                    value={form.username} 
+                  <input
+                    type="text"
+                    name="username"
+                    value={form.username}
                     onChange={handleChange}
                   />
                 </div>
-                <div className='inputform'>
+
+                {/* NAME */}
+                <div className="inputform">
                   <div className="input-elements">
                     <label>Name</label>
-                    <Obligatorio show={errors.nombre} />
+                    <Obligatorio show={!!errors.nombre} />
                   </div>
-                  <input 
-                    type="text" 
-                    name="nombre" 
-                    value={form.nombre} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={form.nombre}
+                    onChange={handleChange}
                   />
                 </div>
-                <div className='inputform'>
+
+                {/* LAST NAME */}
+                <div className="inputform">
                   <div className="input-elements">
                     <label>Last Name</label>
-                    <Obligatorio show={errors.apellidos} />
+                    <Obligatorio show={!!errors.apellidos} />
                   </div>
-                  <input 
-                    type="text" 
-                    name="apellidos" 
-                    value={form.apellidos} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="apellidos"
+                    value={form.apellidos}
+                    onChange={handleChange}
                   />
                 </div>
               </>
             )}
-            <div className='inputform'>
-              <div className='input-elements'>
+
+            {/* EMAIL */}
+            <div className="inputform">
+              <div className="input-elements">
                 <label>Email</label>
-                <Obligatorio show={errors.email} />
+                <Obligatorio show={!!errors.email} />
               </div>
-              <input 
-                type="text" 
-                name="email" 
-                value={form.email} 
-                onChange={handleChange} 
-              />
+              <input type="text" name="email" value={form.email} onChange={handleChange} />
             </div>
-            <div className='inputform'>
-              <div className='input-elements'>
+
+            {/* PASSWORD */}
+            <div className="inputform">
+              <div className="input-elements">
                 <label>Password</label>
-                <Obligatorio show={errors.password} />
+                <Obligatorio show={!!errors.password} />
               </div>
-              <input 
-                type="password" 
-                name="password" 
-                value={form.password} 
-                onChange={handleChange} 
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
               />
             </div>
-            <div className='buttonform'>
-              <button className='loginbutton' onClick={handleSubmit}>
-                {isLogin ? 'Login' : 'Register'}
+
+            <div className="buttonform">
+              <button className="loginbutton" onClick={handleSubmit}>
+                {isLogin ? "Login" : "Register"}
               </button>
+
               <p>
                 {isLogin ? "Don't have an account? " : "Do you already have an account? "}
-                <span onClick={toggleMode} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-                  {isLogin ? 'Sign up' : 'Login'}
+                <span
+                  onClick={toggleMode}
+                  style={{ cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {isLogin ? "Sign up" : "Login"}
                 </span>
               </p>
             </div>
@@ -168,4 +178,3 @@ function Login() {
 }
 
 export default Login;
-

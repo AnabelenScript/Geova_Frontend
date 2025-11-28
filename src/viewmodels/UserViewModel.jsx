@@ -143,5 +143,52 @@ export const usersViewModel = {
         await showErrorAlert(response.error);
       }
     }
+  }, 
+
+  async validateLoginOrRegister(form, isLogin) {
+  let errors = {};
+  let ok = true;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+  const nameRegex = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
+
+  // EMAIL
+  if (!form.email.trim()) {
+    errors.email = true;
+    ok = false;
+  } else if (!emailRegex.test(form.email)) {
+    errors.email = true;
+    ok = false;
   }
+
+  // PASSWORD
+  if (!form.password.trim() || form.password.length < 6) {
+    errors.password = true;
+    ok = false;
+  }
+
+  if (!isLogin) {
+    // USERNAME
+    if (!form.username.trim() || !usernameRegex.test(form.username)) {
+      errors.username = true;
+      ok = false;
+    }
+
+    // NAME
+    if (!form.nombre.trim() || !nameRegex.test(form.nombre)) {
+      errors.nombre = true;
+      ok = false;
+    }
+
+    // LAST NAME
+    if (!form.apellidos.trim() || !nameRegex.test(form.apellidos)) {
+      errors.apellidos = true;
+      ok = false;
+    }
+  }
+
+  return { ok, errors };
+}
+
 };
