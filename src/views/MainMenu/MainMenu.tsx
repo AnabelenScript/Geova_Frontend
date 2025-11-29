@@ -8,6 +8,9 @@ function MainMenu() {
   const [projects, setProjects] = useState([]);
   const [selectedButton, setSelectedButton] = useState('recientes');
   const [currentPage, setCurrentPage] = useState(0); 
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   const cardsPerPage = 2;
   const navigate = useNavigate();
