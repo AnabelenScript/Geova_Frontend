@@ -14,10 +14,6 @@ const MedirIrregularidades = lazy(() => import("../views/MedirIrregularidades/Me
 const Profile = lazy(() => import("../views/Profile/Profile"));
 const MedirTerrenoDual = lazy(() => import("../views/MedirTerrenoDual/MedirTerrenoDual"));
 
-
-// TODO: ACTIVAR EN PRODUCCIÓN
-const DEV_MODE = true; // Cambiar a false en producción
-
 function AppRoutes() {
   return (
     <HashRouter>
@@ -48,7 +44,7 @@ function AppRoutes() {
             <Route path="dashboard/detalles/:id/takephoto" element={<TomarFoto />} />
             <Route path="dashboard/takephotodual/:id" element={<MedirTerrenoDual />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="dashboard/detalles/" element={<DetallesProyecto />} />
+            <Route path="dashboard/detalles/:id" element={<DetallesProyecto />} />
             <Route path="dashboard/detalles/:id/irregularidades" element={<MedirIrregularidades />} />
             <Route path="menu" element={<MainMenu />} />
             <Route path="profile" element={<Profile />} />
