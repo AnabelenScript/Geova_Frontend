@@ -7,10 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 function MainMenu() {
   const [projects, setProjects] = useState([]);
   const [selectedButton, setSelectedButton] = useState('recientes');
-  const [currentPage, setCurrentPage] = useState(0); // 👈 Página actual
-  const [weeklyData, setWeeklyData] = useState([]);
-  const [totalProjects, setTotalProjects] = useState(0);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0); 
 
   const cardsPerPage = 2;
   const navigate = useNavigate();
