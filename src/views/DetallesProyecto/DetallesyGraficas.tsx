@@ -41,29 +41,47 @@ function DetallesProyecto() {
     imgFile: null
   });
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!id) return;
+useEffect(() => {
+  const abortController = new AbortController();
+  let isMounted = true;
+  
+  const fetchProject = async () => {
+    if (!id) return;
+    const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
+    if (isMounted && success) {
+      setProject(data);
+    } else if (isMounted) {
+      console.error("Error al obtener proyecto:", error);
+    }
+    if (isMounted) setLoading(false);
+  };
 
-      const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
-      if (success) {
-        setProject(data);
-      } else {
-        console.error("Error al obtener proyecto:", error);
+  const checkLocalAPI = async () => {
+    if (!isMounted) return;
+    setCheckingLocalAPI(true);
+    
+    try {
+      const isAvailable = await projectService.checkLocalAPIAvailability(abortController.signal);
+            if (isMounted && !abortController.signal.aborted) {
+        setIsLocalAPIAvailable(isAvailable);
+        setCheckingLocalAPI(false);
       }
-      setLoading(false);
-    };
+    } catch (error) {
+      if (isMounted && !abortController.signal.aborted) {
+        setIsLocalAPIAvailable(false);
+        setCheckingLocalAPI(false);
+      }
+    }
+  };
 
-    const checkLocalAPI = async () => {
-      setCheckingLocalAPI(true);
-      const isAvailable = await projectService.checkLocalAPIAvailability();
-      setIsLocalAPIAvailable(isAvailable);
-      setCheckingLocalAPI(false);
-    };
+  fetchProject();
+  checkLocalAPI();
 
-    fetchProject();
-    checkLocalAPI();
-  }, [id]);
+  return () => {
+    isMounted = false;
+    abortController.abort();
+  };
+}, [id]);
 
   const Handlecamera = () => {
     projectViewModel.handleCamera(navigate);
@@ -133,7 +151,7 @@ function DetallesProyecto() {
 
   const handleDeleteProject = async () => {
     if (!project?.Id) return;
-    await projectViewModel.handleDeleteProject(project.Id, navigate);
+    await projectViewModel.handleDeleteProject(project.Id, navigate, isLocalAPIAvailable);
   };
 
   return (

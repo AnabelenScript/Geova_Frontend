@@ -209,33 +209,62 @@ export const projectViewModel = {
     }
   },
 
-  async handleDeleteProject(id, navigate) {
+  async handleDeleteProject(id, navigate, isLocalAPIAlreadyChecked = null) {
     try {
-      // Primero verificar si la API local está disponible
-      const isLocalAPIAvailable = await projectService.checkLocalAPIAvailability();
+      // Usar el estado ya verificado si se proporciona, sino verificar de nuevo
+      const isLocalAPIAvailable = isLocalAPIAlreadyChecked !== null 
+        ? isLocalAPIAlreadyChecked 
+        : await projectService.checkLocalAPIAvailability();
       
       if (!isLocalAPIAvailable) {
         await showErrorAlert(
-          'API Local No Disponible',
-          'No se puede eliminar el proyecto porque la API local (Raspberry Pi) no está disponible. ' +
-          'Para eliminar un proyecto, necesitas estar conectado a la Raspberry Pi para eliminar ' +
-          'también los datos de los sensores asociados.'
+          'No se puede eliminar el proyecto porque la Raspberry Pi no está conectada. ' +
+          'Conéctate a la Raspberry Pi para verificar si hay datos de sensores asociados.'
         );
         return { success: false, error: 'API local no disponible' };
       }
 
+      // Verificar si hay datos de sensores asociados al proyecto
+      const [tfLunaData, imxData, mpuData] = await Promise.all([
+        projectService.checkSensorData('tfluna', id),
+        projectService.checkSensorData('imx477', id),
+        projectService.checkSensorData('mpu', id)
+      ]);
+
+      const hasSensorData = tfLunaData.exists || imxData.exists || mpuData.exists;
+
+      let confirmMessage = '¿Estás seguro?';
+      let confirmText = 'Este proyecto se eliminará permanentemente.';
+      
+      if (hasSensorData) {
+        confirmText += '\n\nSe encontraron datos de sensores asociados que también serán eliminados:';
+        if (tfLunaData.exists) confirmText += '\n• TF-Luna';
+        if (imxData.exists) confirmText += '\n• IMX477';
+        if (mpuData.exists) confirmText += '\n• MPU6050';
+      } else {
+        confirmText += '\n\nNo se encontraron datos de sensores asociados.';
+      }
+
       const confirm = await showConfirmAlert(
-        '¿Estás seguro?',
-        'Este proyecto se eliminará permanentemente.',
-        'Los datos de los sensores asociados al proyecto también serán eliminados.',
+        confirmMessage,
+        confirmText,
         'Esta acción no se puede deshacer.'
       );
 
       if (!confirm.isConfirmed) return { success: false };
+
+      // Eliminar proyecto de la API de Go
       await projectService.deleteProject(id);
-      await projectService.deleteProjectByTFLuna(id);
-      await projectService.deleteProjectByIMX477(id);
-      await projectService.deleteProjectByMPU6050(id);
+
+      // Solo intentar eliminar datos de sensores si existen
+      if (hasSensorData) {
+        const deletePromises = [];
+        if (tfLunaData.exists) deletePromises.push(projectService.deleteProjectByTFLuna(id));
+        if (imxData.exists) deletePromises.push(projectService.deleteProjectByIMX477(id));
+        if (mpuData.exists) deletePromises.push(projectService.deleteProjectByMPU6050(id));
+        
+        await Promise.all(deletePromises);
+      }
       
       await showSuccessAlert('Proyecto eliminado exitosamente.');
       await projectViewModel.handleGetAllProjects();
