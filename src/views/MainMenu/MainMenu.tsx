@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 function MainMenu() {
   const [projects, setProjects] = useState([]);
   const [selectedButton, setSelectedButton] = useState('recientes');
-  const [currentPage, setCurrentPage] = useState(0); // 👈 Página actual
+  const [currentPage, setCurrentPage] = useState(0); 
 
   const cardsPerPage = 2;
   const navigate = useNavigate();

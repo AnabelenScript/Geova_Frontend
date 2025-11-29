@@ -38,7 +38,9 @@ export const usersViewModel = {
   async handleLogin(email, password) {
   try {
     showLoadingAlert();
+
     const response = await userService.login(email, password);
+
     closeLoadingAlert();
 
     localStorage.setItem("token", response.token);
@@ -51,21 +53,25 @@ export const usersViewModel = {
     await showSuccessAlert(`Bienvenid@, ${response.user?.nombre || "usuario"}`);
 
     window.location.href = "#/menu";
+
     return { success: true, data: response };
 
   } catch (error) {
+
     closeLoadingAlert();
+
     const backendMsg =
-      error.response?.data?.error ||      
-      error.response?.data?.details ||   
-      error.message ||                   
-      "Datos incorrectos";              
+      error?.response?.data?.error ||
+      error?.response?.data?.details ||
+      error?.message ||
+      "Error inesperado";
 
     await showErrorAlert(backendMsg);
 
     return { success: false, error: backendMsg };
   }
 },
+
 
 
   async handleGetLoggedUser() {
