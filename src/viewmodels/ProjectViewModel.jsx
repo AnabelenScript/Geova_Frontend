@@ -296,10 +296,13 @@ export const projectViewModel = {
   async handleGetSensorIMXByProjectId(id_project) {
   try {
     const response = await imxService.getSensorIMXByProjectId(id_project);
-    return { success: true, data: response };
+    // La API devuelve {success, data}, extraemos el array de data
+    const data = response?.data || response;
+    return { success: true, data: Array.isArray(data) ? data : [] };
   } catch (error) {
     return {
       success: false,
+      data: []
     };
   }
 },
@@ -322,10 +325,13 @@ async handlePostSensorTFLuna(sensorData) {
 async handleGetSensorTFLunaByProjectId(id_project) {
   try {
     const response = await tflunaService.getSensorTFLunaByProjectId(id_project);
-    return { success: true, data: response };
+    // La API devuelve {success, data}, extraemos el array de data
+    const data = response?.data || response;
+    return { success: true, data: Array.isArray(data) ? data : [] };
   } catch (error) {
     return {
       success: false,
+      data: []
     };
   }
 },
@@ -348,10 +354,13 @@ async handlePostSensorMPU(sensorData) {
 async handleGetSensorMPUByProjectId(id_project) {
   try {
     const response = await mpuSensorService.getSensorMPUByProjectId(id_project);
-    return { success: true, data: response };
+    // La API devuelve {success, data}, extraemos el array de data
+    const data = response?.data || response;
+    return { success: true, data: Array.isArray(data) ? data : [] };
   } catch (error) {
     return {
       success: false,
+      data: []
     };
   }
 },

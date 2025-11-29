@@ -1,7 +1,7 @@
 // src/services/cameraService.ts - Versión simplificada
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = 'http://localhost:8000';
 
 export interface StreamingStatus {
   active: boolean;
