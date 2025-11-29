@@ -9,6 +9,9 @@ import {
 
 import { userService } from "../services/UserService";
 
+// ⚠️ TODO: CAMBIAR A false ANTES DE PRODUCCIÓN ⚠️
+const DEV_MODE = true;
+
 export const usersViewModel = {
   async handleRegister(username, nombre, apellidos, email, password) {
     try {
@@ -36,6 +39,39 @@ export const usersViewModel = {
   },
 
   async handleLogin(email, password) {
+    // ⚠️ BYPASS TEMPORAL PARA DESARROLLO ⚠️
+    if (DEV_MODE) {
+      showLoadingAlert();
+      
+      // Simula delay de red
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      closeLoadingAlert();
+
+      // Simula respuesta exitosa del servidor
+      const mockResponse = {
+        token: "dev-mock-token-12345",
+        user: {
+          id: 1,
+          nombre: "Developer",
+          apellidos: "User",
+          email: email,
+          username: "devuser"
+        }
+      };
+
+      localStorage.setItem("token", mockResponse.token);
+
+      const userKey = `loggeduser:${mockResponse.user.id}`;
+      localStorage.setItem(userKey, JSON.stringify(mockResponse.user));
+
+      await showSuccessAlert(`Bienvenid@, ${mockResponse.user.nombre} [MODO DEV]`);
+
+      window.location.href = "#/menu";
+      return { success: true, data: mockResponse };
+    }
+
+    // Código original (solo se ejecuta si DEV_MODE = false)
     try {
       showLoadingAlert();
       const response = await userService.login(email, password);
@@ -65,6 +101,33 @@ export const usersViewModel = {
   },
 
   async handleGetLoggedUser() {
+    // ⚠️ BYPASS TEMPORAL PARA DESARROLLO ⚠️
+    if (DEV_MODE) {
+      const key = Object.keys(localStorage).find((k) =>
+        k.startsWith("loggeduser:")
+      );
+      
+      if (!key) {
+        // Si no hay usuario en localStorage, crea uno mock
+        const mockUser = {
+          id: 1,
+          nombre: "Developer",
+          apellidos: "User",
+          email: "dev@test.com",
+          username: "devuser"
+        };
+        
+        localStorage.setItem("token", "dev-mock-token-12345");
+        localStorage.setItem(`loggeduser:${mockUser.id}`, JSON.stringify(mockUser));
+        
+        return { success: true, data: mockUser };
+      }
+
+      const userData = localStorage.getItem(key);
+      return { success: true, data: JSON.parse(userData) };
+    }
+
+    // Código original
     try {
       const key = Object.keys(localStorage).find((k) =>
         k.startsWith("loggeduser:")

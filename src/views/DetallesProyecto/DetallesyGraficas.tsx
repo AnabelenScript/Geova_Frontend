@@ -1,12 +1,12 @@
 import './DetallesyGraficas.css';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { projectViewModel } from '../../viewmodels/ProjectViewModel';
-import { projectService } from '../../services/ProjectService';
-import { graphViewModel } from '../../viewmodels/GraphViewModel';
+// import { projectViewModel } from '../../viewmodels/ProjectViewModel';
+// import { projectService } from '../../services/ProjectService';
+// import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import GraphViewer from '../GraphViewer/Graph';
+// import GraphViewer from '../GraphViewer/Graph';
 
 function LocationMarkerEdit({ setLat, setLng }) {
   const [position, setPosition] = useState(null);
@@ -29,7 +29,7 @@ function DetallesProyecto() {
   const [isLocalAPIAvailable, setIsLocalAPIAvailable] = useState(false);
   const [checkingLocalAPI, setCheckingLocalAPI] = useState(true);
   const navigate = useNavigate();
-  const { data: graphs } = graphViewModel.useGraphData();
+  // const { data: graphs } = graphViewModel.useGraphData();
 
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState({
@@ -45,19 +45,39 @@ function DetallesProyecto() {
     const fetchProject = async () => {
       if (!id) return;
 
-      const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
-      if (success) {
-        setProject(data);
-      } else {
-        console.error("Error al obtener proyecto:", error);
-      }
+      // ========== LLAMADA API COMENTADA ==========
+      // const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
+      // if (success) {
+      //   setProject(data);
+      // } else {
+      //   console.error("Error al obtener proyecto:", error);
+      // }
+      // ==========================================
+
+      // DATOS DE PRUEBA LOCAL
+      const mockProject = {
+        Id: Number(id),
+        NombreProyecto: 'Proyecto de Ejemplo',
+        Categoria: 'Residencial',
+        Descripcion: 'Esta es una descripción de prueba para el proyecto. Aquí puedes agregar toda la información relevante sobre el terreno, características especiales y detalles importantes.',
+        Fecha: '2024-01-15',
+        Lat: 16.7569,
+        Lng: -93.1292,
+        Img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800' // Imagen de ejemplo
+      };
+      setProject(mockProject);
       setLoading(false);
     };
 
     const checkLocalAPI = async () => {
       setCheckingLocalAPI(true);
-      const isAvailable = await projectService.checkLocalAPIAvailability();
-      setIsLocalAPIAvailable(isAvailable);
+      // ========== LLAMADA API COMENTADA ==========
+      // const isAvailable = await projectService.checkLocalAPIAvailability();
+      // setIsLocalAPIAvailable(isAvailable);
+      // ==========================================
+      
+      // SIMULACIÓN LOCAL
+      setIsLocalAPIAvailable(false); // Cambia a true para simular conexión
       setCheckingLocalAPI(false);
     };
 
@@ -66,17 +86,31 @@ function DetallesProyecto() {
   }, [id]);
 
   const Handlecamera = () => {
-    projectViewModel.handleCamera(navigate);
+    // ========== LLAMADA API COMENTADA ==========
+    // projectViewModel.handleCamera(navigate);
+    // ==========================================
+    console.log('Cámara simple - función deshabilitada en modo local');
   };
 
   const Handlecameradual = () => {
-    projectViewModel.handleCameraDual(navigate);
+    // ========== LLAMADA API COMENTADA ==========
+    // projectViewModel.handleCameraDual(navigate);
+    // ==========================================
+    console.log('Cámara dual - función deshabilitada en modo local');
   };
 
   const handleIrregularidades = () => {
     if (project?.Id) {
-      projectViewModel.handleIrregularidades(navigate, project.Id);
+      // ========== LLAMADA API COMENTADA ==========
+      // projectViewModel.handleIrregularidades(navigate, project.Id);
+      // ==========================================
+      console.log('Irregularidades - función deshabilitada en modo local');
     }
+  };
+
+  const startMeasure = () => {
+    console.log('Iniciar medición - función deshabilitada en modo local');
+    alert('Función de medición deshabilitada en modo de prueba local');
   };
 
   const formatDate = (fecha) => {
@@ -106,24 +140,44 @@ function DetallesProyecto() {
     const { nombreProyecto, categoria, descripcion, lat, lng, imgFile } = editData;
 
     try {
-      const { success, error } = await projectViewModel.handleUpdateProject(
-        Number(id),
-        nombreProyecto,
-        categoria,
-        descripcion,
-        imgFile,
-        lat,
-        lng
-      );
+      // ========== LLAMADA API COMENTADA ==========
+      // const { success, error } = await projectViewModel.handleUpdateProject(
+      //   Number(id),
+      //   nombreProyecto,
+      //   categoria,
+      //   descripcion,
+      //   imgFile,
+      //   lat,
+      //   lng
+      // );
 
-      if (success) {
-        setShowModal(false);
-        const { data } = await projectViewModel.handleGetProjectById(Number(id));
-        setProject(data);
-      } else {
-        console.error('Error al actualizar:', error);
-        alert('Error al actualizar: ' + error);
-      }
+      // if (success) {
+      //   setShowModal(false);
+      //   const { data } = await projectViewModel.handleGetProjectById(Number(id));
+      //   setProject(data);
+      // } else {
+      //   console.error('Error al actualizar:', error);
+      //   alert('Error al actualizar: ' + error);
+      // }
+      // ==========================================
+
+      // SIMULACIÓN LOCAL
+      console.log('Datos a actualizar:', { nombreProyecto, categoria, descripcion, lat, lng, imgFile });
+      
+      // Actualizar datos localmente
+      setProject({
+        ...project,
+        NombreProyecto: nombreProyecto,
+        Categoria: categoria,
+        Descripcion: descripcion,
+        Lat: lat,
+        Lng: lng,
+        Img: imgFile ? URL.createObjectURL(imgFile) : project.Img
+      });
+      
+      setShowModal(false);
+      alert('Proyecto actualizado (solo en memoria local)');
+      
     } catch (e) {
       console.error('Error inesperado:', e);
       alert('Error inesperado al actualizar el proyecto');
@@ -132,7 +186,16 @@ function DetallesProyecto() {
 
   const handleDeleteProject = async () => {
     if (!project?.Id) return;
-    await projectViewModel.handleDeleteProject(project.Id, navigate);
+    // ========== LLAMADA API COMENTADA ==========
+    // await projectViewModel.handleDeleteProject(project.Id, navigate);
+    // ==========================================
+    
+    // SIMULACIÓN LOCAL
+    if (window.confirm('¿Estás seguro de que deseas eliminar este proyecto? (Simulación local)')) {
+      console.log('Proyecto eliminado (simulación)');
+      alert('Proyecto eliminado (solo simulación)');
+      // navigate('/proyectos'); // Descomenta si quieres navegar de vuelta
+    }
   };
 
   return (
@@ -200,12 +263,13 @@ function DetallesProyecto() {
         <p>{project?.Descripcion || ''}</p>
 
         <div className="ExtraDetails">
-          <button onClick={Handlecamera}>Medir terreno</button>
-          <button onClick={Handlecameradual}>Medir terreno Dual</button>
-          <button onClick={handleIrregularidades}>Medir irregularidades</button>
+            <i className="bx bx-ruler"></i>
+            <h3>Este terreno aún no ha sido medido</h3>
+            <span>Sin datos estadísticos </span>
+            <button onClick={startMeasure}><i class="fa-solid fa-circle-play"></i> Comenzar medición</button>
         </div>
 
-        <h2>Ubicación</h2>
+        <h3 className='SectionTitle'>UBICACIÓN</h3>
         <div className="MapDetail">
           {project?.Lat && project?.Lng ? (
             <MapContainer center={[project.Lat, project.Lng]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={true} dragging={false} doubleClickZoom={true} scrollWheelZoom={false} touchZoom={true}>
@@ -223,7 +287,13 @@ function DetallesProyecto() {
       <div className='GraphContainer'>
         <h2>Gráficas</h2>
         <div className="GraphSection">
-          <GraphViewer />
+          {/* ========== COMPONENTE COMENTADO ========== */}
+          {/* <GraphViewer /> */}
+          {/* ========================================== */}
+          <div className="graph-placeholder">
+            <p>📊 Componente de gráficas deshabilitado en modo local</p>
+            <p style={{fontSize: '0.9em', color: '#666'}}>Aquí se mostrarían las gráficas del proyecto</p>
+          </div>
         </div>
       </div>
 
