@@ -1,7 +1,7 @@
 .MainMenuContainer{
     width: 98%;
     min-height: 100vh;
-    padding: 40px;
+    padding: 24px 60px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

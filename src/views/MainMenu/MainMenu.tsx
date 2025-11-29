@@ -96,14 +96,14 @@ function MainMenu() {
           <XAxis 
             dataKey="dia" 
             stroke="#ffffff"
-            tick={{ fill: '#ffffff', fontSize: 14 }}
+            tick={{ fill: '#ffffff', fontSize: 12 }}
             axisLine={{ stroke: '#1e3a5f' }}
           />
           <YAxis 
             label={{ 
               value: 'Cantidad de proyectos creados', 
               angle: -90, 
-              style: { fill: '#ffffff', fontSize: 14 }
+              style: { fill: '#ffffff', fontSize: 12 }
             }}
             stroke="#ffffff"
             tick={{ fill: '#ffffff', fontSize: 14 }}
@@ -112,7 +112,7 @@ function MainMenu() {
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: '#0a1929', 
+              backgroundColor: 'var(--dark-blue)', 
               border: '1px solid #ffa500',
               borderRadius: '8px',
               color: '#ffffff'
