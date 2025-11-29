@@ -149,7 +149,7 @@ function DetallesProyecto() {
           {/* Indicador de estado de la API local */}
           <div className={`api-status ${checkingLocalAPI ? 'checking' : isLocalAPIAvailable ? 'available' : 'unavailable'}`}>
             {checkingLocalAPI ? (
-              <span>🔄 Verificando conexión...</span>
+              <span>Verificando conexión...</span>
             ) : isLocalAPIAvailable ? (
               <span>Raspberry Pi conectada</span>
             ) : (

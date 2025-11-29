@@ -16,7 +16,7 @@
 }
 
 .CreateTitle {
-    background-color: #303E51;
+    background-color: var(--dark-blue);
     width: 100%;
     height: 10vh;
     display: flex;
@@ -169,12 +169,15 @@
     display: flex;
     width: 100%;
     height: auto;
-    gap: 30px;
+    gap: 20px;
+}
+.labels label, .labels span {
+  text-wrap: nowrap;
 }
 
 .labels input, select{
     width: 100%;
-    height: 5vh;
+    height: 7vh;
     margin: 0;
     padding-left: 10px;
     box-sizing: border-box;
