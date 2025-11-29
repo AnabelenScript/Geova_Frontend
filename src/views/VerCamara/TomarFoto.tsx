@@ -300,24 +300,30 @@ tfDataHistoryRef.current.apertura_history = [
 
   return (
   <div className="ProjectPContainer">
+    <div className='TakePhotoTitleContainer'>
+      <div className='TakePhotoTitle'>
+          <h1>Tomar foto</h1>
+          <i class="fa-solid fa-camera"></i>
+      </div>
+      <div className='TakePhotoEndTitle'>
+      </div>
+    </div>
     <div className='ProjectFotoPContainer'>
       <div className='ProjectData'>
-        <label>Calidad</label>
-        <span>{data.calidad ? `${data.calidad.toFixed(2)}` : "Cargando..."}</span>
-        <label>Nitidez</label>
-        <span>{data.nitidez ? `${data.nitidez.toFixed(2)}` : "Cargando..."}</span>
-        <label>Luminosidad</label>
-        <span>{data.luminosidad ? `${data.luminosidad.toFixed(2)} lux` : "Cargando..."}</span>
+        <label>Calidad </label>
+        <span>{data.calidad ? `${data.calidad.toFixed(2)}` : "Cargando"}</span>
+        <label>Nitidez </label>
+        <span>{data.nitidez ? `${data.nitidez.toFixed(2)}` : "Cargando"}</span>
+        <label>Luminosidad </label>
+        <span>{data.luminosidad ? `${data.luminosidad.toFixed(2)} lux` : "Cargando"}</span>
       </div>
 
       <div className="ProjectphotoContainer">
-        <div className="corner-top-right"></div>
-        <div className="corner-bottom-left"></div>
         <div className='MainphotoContainer'>
           {isStreaming && <div className="stream-status-indicator">📡 Streaming Activo</div>}
           {streamError && (
             <div className="stream-error-overlay">
-              ⚠️ {streamError}
+              {streamError}
               <button onClick={startStream} className="retry-stream-btn">Reintentar</button>
             </div>
           )}
@@ -345,13 +351,13 @@ tfDataHistoryRef.current.apertura_history = [
 
       <div className='ProjectData'>
         <label>Distancia</label>
-        <span>{data.distancia ? `${data.distancia.toFixed(2)} cm` : "Cargando..."}</span>
+        <span>{data.distancia ? `${data.distancia.toFixed(2)} cm` : "Cargando"}</span>
         <label>Fuerza señal</label>
-        <span>{data.fuerzaSenal || "Cargando..."}</span>
+        <span>{data.fuerzaSenal || "Cargando"}</span>
         <label>Apertura</label>
-        <span>{data.apertura ? `${data.apertura.toFixed(2)} °` : "Cargando..."}</span>
+        <span>{data.apertura ? `${data.apertura.toFixed(2)} °` : "Cargando"}</span>
         <label>Inclinación</label>
-        <span>{data.inclinacion ? `${data.inclinacion.toFixed(2)} °` : "Cargando..."}</span>
+        <span>{data.inclinacion ? `${data.inclinacion.toFixed(2)} °` : "Cargando"}</span>
       </div>
     </div>
 
