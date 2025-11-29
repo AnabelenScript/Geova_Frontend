@@ -11,10 +11,19 @@ interface NavbarProps {
 function Navbar({ collapsed, setCollapsed }: NavbarProps) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/');
-  };
+const handleLogout = () => {
+  localStorage.removeItem("token");
+
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith("loggeduser:")) {
+      localStorage.removeItem(key);
+    }
+  });
+
+  navigate("/", { replace: true });
+};
+
+
 
   return (
     <nav className={`navbar ${collapsed ? 'collapsed' : ''}`}>

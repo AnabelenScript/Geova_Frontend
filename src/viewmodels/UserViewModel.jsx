@@ -39,66 +39,38 @@ export const usersViewModel = {
   },
 
   async handleLogin(email, password) {
-    // ⚠️ BYPASS TEMPORAL PARA DESARROLLO ⚠️
-    if (DEV_MODE) {
-      showLoadingAlert();
-      
-      // Simula delay de red
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      closeLoadingAlert();
+    
+  try {
+    showLoadingAlert();
+    const response = await userService.login(email, password);
+    closeLoadingAlert();
 
-      // Simula respuesta exitosa del servidor
-      const mockResponse = {
-        token: "dev-mock-token-12345",
-        user: {
-          id: 1,
-          nombre: "Developer",
-          apellidos: "User",
-          email: email,
-          username: "devuser"
-        }
-      };
+    localStorage.setItem("token", response.token);
 
-      localStorage.setItem("token", mockResponse.token);
-
-      const userKey = `loggeduser:${mockResponse.user.id}`;
-      localStorage.setItem(userKey, JSON.stringify(mockResponse.user));
-
-      await showSuccessAlert(`Bienvenid@, ${mockResponse.user.nombre} [MODO DEV]`);
-
-      window.location.href = "#/menu";
-      return { success: true, data: mockResponse };
+    if (response.user?.id) {
+      const userKey = `loggeduser:${response.user.id}`;
+      localStorage.setItem(userKey, JSON.stringify(response.user));
     }
 
-    // Código original (solo se ejecuta si DEV_MODE = false)
-    try {
-      showLoadingAlert();
-      const response = await userService.login(email, password);
-      closeLoadingAlert();
+    await showSuccessAlert(`Bienvenid@, ${response.user?.nombre || "usuario"}`);
 
-      localStorage.setItem("token", response.token);
+    window.location.href = "#/menu";
+    return { success: true, data: response };
 
-      if (response.user?.id) {
-        const userKey = `loggeduser:${response.user.id}`;
-        localStorage.setItem(userKey, JSON.stringify(response.user));
-      }
+  } catch (error) {
+    closeLoadingAlert();
+    const backendMsg =
+      error.response?.data?.error ||      
+      error.response?.data?.details ||   
+      error.message ||                   
+      "Datos incorrectos";              
 
-      await showSuccessAlert(
-        `Bienvenid@, ${response.user?.nombre || "usuario"}`
-      );
+    await showErrorAlert(backendMsg);
 
-      window.location.href = "#/menu";
-      return { success: true, data: response };
-    } catch (error) {
-      closeLoadingAlert();
+    return { success: false, error: backendMsg };
+  }
+},
 
-      const msg = error.response?.data?.details || "Datos incorrectos";
-      await showErrorAlert(msg);
-
-      return { success: false, error: msg };
-    }
-  },
 
   async handleGetLoggedUser() {
     // ⚠️ BYPASS TEMPORAL PARA DESARROLLO ⚠️
