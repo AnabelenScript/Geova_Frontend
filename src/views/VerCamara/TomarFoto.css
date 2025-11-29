@@ -1,15 +1,13 @@
 .ProjectPContainer{
-    background-color: #FAF6F1;
-    width: 98%;
-    height: auto;
-    border-bottom-right-radius: 30px;
-    border-bottom-left-radius: 30px;
-    padding: 40px 40px;
+     width: 98%;
+    min-height: 100vh;
+    padding:  40px 40px;
     box-sizing: border-box;
     display: flex;
-    align-items: center;
-    display: flex;
     flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
 }
 
 .ProjectData{

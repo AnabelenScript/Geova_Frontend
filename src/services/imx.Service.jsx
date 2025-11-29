@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/imx477/sensor'; 
+const API_URL = 'http://localhost:8001/imx477/sensor'; 
 
 export const imxService = {
   async postSensorIMX(data) {

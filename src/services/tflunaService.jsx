@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/tfluna/sensor'; 
+const API_URL = 'http://localhost:8001/tfluna/sensor'; 
 
 export const tflunaService = {
   async postSensortfluna(data) {
