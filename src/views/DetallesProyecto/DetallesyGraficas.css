@@ -18,7 +18,7 @@
 }
 
 .DetallesTitle {
-    background-color: #303E51;
+    background-color: var(--dark-blue);
     width: 100%;
     height: 10vh;
     display: flex;
@@ -449,11 +449,13 @@
 }
 
 .deleteproject:hover{
-    background-color: #ffffff ;
+  transform: scale(0.9);
+  transition: 0.3s;
 }
 
 .editproject:hover{
-    background-color: #ffffff ;
+  transform: scale(0.9);
+  transition: 0.3s;
 }
 
 .modal-overlay {

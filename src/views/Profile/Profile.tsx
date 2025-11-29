@@ -44,8 +44,6 @@ function Profile() {
             <div className='ProfileData'>
                 <div className='ProfilePhoto'>
                     <i className='bx bxs-user-circle'></i>
-                    <div className="corner-top-right"></div>
-                    <div className="corner-bottom-left"></div>
                 </div>
 
                 <div className='ProfileInfo'>
@@ -75,14 +73,16 @@ function Profile() {
                     )}
                 </div>
 
-                <div className='ProfileOptions'>
-                    <div className='editiconcontainer' onClick={() => setEditMode(true)}>
-                        <i className='bx bxs-edit-alt'></i>
+                {!editMode && (
+                    <div className='ProfileOptions'>
+                        <div className='editiconcontainer' onClick={() => setEditMode(true)}>
+                            <i className='bx bxs-edit-alt'></i>
+                        </div>
+                        <div className='deleteiconcontainer' onClick={handleDelete}>
+                            <i className='bx bxs-trash-alt'></i>
+                        </div>
                     </div>
-                    <div className='deleteiconcontainer' onClick={handleDelete}>
-                        <i className='bx bxs-trash-alt'></i>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );

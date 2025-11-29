@@ -16,7 +16,7 @@
 }
 
 .ProfileTitle {
-     background-color: #303E51;
+    background-color: var(--dark-blue);
     width: 100%;
     height: 10vh;
     display: flex;
@@ -42,7 +42,7 @@
 
 
 .ProfileData{
-    width: 75%;
+    width: 90%;
     background-color:#ffffff;
     height: 60vh;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.168);
@@ -50,15 +50,16 @@
     padding: 70px 50px;
     box-sizing: border-box;
     display: flex;
-    gap: 50px;
+    gap: 24px;
 }
 
 
 .ProfilePhoto{
-    width: 37%;
-    height: 100%;
-    background-color:transparent;
     position: relative;
+    height: 100%;
+    max-height: 100%;
+    width: auto;
+    background-color:transparent;
     border-radius: 10px;
     overflow: hidden;
     box-sizing: border-box;
@@ -66,68 +67,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-}
-
-
-.ProfilePhoto::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 35px;
-    height: 35px;
-    background-color: #E6AF2E;
-    clip-path: polygon(0 0, 100% 0, 0% 100%);
-    z-index: 1;
-}
-
-/* Esquina inferior derecha */
-.ProfilePhoto::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 35px;
-    height: 35px;
-    background-color: #E6AF2E;
-    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
-    z-index: 1;
-}
-
-/* Esquina superior derecha */
-.ProfilePhoto .corner-top-right {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 35px;
-    height: 35px;
-    background-color: #E6AF2E;
-    clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
-    z-index: 1;
-}
-
-/* Esquina inferior izquierda */
-.ProfilePhoto .corner-bottom-left {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 35px;
-    height: 35px;
-    background-color: #E6AF2E;
-    clip-path: polygon(0% 100%, 100% 100%, 0% 0%);
-    z-index: 1;
+    font-size: 100%;
 }
 
 .ProfilePhoto i{
-    font-size: 19.8em;
-    color:#E6AF2E;
+  font-size: clamp(4rem, 24vw, 40vh);
+    color: var(--yellow);
 }
 
 .ProfileInfo{
     width: 50%;
     background-color: rgb(255, 255, 255);
-    padding: 20px 50px;
+    padding: 18px 24px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     border-top-right-radius: 50px;
@@ -141,20 +92,21 @@
 .ProfileInfo h3{
     width: 100%;
     text-align: center;
+    text-align: left;
 }
 
 .ProfileOptions{
     width: 10%;
     background-color: #fafafa;
-   border-radius: 50px;
+   border-radius: 12px;
    display: flex;
    flex-direction: column;
    align-items: center;
-   justify-content: center;
-   gap: 50px;
+   justify-content: end;
+   gap: 12px;
+   padding: 24px;
    font-size: 1.5em;
-   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.168);
-}
+} 
 
 .profdata p{
     color: black;
@@ -162,28 +114,34 @@
 }
 
 .deleteiconcontainer{
-    color: red;
-    padding: 10px;
+    background-color: var(--red);
+    padding: 12px;
     display: flex;
     justify-content: center;
-    border-radius: 40px;
+    border-radius: 10px;
     cursor: pointer;
 }
 .editiconcontainer{
-    color: #D68C0D;
-    padding: 10px;
+    background-color: var(--dark-blue);
+    padding: 12px;
     display: flex;
     justify-content: center;
-    border-radius: 40px;
+    border-radius: 10px;
     cursor: pointer;
 }
 
+.editiconcontainer i, .deleteiconcontainer i {
+  color: var(--white);
+}
+
 .deleteiconcontainer:hover{
-    background-color: #ffffff ;
+  transform: scale(.9);
+  transition: 0.3s;
 }
 
 .editiconcontainer:hover{
-    background-color: #ffffff ;
+  transform: scale(.9);
+  transition: 0.3s;
 }
 
 .ProfileInfo h3{
@@ -241,28 +199,26 @@
 .CancelEditButton{
     width: 100%;
     height: 45px;
-    border-top-left-radius: 50px;
-    border-bottom-left-radius: 50px;
-    border: 1px solid #D68C0D;
-    background-color: white;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--red);
+    color: var(--white);
 
 }
 
 .GuardarEditButton{
     width: 100%;
     height: 45px;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
-    border: 1px solid #D68C0D;
-    background-color: #FFEAB9;
-
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--yellow);
 }
 
 .GuardarEditButton:hover,
 .CancelEditButton:hover{
-    color: white;
-    background-color: #D68C0D;
-    transition: .2s;
+  transform: scale(.9);
+    transition: .3s;
 }
 
 .GuardarEditButton:active,
