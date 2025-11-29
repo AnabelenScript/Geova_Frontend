@@ -5,7 +5,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 10px;
     align-items: center;
     box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
 }
@@ -48,17 +48,16 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 30px;
 }
 
 .CreateInfo1{
-    width: 25vw;
-    gap: 35px;
-    box-sizing: border-box;
+  height: auto;
 }
-.CreateInfo1 .AddButton{
+
+
+.AddButton{
     width: 100%;
-    height: 100%;
     background-color: #ffffff;
     margin: none;
     border: none;
@@ -75,6 +74,8 @@
     justify-content: center;
     font-family: Arial, Helvetica, sans-serif;
     color: #D68C0D;
+    box-sizing: border-box;
+    height: 80%;
 }
 
 .CreateInfo1 .AddButton:hover{
@@ -152,7 +153,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 35px;
+    gap: 30px;
 }
 .labels{
     display: flex;
@@ -176,14 +177,14 @@
     height: 5vh;
     margin: 0;
     padding-left: 10px;
-    border: 0;
     box-sizing: border-box;
     border-radius: 8px;
     font-size: 1em;
+    border: 1px solid grey;
 }
 
 input:hover, input:focus, select:hover {
-    border: solid 2px #D68C0D;
+    border: solid 1px #D68C0D;
 }
 
 .CreateArea{
@@ -195,10 +196,10 @@ input:hover, input:focus, select:hover {
 }
 
 .CreateArea textarea{
-    border: 0;
+    border: 1px grey solid;
     margin: 0;
     padding: 10px;
-    height: 17vh;
+    height: 14vh;
     resize: none;
     border-radius: 10px;
     font-size: 15px;
@@ -208,17 +209,17 @@ input:hover, input:focus, select:hover {
 
 .CreateArea textarea:active, textarea:focus, textarea:hover{
     outline: none;
-    border: solid 2px #E6AF2E;
+    border: solid 1px #E6AF2E;
 }
 
 .CreateButton{
     width: 100%;
-    height: 7vh;
+    height: 50px;
     background-color: #FFEAB9;
     margin: none;
+     font-weight: 600;
     border: #E6AF2E solid 1px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-radius: 10px;
     font-size: 1em;
     font-family: Arial, Helvetica, sans-serif;
     cursor: pointer;
@@ -246,6 +247,8 @@ input:hover, input:focus, select:hover {
     display: flex;
     gap: 20px;
     box-sizing: border-box;
+    width: 60%;
+    padding-top: 28px;
 }
 
 .Map img{
@@ -253,16 +256,17 @@ input:hover, input:focus, select:hover {
 }
 
 .Map{
-    height: 50vh;
+    height: 100%;
     overflow-y: hidden;
      border: solid 2px #E6AF2E;
-     border-radius: 20px;
+     border-radius: 10px;
 }
 
 .CreateMapContainer{
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    width: 60%;
+    gap: 10px;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1em;
 }
@@ -363,4 +367,138 @@ input:hover, input:focus, select:hover {
   .Map {
     height: 50vh;
   }
+}
+
+
+.input-elements {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-error {
+  color: rgb(190, 0, 0);
+  font-size: 14px;
+}
+
+.create-visual-elements{
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  gap: 30px;
+}
+.CreateInfo1{
+  display: flex;
+  width: 100%;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  align-items: center;
+   border-radius: 10px;
+    font-size: 1em;
+    border: 1px solid grey;
+    height: 50px;
+    justify-content: space-between;
+}
+
+#imgUpload{
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background-color: transparent;
+}
+#imgUpload:hover{
+  border: 0;
+}
+
+.ImageInput {
+  margin-top: 10px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.ImageInfo {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+  
+}
+
+.PreviewContainer {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.PreviewThumb {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+}
+
+.ViewImageButton {
+  padding: 6px;
+  color: #000000;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background-color: white;
+}
+
+.ViewImageButton:hover {
+  background: #e4e4e4;
+}
+
+.ImageModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.ImageModal {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 90vw;
+  max-height: 90vh;
+  text-align: center;
+}
+
+.ModalImage {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+}
+
+.CloseModalButton {
+  margin-top: 15px;
+  padding: 10px 14px;
+  background: #444;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.add-image-elements{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
 }

@@ -36,33 +36,37 @@ export const usersViewModel = {
   },
 
   async handleLogin(email, password) {
-    try {
-      showLoadingAlert();
-      const response = await userService.login(email, password);
-      closeLoadingAlert();
+  try {
+    showLoadingAlert();
+    const response = await userService.login(email, password);
+    closeLoadingAlert();
 
-      localStorage.setItem("token", response.token);
+    localStorage.setItem("token", response.token);
 
-      if (response.user?.id) {
-        const userKey = `loggeduser:${response.user.id}`;
-        localStorage.setItem(userKey, JSON.stringify(response.user));
-      }
-
-      await showSuccessAlert(
-        `Bienvenid@, ${response.user?.nombre || "usuario"}`
-      );
-
-      window.location.href = "#/menu";
-      return { success: true, data: response };
-    } catch (error) {
-      closeLoadingAlert();
-
-      const msg = error.response?.data?.details || "Datos incorrectos";
-      await showErrorAlert(msg);
-
-      return { success: false, error: msg };
+    if (response.user?.id) {
+      const userKey = `loggeduser:${response.user.id}`;
+      localStorage.setItem(userKey, JSON.stringify(response.user));
     }
-  },
+
+    await showSuccessAlert(`Bienvenid@, ${response.user?.nombre || "usuario"}`);
+
+    window.location.href = "#/menu";
+    return { success: true, data: response };
+
+  } catch (error) {
+    closeLoadingAlert();
+    const backendMsg =
+      error.response?.data?.error ||      
+      error.response?.data?.details ||   
+      error.message ||                   
+      "Datos incorrectos";              
+
+    await showErrorAlert(backendMsg);
+
+    return { success: false, error: backendMsg };
+  }
+},
+
 
   async handleGetLoggedUser() {
     try {
