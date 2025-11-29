@@ -6,6 +6,19 @@ const API_URL_LOCAL2 = 'http://localhost:8000';
 //https://geova-api1.namixcode.cc/projects
 
 export const projectService = {
+  getCountLastWeek(id) {
+    //const response = await axios.get(`${API_URL}/stats/${id}`)
+    return {
+      mon: 1,
+      tue: 2,
+      wed: 1,
+      thu: 4,
+      fri: 2,
+      sat: 2,
+      sun: 6
+    }
+  },
+
   async createProject(formData) {
     const response = await axios.post(API_URL, formData, {
       headers: {

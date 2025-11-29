@@ -432,5 +432,47 @@ async handleUpdateDualSensorIMX(sensor_id, sensorData) {
       error: error.response?.data?.error || error.message || 'Error al actualizar datos dual del sensor IMX'
     };
   }
+},
+
+async handleGetWeeklyStats() {
+  try {
+    const userKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
+    if (!userKey) {
+      throw new Error('Usuario no autenticado');
+    }
+    const user = JSON.parse(localStorage.getItem(userKey));
+    const userId = user?.id;
+
+    if (!userId) {
+      throw new Error('No se pudo obtener el ID del usuario');
+    }
+
+    const response = projectService.getCountLastWeek(userId);
+    
+    const formattedData = [
+      { dia: 'Lunes', proyectos: response.mon },
+      { dia: 'Martes', proyectos: response.tue },
+      { dia: 'Miércoles', proyectos: response.wed },
+      { dia: 'Jueves', proyectos: response.thu },
+      { dia: 'Viernes', proyectos: response.fri },
+      { dia: 'Sábado', proyectos: response.sat },
+      { dia: 'Domingo', proyectos: response.sun }
+    ];
+
+    const totalProyectos = response.mon + response.tue + response.wed + response.thu + response.fri + response.sat + response.sun;
+
+    return { 
+      success: true, 
+      data: formattedData,
+      total: totalProyectos
+    };
+  } catch (error) {
+    console.error('Error al obtener estadísticas semanales:', error);
+    return {
+      success: false,
+      error: error.message || 'Error al obtener estadísticas semanales'
+    };
+  }
 }
+
 };
