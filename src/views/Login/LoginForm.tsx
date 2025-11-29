@@ -95,7 +95,7 @@ function Login() {
         if (!value.trim()) error = "Este campo es obligatorio";
       } else {
         if (value.length < 8)
-          error = "La contraseña debe tener al menos 8 caracteres";
+          error = "Debe tener al menos 8 caracteres";
         else if (!/[A-Z]/.test(value))
           error = "Debe incluir una letra mayúscula";
         else if (!/[0-9]/.test(value)) error = "Debe incluir un número";
