@@ -79,6 +79,7 @@ function DetallesProyecto() {
     }
   };
 
+
   const formatDate = (fecha) => {
     const date = new Date(fecha);
     return isNaN(date.getTime()) ? 'Fecha inválida' : date.toLocaleDateString();
@@ -200,12 +201,15 @@ function DetallesProyecto() {
         <p>{project?.Descripcion || ''}</p>
 
         <div className="ExtraDetails">
-          <button onClick={Handlecamera}>Medir terreno</button>
-          <button onClick={Handlecameradual}>Medir terreno Dual</button>
-          <button onClick={handleIrregularidades}>Medir irregularidades</button>
+            <i className="bx bx-ruler"></i>
+            <h3>Este terreno aún no ha sido medido</h3>
+            <span>Sin datos estadísticos </span>
+            <button onClick={Handlecamera}>
+              <i className="fa-solid fa-circle-play"></i> Comenzar medición
+            </button>
         </div>
 
-        <h2>Ubicación</h2>
+        <h3 className='SectionTitle'>UBICACIÓN</h3>
         <div className="MapDetail">
           {project?.Lat && project?.Lng ? (
             <MapContainer center={[project.Lat, project.Lng]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={true} dragging={false} doubleClickZoom={true} scrollWheelZoom={false} touchZoom={true}>
