@@ -3,24 +3,23 @@
   position: fixed;       
   top: 0;
   left: 0;
-  width: 35vh;          
+  width: 38vh;          
   height: 100vh;          
   transition: width .3s ease;
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
-  z-index: 1000;
-  background-color: #fff;
+  z-index: 100;
 }
 
 .navbar.collapsed{
-  width: 10vh;
+  width: 15vh;
 }
 
 .collapse-btn{
   position: absolute;
   display: flex;
   align-items: center;
-  top: 50%;
+  top: 65%;
   font-size: 24px;
   justify-content: center;
   right: -20px;
@@ -28,32 +27,31 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #fff;
-  border-right: 2px solid #d68c0dc0;
-  border-left: none;
-  border-bottom: none;
-  border-top: none;
+  background: #ffffff;
+  border: 2px solid #d68c0dc0;
   cursor: pointer;
+  z-index: 100000;
 }
 .collapse-btn:hover{ box-shadow: 0 5px 15px #D68C0D; }
 .navbar.collapsed .collapse-btn i{ transform: rotate(180deg); }
 
 .main-content{
-  margin-left: 35vh;      
+  background-color: var(--white);
+  margin-left: 38vh;      
   width: 78%;
   transition: margin-left .3s ease;
   flex: 1;
   min-height: 100vh;
   padding: 0;
   box-sizing: border-box;
+  z-index: 10;
 }
 
-.main-content.collapsed{ margin-left: 10vh; }
+.main-content.collapsed{ margin-left: 15vh; }
 
 .LogoContainer{
   width: 100%;
   min-height: 90px;
-  background-color: #FAF6F1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -74,25 +72,48 @@
   display: flex;
   gap: 15px;
   align-items: center;
-  width: 90%;
-  padding: 10px 10px 10px 40px;
-  height: 6vh;
-  border-top-right-radius: 30px;
-  border-bottom-right-radius: 30px;
+  width: 100%;
+  padding: 16px 16px 16px 40px;
+  height: auto;
   box-sizing: border-box;
+  z-index: 10;
 }
 .links li:hover{
-  background-color: #FAF6F1;
-  color: #D68C0D;
+  background-color: #ffffff;
+  box-shadow: 0 10px 15px -10px rgba(106, 76, 60, 0.244);
+  transition: 0.3s;
+
 }
 .links li:hover .linkform{ color: #D68C0D; }
+
+/* Estilos para link activo */
+.linkform.active {
+  background-color: var(--white);
+  border-left: 4px solid var(--dark-yellow);
+}
+
+.linkform.active i {
+  color: var(--dark-yellow);
+  font-size: 24px;
+}
+
+.linkform.active li {
+  font-weight: 600;
+  color: var(--dark-yellow);
+  padding-left: 32px;
+}
+
+/* Opcional: efecto hover mejorado */
+.links li:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.5);
+}
 
 .Mainlinks{
   display: flex;
   flex-direction: column;
-  gap: 4vh;
+  gap: 0;
   margin: 0;
-  padding: 30px 0;
+  padding: 24px 0;
   box-sizing: border-box;
 }
 .links i{ font-size: 3vh; }
@@ -187,7 +208,7 @@
 
   .main-content {
     background-color: #ffffff;
-    filter: brightness(.8);
+    filter: brightness(1);
 
     margin-left: 8px !important;
   }

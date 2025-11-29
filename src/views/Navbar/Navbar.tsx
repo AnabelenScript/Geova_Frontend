@@ -1,5 +1,5 @@
 import './Navbar.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logoFull from '../../assets/LogoCompleto.svg';
 import logoMini from '../../assets/LogoMini.svg';
 
@@ -10,10 +10,22 @@ interface NavbarProps {
 
 function Navbar({ collapsed, setCollapsed }: NavbarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate('/');
+    localStorage.removeItem("token");
+
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith("loggeduser:")) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    navigate("/", { replace: true });
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname.includes(path);
   };
 
   return (
@@ -33,10 +45,18 @@ function Navbar({ collapsed, setCollapsed }: NavbarProps) {
 
       <div className="links">
         <ul className="Mainlinks">
-          <Link to="menu" className="linkform"><li><i className='bx bxs-home'></i> Inicio</li></Link>
-          <Link to="dashboard" className="linkform"><li><i className="bx bxs-dashboard"></i> Dashboard</li></Link>
-          <Link to="create" className="linkform"><li><i className="bx bxs-add-to-queue"></i> Create</li></Link>
-          <Link to="profile" className="linkform"><li><i className="bx bxs-user"></i> Profile</li></Link>
+          <Link to="menu" className={`linkform ${isActive('menu') ? 'active' : ''}`}>
+            <li><i className='bx bxs-home'></i> Inicio</li>
+          </Link>
+          <Link to="dashboard" className={`linkform ${isActive('dashboard') ? 'active' : ''}`}>
+            <li><i className="bx bxs-dashboard"></i> Dashboard</li>
+          </Link>
+          <Link to="create" className={`linkform ${isActive('create') ? 'active' : ''}`}>
+            <li><i className="bx bxs-add-to-queue"></i> Create</li>
+          </Link>
+          <Link to="profile" className={`linkform ${isActive('profile') ? 'active' : ''}`}>
+            <li><i className="bx bxs-user"></i> Profile</li>
+          </Link>
         </ul>
         <ul className="Mainlinks">
           <li className="linkform" style={{ cursor: 'pointer' }} onClick={handleLogout}>

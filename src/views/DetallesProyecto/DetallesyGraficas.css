@@ -1,25 +1,24 @@
 .DetallesContainer{
-    background-color:#FAF6F1;
     width: 98%;
-    height: auto;
+    min-height: 100vh;
     border-bottom-right-radius: 30px;
     border-bottom-left-radius: 30px;
     padding:  40px 40px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 20px;
     align-items: center;
-    font-family: Arial, Helvetica, sans-serif;
+    box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
 }
 
 .DetallesTitleContainer{
     width: 100% ;
-    height: 20vh;
+    height: auto;
 }
 
 .DetallesTitle {
-    background-color: #FFEAB9;
+    background-color: var(--dark-blue);
     width: 100%;
     height: 10vh;
     display: flex;
@@ -28,7 +27,8 @@
     padding: 15px 40px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-    clip-path: polygon( 25px 0%, calc(100% - 25px) 0%,100% 25px,100% 100%,0% 100%,0% 25px);
+    border-radius: 12px;
+    color: white;
 }
 
 .DetallesTitle h1{
@@ -39,15 +39,16 @@
 
 .DetallesTitle i{
     font-size: 5vh;
-    color: #D68C0D;
+    color: #ffffff;
 }
+
 
 .DetallesEndContainer {
     margin-top: 12px;
-    background-color: #FFEAB9;
     width: 100%;
-    height: 5vh;
-    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, calc(100% - 25px) 100%, 25px 100%);
+    height: auto;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .ProjectphotoDetail{
@@ -68,45 +69,8 @@
     left: 0;
     width: 80px;
     height: 80px;
-    background-color: #E6AF2E;
+    background-color: var(--yellow);
     clip-path: polygon(0 0, 100% 0, 0% 100%);
-    z-index: 1;
-}
-
-/* Esquina inferior derecha */
-.ProjectphotoDetail::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 80px;
-    height: 80px;
-    background-color: #E6AF2E;
-    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
-    z-index: 1;
-}
-
-/* Esquina superior derecha */
-.ProjectphotoDetail .corner-top-right {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 80px;
-    height: 80px;
-    background-color: #E6AF2E;
-    clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
-    z-index: 1;
-}
-
-/* Esquina inferior izquierda */
-.ProjectphotoDetail .corner-bottom-left {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 80px;
-    height: 80px;
-    background-color: #E6AF2E;
-    clip-path: polygon(0% 100%, 100% 100%, 0% 0%);
     z-index: 1;
 }
 
@@ -114,8 +78,7 @@
     width: 100%;
     height: 100%;
     background-image: url(../../assets/fondo_login.png);
-    clip-path: polygon(95px 0%,calc(100% - 95px) 0%, 100% 95px,100% calc(100% - 95px),calc(100% - 95px) 100%, 95px 100%,0% calc(100% - 95px),0% 95px                        
-    );
+    clip-path: polygon(95px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 95px);
     justify-content: center;
     display: flex;
     flex-direction: column;
@@ -136,11 +99,17 @@
 }
 
 .ExtraDetails{
+  background-color: var(--gray);
     width: 100%;
+    box-sizing: border-box;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: start;
-    gap: 20px
+    gap: 12px;
+    padding: 24px;
+    border: solid 1.5px var(--black-45);
+    border-radius: 24px;
 }
 
 .ExtraDetails button{
@@ -148,41 +117,65 @@
     margin: 0;
     width: auto;
     min-height: 6vh;
-    background-color: #FFEAB9;
+    background-color: var(--yellow);
     color: #000;
     font-size: 16px;
-    border-radius: 8px;
-    padding: 8px 16px;
+    border-radius: 12px;
+    padding: 16px 24px;
     cursor: pointer;
 }
 
-.ExtraDetails button:hover{
-    background-color: #E6AF2E;
-    color: black;
+.ExtraDetails button i {
+  color: var(--black);
+  font-size: 18px;
 }
-.ExtraDetails .categorycontainer{
-    background-color: white;
+
+.ExtraDetails button:hover{
+    background-color: var(--dark-yellow);
+    color: black;
+    transform: scale(.9);
+    transition: 0.3s;
+}
+
+.ExtraDetails h3, .ExtraDetails span, .ExtraDetails i {
+  color: var(--black-45);
+  margin: 0%;
+}
+
+.ExtraDetails i {
+  font-size: 48px;
+}
+
+.categorycontainer{
+    margin: 0;
+    min-height: 6vh;
+    box-sizing: border-box;
+    align-items: center;
+    border-radius: 10px;
+    width: 100%;
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: start;
+}
+.categorycontainer p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--dark-yellow);
+  background-color: var(--soft-yellow);
     margin: 0;
     min-height: 6vh;
     box-sizing: border-box;
     align-items: center;
     border-radius: 10px;
     width: auto;
-    color: #000;
+    color: var(--dark-yellow);
     border-radius: 8px;
     padding: 8px 16px;
     display: flex;
     justify-content: center;
-}
-.ExtraDetails .categorycontainer p {
-  margin: 0;
-  font-size: 16px;
-  text-align: center;
-}
-.categorycontainer i {
-  margin-right: 8px;
-  color: #D68C0D;
-  font-size: 20px;
 }
 
 .MapDetail{
@@ -190,7 +183,7 @@
      height: 45vh;
      box-sizing: border-box;
     overflow-y: hidden;
-     border: solid 2px #E6AF2E;
+     border: solid 2px var(--black-45 );
      border-radius: 20px;
 }
 
@@ -419,6 +412,12 @@
   height: 100%;
 }
 
+.SubtitleContainer{
+  display: flex;
+  justify-content: space-between;
+}
+
+
 .ProjectOptions{
   display: flex;
   align-items: center;
@@ -428,28 +427,35 @@
 }
 
 .deleteproject{
-    color: red;
-    padding: 4px;
+    background-color: var(--red);
+    padding: 12px;
     display: flex;
     justify-content: center;
-    border-radius: 40px;
+    border-radius: 8px;
     cursor: pointer;
+
 }
 .editproject{
-    color: #D68C0D;
-    padding: 4px;
+    background-color: var(--dark-blue);
+    padding: 12px;
     display: flex;
     justify-content: center;
-    border-radius: 40px;
+    border-radius: 8px;
     cursor: pointer;
+}
+
+.deleteproject i, .editproject i {
+  color: var(--white);
 }
 
 .deleteproject:hover{
-    background-color: #ffffff ;
+  transform: scale(0.9);
+  transition: 0.3s;
 }
 
 .editproject:hover{
-    background-color: #ffffff ;
+  transform: scale(0.9);
+  transition: 0.3s;
 }
 
 .modal-overlay {
@@ -567,11 +573,13 @@
 
 /* Estilos para el indicador de estado de la API */
 .api-status {
-  padding: 6px;
+  padding: 12px;
+  width: auto;
   font-size: 0.85rem;
   font-weight: 500;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   transition: all 0.3s ease;
 }
@@ -589,9 +597,8 @@
 }
 
 .api-status.unavailable {
-  background-color: #f8d7da;
+  background-color: var(--red-soft);
   color: #721c24;
-  border: 1px solid #f5c6cb;
 }
 
 .api-status.unavailable span,
@@ -643,6 +650,19 @@
   border: 5px solid transparent;
   border-top-color: #333;
   z-index: 1000;
+}
+
+.Dsub2 {
+  color: var(--black-70);
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0%;
+}
+
+.SectionTitle {
+  color: var(--black-70);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* Responsive design para las gráficas */

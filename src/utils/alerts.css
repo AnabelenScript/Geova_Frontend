@@ -17,11 +17,11 @@
 }
 
 .custom-swal-cancel,
-.custom-swal-confirm {
-  border: 2px solid #d48700;
-  color: #000;
+.custom-swal-delete-user {
+  border: none;
+  color: var(--white);
   background-color: transparent;
-  padding: 10px 25px;
+  padding: 14px 36px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -29,18 +29,20 @@
 }
 
 .custom-swal-cancel {
-  
-  border-radius: 0 30px 30px 0;
+  border-radius: 12px;
+  background-color: var(--dark-blue);
 }
 
-.custom-swal-confirm {
-  border-radius: 30px 0 0 30px;
+.custom-swal-delete-user {
+  background-color: var(--red);
+  border-radius: 12px;
+  border: none !important;
 }
 
 .custom-swal-cancel:hover,
 .custom-swal-confirm:hover {
-  background-color:#d48700;
-  color: white;
+  transform: scale(0.9);
+  transition: 0.3s;
 }
 
 .succesful-popup{

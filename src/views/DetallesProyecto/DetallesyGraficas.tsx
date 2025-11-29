@@ -41,29 +41,47 @@ function DetallesProyecto() {
     imgFile: null
   });
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!id) return;
+useEffect(() => {
+  const abortController = new AbortController();
+  let isMounted = true;
+  
+  const fetchProject = async () => {
+    if (!id) return;
+    const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
+    if (isMounted && success) {
+      setProject(data);
+    } else if (isMounted) {
+      console.error("Error al obtener proyecto:", error);
+    }
+    if (isMounted) setLoading(false);
+  };
 
-      const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
-      if (success) {
-        setProject(data);
-      } else {
-        console.error("Error al obtener proyecto:", error);
+  const checkLocalAPI = async () => {
+    if (!isMounted) return;
+    setCheckingLocalAPI(true);
+    
+    try {
+      const isAvailable = await projectService.checkLocalAPIAvailability(abortController.signal);
+            if (isMounted && !abortController.signal.aborted) {
+        setIsLocalAPIAvailable(isAvailable);
+        setCheckingLocalAPI(false);
       }
-      setLoading(false);
-    };
+    } catch (error) {
+      if (isMounted && !abortController.signal.aborted) {
+        setIsLocalAPIAvailable(false);
+        setCheckingLocalAPI(false);
+      }
+    }
+  };
 
-    const checkLocalAPI = async () => {
-      setCheckingLocalAPI(true);
-      const isAvailable = await projectService.checkLocalAPIAvailability();
-      setIsLocalAPIAvailable(isAvailable);
-      setCheckingLocalAPI(false);
-    };
+  fetchProject();
+  checkLocalAPI();
 
-    fetchProject();
-    checkLocalAPI();
-  }, [id]);
+  return () => {
+    isMounted = false;
+    abortController.abort();
+  };
+}, [id]);
 
   const Handlecamera = () => {
     projectViewModel.handleCamera(navigate);
@@ -78,6 +96,7 @@ function DetallesProyecto() {
       projectViewModel.handleIrregularidades(navigate, project.Id);
     }
   };
+
 
   const formatDate = (fecha) => {
     const date = new Date(fecha);
@@ -132,21 +151,23 @@ function DetallesProyecto() {
 
   const handleDeleteProject = async () => {
     if (!project?.Id) return;
-    await projectViewModel.handleDeleteProject(project.Id, navigate);
+    await projectViewModel.handleDeleteProject(project.Id, navigate, isLocalAPIAvailable);
   };
 
   return (
     <div className="DetallesContainer">
       <div className="DetallesTitleContainer">
         <div className="DetallesTitle">
-          <h1>Detalles de proyecto</h1>
+          <h1>
+            {loading ? 'Cargando...' : project?.NombreProyecto || 'Proyecto no encontrado'}
+          </h1>
           <i className="bx bxs-add-to-queue"></i>
         </div>
         <div className="DetallesEndContainer">
           {/* Indicador de estado de la API local */}
           <div className={`api-status ${checkingLocalAPI ? 'checking' : isLocalAPIAvailable ? 'available' : 'unavailable'}`}>
             {checkingLocalAPI ? (
-              <span>🔄 Verificando conexión...</span>
+              <span>Verificando conexión...</span>
             ) : isLocalAPIAvailable ? (
               <span>Raspberry Pi conectada</span>
             ) : (
@@ -158,32 +179,10 @@ function DetallesProyecto() {
 
       <div className="DashSubtitle">
         <div className="DashSub1">
-          <h2 className="Dsub1">
-            {loading ? 'Cargando...' : project?.NombreProyecto || 'Proyecto no encontrado'}
-          </h2>
-          <p className="Dsub2">
-            {loading ? '' : project?.Fecha ? formatDate(project.Fecha) : 'Fecha no disponible'}
-          </p>
-        </div>
-        <div className="DashSub2">
-          <div className='ProjectOptions'>
-            <div className='editproject' onClick={openEditModal}>
-              <i className='bx bxs-edit-alt'></i>
-            </div>
-            <div 
-              className={`deleteproject ${!isLocalAPIAvailable ? 'disabled' : ''}`}
-              onClick={handleDeleteProject}
-              title={!isLocalAPIAvailable ? 'Requiere conexión a Raspberry Pi' : 'Eliminar proyecto'}
-            >
-              <i className='bx bxs-trash-alt'></i>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="ProjectphotoDetail">
-        <div className="corner-top-right"></div>
-        <div className="corner-bottom-left"></div>
         <div className="PhotoContainer">
           {project?.Img ? (
             <img src={project.Img} alt="Proyecto" className="ProjectImage" />
@@ -193,21 +192,42 @@ function DetallesProyecto() {
         </div>
       </div>
 
+      <div className="categorycontainer">
+        <p>{project?.Categoria || 'Categoría'}</p>
+      </div>
+
       <div className="DetailOptions">
-        <h2>Descripción</h2>
+        <div className='SubtitleContainer'>
+          <h2>Información</h2>
+          <div className='ProjectOptions'>
+              <div className='editproject' onClick={openEditModal}>
+                <i className='bx bxs-edit-alt'></i>
+              </div>
+              <div 
+                className={`deleteproject ${!isLocalAPIAvailable ? 'disabled' : ''}`}
+                onClick={handleDeleteProject}
+                title={!isLocalAPIAvailable ? 'Requiere conexión a Raspberry Pi' : 'Eliminar proyecto'}
+              >
+                <i className='bx bxs-trash-alt'></i>
+              </div>
+          </div>
+        </div>
+        <p className="Dsub2">
+          {loading ? '' : project?.Fecha ? formatDate(project.Fecha) : 'Fecha no disponible'}
+        </p>
+        <h3 className='SectionTitle'>DESCRIPCIÓN</h3>
         <p>{project?.Descripcion || ''}</p>
 
         <div className="ExtraDetails">
-          <button onClick={Handlecamera}>Medir terreno</button>
-          <button onClick={Handlecameradual}>Medir terreno Dual</button>
-          <button onClick={handleIrregularidades}>Medir irregularidades</button>
-          <div className="categorycontainer">
-            <i class="fa-solid fa-table-cells-large"></i>
-            <p>Categoría: {project?.Categoria || ''}</p>
-          </div>
+            <i className="bx bx-ruler"></i>
+            <h3>Este terreno aún no ha sido medido</h3>
+            <span>Sin datos estadísticos </span>
+            <button onClick={Handlecamera}>
+              <i className="fa-solid fa-circle-play"></i> Comenzar medición
+            </button>
         </div>
 
-        <h2>Ubicación</h2>
+        <h3 className='SectionTitle'>UBICACIÓN</h3>
         <div className="MapDetail">
           {project?.Lat && project?.Lng ? (
             <MapContainer center={[project.Lat, project.Lng]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={true} dragging={false} doubleClickZoom={true} scrollWheelZoom={false} touchZoom={true}>

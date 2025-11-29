@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import succesfulicon from '../assets/sucessfulicon.svg';
 import alerticon from '../assets/alerticon.svg';
 import erroricon from '../assets/erroricon.svg'
+import './alerts.css'
 
 export const showSuccessAlert = async (text) => {
   return Swal.fire({
@@ -123,7 +124,7 @@ export const showDeleteConfirmAlert = async (text) => {
     color: '#333',
     customClass: {
       popup: 'custom-swal-popup',
-      confirmButton: 'custom-swal-confirm custom-swal-delete', // Usar ambas clases
+      confirmButton: 'custom-swal-confirm custom-swal-delete-user', // Usar ambas clases
       cancelButton: 'custom-swal-cancel',
       actions: 'custom-swal-actions',
       title: 'custom-swal-title'

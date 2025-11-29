@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import './LoginForm.css';
-import { usersViewModel } from '../../viewmodels/UserViewModel';
-
-import maquinaImg from '../../assets/Maquina.png';
-import logoImg from '../../assets/Geova_logo.png';
+import { useState } from "react";
+import "./LoginForm.css";
+import { usersViewModel } from "../../viewmodels/UserViewModel";
+import maquinaImg from "../../assets/Maquina.png";
+import logoImg from "../../assets/Geova_logo.svg";
+import Obligatorio from "../../utils/ui/span-obligatorio";
 
 interface FormState {
   username: string;
@@ -13,25 +13,124 @@ interface FormState {
   password: string;
 }
 
+interface ErrorState {
+  [key: string]: string | null;
+}
+
+interface TouchedState {
+  [key: string]: boolean;
+}
+
 function Login() {
   const [isLogin, setIsLogin] = useState(true);
+
   const [form, setForm] = useState<FormState>({
-    username: '',
-    nombre: '',
-    apellidos: '',
-    email: '',
-    password: ''
+    username: "",
+    nombre: "",
+    apellidos: "",
+    email: "",
+    password: "",
   });
 
+  const [errors, setErrors] = useState<ErrorState>({});
+  const [touched, setTouched] = useState<TouchedState>({});
+  const [submitted, setSubmitted] = useState(false);
 
-  const toggleMode = () => setIsLogin(!isLogin);
+  const toggleMode = () => {
+    const nextIsLogin = !isLogin;
+
+    const fieldsForNext = nextIsLogin
+      ? ["email", "password"]
+      : ["username", "nombre", "apellidos", "email", "password"];
+
+    setErrors((prev) => {
+      const newErrors: ErrorState = {};
+      fieldsForNext.forEach((f) => {
+        if (prev[f]) newErrors[f] = prev[f];
+      });
+      return newErrors;
+    });
+
+    setTouched((prev) => {
+      const newTouched: TouchedState = {};
+      fieldsForNext.forEach((f) => {
+        if (prev[f]) newTouched[f] = prev[f];
+      });
+      return newTouched;
+    });
+
+    setIsLogin(nextIsLogin);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    validateField(name, form[name as keyof FormState]);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (touched[name]) {
+      validateField(name, value);
+    }
+  };
+
+  const validateField = (name: string, value: string) => {
+    let error: string | null = null;
+
+    if (!value.trim()) {
+      error = "Este campo es obligatorio";
+    }
+
+    if (name === "email" && !isLogin && value) {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!regex.test(value)) error = "Ingresa un correo válido";
+    }
+
+    if (name === "password" && value) {
+      if (isLogin) {
+        error = null;
+        if (!value.trim()) error = "Este campo es obligatorio";
+      } else {
+        if (value.length < 8)
+          error = "Debe tener al menos 8 caracteres";
+        else if (!/[A-Z]/.test(value))
+          error = "Debe incluir una letra mayúscula";
+        else if (!/[0-9]/.test(value)) error = "Debe incluir un número";
+        else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(value))
+          error = "Debe incluir un carácter especial";
+      }
+    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  const validateAllFields = () => {
+    const fields = isLogin
+      ? ["email", "password"]
+      : ["username", "nombre", "apellidos", "email", "password"];
+    const newErrors: ErrorState = {};
+    fields.forEach((field) => {
+      const err = validateField(field, form[field as keyof FormState]);
+      if (err) newErrors[field] = err;
+    });
+    return newErrors;
   };
 
   const handleSubmit = async () => {
+    setSubmitted(true);
+
+    const newErrors = validateAllFields();
+    if (Object.values(newErrors).length > 0) {
+      return;
+    }
+    const result = await usersViewModel.validateLoginOrRegister(form, isLogin);
+    if (!result.ok) {
+      setErrors((prev) => ({ ...prev, ...result.errors }));
+      return;
+    }
     if (isLogin) {
       await usersViewModel.handleLogin(form.email, form.password);
     } else {
@@ -40,55 +139,106 @@ function Login() {
         form.nombre,
         form.apellidos,
         form.email,
-        form.password,
+        form.password
       );
     }
   };
 
+  const showError = (field: keyof FormState) =>
+    (touched[field] || submitted) && errors[field];
+
   return (
     <div className="Login">
-      <div className={`LoginContainer ${!isLogin ? 'register-machine' : ''}`}>
-        <div className={`Machine ${isLogin ? '' : 'register-machine'}`}>
+      <div className={`LoginContainer ${!isLogin ? "register-machine" : ""}`}>
+        <div className={`Machine ${isLogin ? "" : "register-machine"}`}>
           <img src={maquinaImg} alt="Máquina" />
         </div>
-        <div className={`FormContainer ${isLogin ? 'login-mode' : 'register-mode'}`}>
+        <div className={`FormContainer ${isLogin ? "login-mode" : "register-mode"}`}>
           <div className="Formtitle">
-            <img src={logoImg} alt="Logo" className='logo' />
-            <h1>{isLogin ? 'Login' : 'Sign up'}</h1>
+            <img src={logoImg} alt="Logo" className="logo" />
+            <h1>{isLogin ? "Login" : "Registro"}</h1>
           </div>
-          <div className='Form'>
+          <div className="Form">
             {!isLogin && (
               <>
-                <div className='inputform'>
-                  <label>Username</label>
-                  <input type="text" name="username" value={form.username} onChange={handleChange} />
+                <div className="inputform">
+                  <div className="input-elements">
+                    <label>Username</label>
+                    <Obligatorio show={!!showError("username")} message={errors.username || ""} />
+                  </div>
+                  <input
+                    type="text"
+                    name="username"
+                    value={form.username}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
                 </div>
-                <div className='inputform'>
-                  <label>Name</label>
-                  <input type="text" name="nombre" value={form.nombre} onChange={handleChange} />
+                <div className="inputform">
+                  <div className="input-elements">
+                    <label>Nombre</label>
+                    <Obligatorio show={!!showError("nombre")} message={errors.nombre || ""} />
+                  </div>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={form.nombre}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
                 </div>
-                <div className='inputform'>
-                  <label>Last Name</label>
-                  <input type="text" name="apellidos" value={form.apellidos} onChange={handleChange} />
+                <div className="inputform">
+                  <div className="input-elements">
+                    <label>Apellidos</label>
+                    <Obligatorio show={!!showError("apellidos")} message={errors.apellidos || ""} />
+                  </div>
+                  <input
+                    type="text"
+                    name="apellidos"
+                    value={form.apellidos}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
                 </div>
               </>
             )}
-            <div className='inputform'>
-              <label>Email</label>
-              <input type="text" name="email" value={form.email} onChange={handleChange} />
+            <div className="inputform">
+              <div className="input-elements">
+                <label>Email</label>
+                <Obligatorio show={!!showError("email")} message={errors.email || ""} />
+              </div>
+              <input
+                type="text"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
             </div>
-            <div className='inputform'>
-              <label>Password</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} />
+            <div className="inputform">
+              <div className="input-elements">
+                <label>Contraseña</label>
+                <Obligatorio show={!!showError("password")} message={errors.password || ""} />
+              </div>
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
             </div>
-            <div className='buttonform'>
-              <button className='loginbutton' onClick={handleSubmit}>
-                {isLogin ? 'Login' : 'Register'}
+            <div className="buttonform">
+              <button className="loginbutton" onClick={handleSubmit}>
+                {isLogin ? "Iniciar sesión" : "Registrarse"}
               </button>
               <p>
-                {isLogin ? "Don't have an account? " : "Do you already have an account? "}
-                <span onClick={toggleMode} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-                  {isLogin ? 'Sign up' : 'Login'}
+                {isLogin ? "¿No tienes una cuenta? " : "¿Ya tienes una cuenta? "}
+                <span
+                  onClick={toggleMode}
+                  style={{ cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {isLogin ? "Regístrate" : "Inicia sesión"}
                 </span>
               </p>
             </div>
