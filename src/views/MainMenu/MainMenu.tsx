@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import './MainMenu.css';
 import { useNavigate } from 'react-router-dom';
-
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 function MainMenu() {
   const [projects, setProjects] = useState([]);
   const [selectedButton, setSelectedButton] = useState('recientes');
   const [currentPage, setCurrentPage] = useState(0); // 👈 Página actual
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   const cardsPerPage = 2;
   const navigate = useNavigate();
@@ -23,6 +26,21 @@ function MainMenu() {
       }
     };
     fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchWeeklyStats = async () => {
+      setLoadingStats(true);
+      const result = await projectViewModel.handleGetWeeklyStats();
+      if (result.success) {
+        setWeeklyData(result.data);
+        setTotalProjects(result.total);
+      } else {
+        console.error(result.error);
+      }
+      setLoadingStats(false);
+    };
+    fetchWeeklyStats();
   }, []);
 
   const formatDate = (date) => {
@@ -51,10 +69,70 @@ function MainMenu() {
     <div className='MainMenuContainer'>
       <div className="MenuTitleContainer">
         <div className="MenuTitle">
-          <h1>¡Hola de nuevo!</h1>
-          <i className='bx bxs-home'></i>
+          <h1>¡Bienvenido!</h1>
+          <i class="fa-solid fa-helmet-safety"></i>
         </div>
-        <div className="MenuEndContainer"></div>
+        <h3>Comencemos a medir</h3>
+        <div className="stats-container">
+  <div className="stats-header">
+    <div className="stats-title">
+      <h2>Has creado {totalProjects} proyectos esta semana</h2>
+      <p className="stats-subtitle">Proyectos creados en los últimos 7 días</p>
+    </div>
+  </div>
+
+  {loadingStats ? (
+    <div className="stats-loading">
+      <p>Cargando estadísticas...</p>
+    </div>
+  ) : (
+    <div className="chart-wrapper">
+      <ResponsiveContainer width="100%" height={325}>
+        <LineChart 
+          data={weeklyData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" opacity={0.3} />
+          <XAxis 
+            dataKey="dia" 
+            stroke="#ffffff"
+            tick={{ fill: '#ffffff', fontSize: 14 }}
+            axisLine={{ stroke: '#1e3a5f' }}
+          />
+          <YAxis 
+            label={{ 
+              value: 'Cantidad de proyectos creados', 
+              angle: -90, 
+              style: { fill: '#ffffff', fontSize: 14 }
+            }}
+            stroke="#ffffff"
+            tick={{ fill: '#ffffff', fontSize: 14 }}
+            axisLine={{ stroke: '#1e3a5f' }}
+            domain={[0, 'auto']}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: '#0a1929', 
+              border: '1px solid #ffa500',
+              borderRadius: '8px',
+              color: '#ffffff'
+            }}
+            labelStyle={{ color: '#ffffff', fontWeight: 'bold' }}
+            itemStyle={{ color: '#ffa500' }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="proyectos" 
+            stroke="#ffa500" 
+            strokeWidth={3}
+            dot={{ fill: '#ffa500', r: 4 }}
+            activeDot={{ r: 6, fill: '#ffa500' }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  )}
+</div>
       </div>
 
       <div className="MenuSubtitle">

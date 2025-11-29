@@ -11,6 +11,7 @@ body{
 
 :root {
   --white: #FFFFFF;
+  --white-70: rgba(255, 255, 255, 0.7);
   --black: #000000;
   --yellow: #F4A419;
   --soft-yellow: #FFF8B9;
