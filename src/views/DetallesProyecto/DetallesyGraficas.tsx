@@ -41,47 +41,29 @@ function DetallesProyecto() {
     imgFile: null
   });
 
-useEffect(() => {
-  const abortController = new AbortController();
-  let isMounted = true;
-  
-  const fetchProject = async () => {
-    if (!id) return;
-    const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
-    if (isMounted && success) {
-      setProject(data);
-    } else if (isMounted) {
-      console.error("Error al obtener proyecto:", error);
-    }
-    if (isMounted) setLoading(false);
-  };
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (!id) return;
 
-  const checkLocalAPI = async () => {
-    if (!isMounted) return;
-    setCheckingLocalAPI(true);
-    
-    try {
-      const isAvailable = await projectService.checkLocalAPIAvailability(abortController.signal);
-            if (isMounted && !abortController.signal.aborted) {
-        setIsLocalAPIAvailable(isAvailable);
-        setCheckingLocalAPI(false);
+      const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
+      if (success) {
+        setProject(data);
+      } else {
+        console.error("Error al obtener proyecto:", error);
       }
-    } catch (error) {
-      if (isMounted && !abortController.signal.aborted) {
-        setIsLocalAPIAvailable(false);
-        setCheckingLocalAPI(false);
-      }
-    }
-  };
+      setLoading(false);
+    };
 
-  fetchProject();
-  checkLocalAPI();
+    const checkLocalAPI = async () => {
+      setCheckingLocalAPI(true);
+      const isAvailable = await projectService.checkLocalAPIAvailability();
+      setIsLocalAPIAvailable(isAvailable);
+      setCheckingLocalAPI(false);
+    };
 
-  return () => {
-    isMounted = false;
-    abortController.abort();
-  };
-}, [id]);
+    fetchProject();
+    checkLocalAPI();
+  }, [id]);
 
   const Handlecamera = () => {
     projectViewModel.handleCamera(navigate);
