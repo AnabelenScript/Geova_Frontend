@@ -1,6 +1,6 @@
 .DashboardContainer{
     width: 98%;
-    height: 100vh;
+    min-height: 100vh;
     padding: 24px 60px;
     box-sizing: border-box;
     display: flex;

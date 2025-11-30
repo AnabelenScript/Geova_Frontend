@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
@@ -9,12 +9,11 @@ import './TomarFoto.css';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid,
-  XAxis, YAxis,
+  XAxis, YAxis, PieChart, Pie, Cell, Legend
 } from 'recharts';
 
 const API_BASE_URL = "http://localhost:8000/imx477/streaming";
 
-// Interfaces para tipado
 interface SensorData {
   calidad: number | null;
   nitidez: number | null;
@@ -33,18 +32,13 @@ interface SensorData {
 
 interface HistoryPoint {
   name: string;
-  valor: number;
+  valor?: number;
+  temperatura?: number;
+  fuerzaSenal?: number;
+  apertura?: number;
+  inclinacion?: number;
 }
 
-interface DataHistory {
-  distancia_cm_history: HistoryPoint[];
-  fuerzaSenal_history: HistoryPoint[];
-  temperatura_history: HistoryPoint[];
-  inclinacion_history: HistoryPoint[];
-  apertura_history: HistoryPoint[];
-}
-
-// Interface para datos del MPU6050
 interface MPUData {
   ax: number;
   ay: number;
@@ -56,9 +50,57 @@ interface MPUData {
   pitch: number;
 }
 
-// Constantes para validación de inclinación
+interface CircularMetricProps {
+  value: number;
+  label: string;
+  color: string;
+}
+
 const MIN_INCLINACION = -15;
 const MAX_INCLINACION = 15;
+const MAX_HISTORY_LENGTH = 20;
+const CircularMetric: React.FC<CircularMetricProps> = React.memo(({ value, label, color }) => {
+  const data = useMemo(() => [
+    { name: 'Valor', value: value },
+    { name: 'Restante', value: 100 - value }
+  ], [value]);
+
+  return (
+    <div className="circular-metric-container">
+      <div className="circular-chart-wrapper-small">
+        <ResponsiveContainer>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              startAngle={90}
+              endAngle={-270}
+              innerRadius={50}
+              outerRadius={70}
+              dataKey="value"
+              strokeWidth={0}
+              animationDuration={300}
+              isAnimationActive={false}
+            >
+              <Cell fill={color} />
+              <Cell fill="#E5E7EB" />
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="circular-value-overlay">
+          <div className="circular-value-number">{value.toFixed(2)}</div>
+        </div>
+      </div>
+      <div className="circular-metric-label">
+        <div className="circular-color-dot" style={{ backgroundColor: color }} />
+        <span>{label}</span>
+      </div>
+    </div>
+  );
+});
+
+CircularMetric.displayName = 'CircularMetric';
 
 function TomarFoto() {
   const [data, setData] = useState<SensorData>({
@@ -79,74 +121,64 @@ function TomarFoto() {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
-  // Timestamp fijo que solo cambia al iniciar stream - evita re-renders
   const [streamKey, setStreamKey] = useState<number>(0);
+  const [distanciaHistory, setDistanciaHistory] = useState<HistoryPoint[]>([]);
+  const [tfCombinedHistory, setTfCombinedHistory] = useState<HistoryPoint[]>([]);
+  const [mpuCombinedHistory, setMpuCombinedHistory] = useState<HistoryPoint[]>([]);
 
-  // Ref para guardar los últimos datos del MPU6050 (persisten entre renders)
   const mpuDataRef = useRef<MPUData>({
     ax: 0, ay: 0, az: 0,
     gx: 0, gy: 0, gz: 0,
     roll: 0, pitch: 0
   });
 
-  // Validación de inclinación
   const isInclinacionValida = data.inclinacion !== null && 
     data.inclinacion >= MIN_INCLINACION && 
     data.inclinacion <= MAX_INCLINACION;
 
-  const tfDataHistoryRef = useRef<DataHistory>({
-    distancia_cm_history: [],
-    fuerzaSenal_history: [],
-    temperatura_history: [],
-    inclinacion_history: [],
-    apertura_history: []
-  });
-
-  const [tfDataHistory, setTfDataHistory] = useState<DataHistory>(tfDataHistoryRef.current);
-
   const { data: websocketData } = graphViewModel.useGraphData() as { data: any };
   const { id } = useParams();
 
-  // Funciones de evaluación
-  const evaluarFPS = (fps: number) => {
+  const evaluarFPS = useCallback((fps: number): string => {
     if (fps >= 24) return ' (Buena)';
     if (fps >= 15) return ' (Media)';
     return ' (Mala)';
-  };
+  }, []);
 
-  const evaluarFuerzaSenal = (valor: number) => {
+  const evaluarFuerzaSenal = useCallback((valor: number): string => {
     if (valor >= 10000) return 'Muy buena';
     if (valor >= 4000) return 'Buena';
     if (valor >= 2000) return 'Aceptable';
     if (valor >= 1000) return 'Baja';
     return 'Muy baja';
-  };
+  }, []);
 
-  const normalizarLuminosidad = (lum: number) => Math.min((lum / 255) * 100, 100);
-  const normalizarNitidez = (nit: number) => Math.min((nit / 500) * 100, 100);
+  const normalizarLuminosidad = useCallback((lum: number): number => 
+    Math.min((lum / 255) * 100, 100), []);
+  
+  const normalizarNitidez = useCallback((nit: number): number => 
+    Math.min((nit / 500) * 100, 100), []);
 
-  const startStream = async () => {
+  const startStream = useCallback(async () => {
     setStreamError(null);
     try {
       const res = await fetch(`${API_BASE_URL}/start`, { method: "POST" });
       if (!res.ok) throw new Error("No se pudo iniciar el streaming");
-      setStreamKey(Date.now()); // Timestamp fijo para esta sesión de stream
+      setStreamKey(Date.now());
       setIsStreaming(true);
     } catch (err) {
       setStreamError(err instanceof Error ? err.message : 'Error al iniciar streaming');
     }
-  };
+  }, []);
 
-  const stopStream = async () => {
+  const stopStream = useCallback(async () => {
     try {
       await fetch(`${API_BASE_URL}/stop`, { method: "POST" });
     } catch (err) {
       console.error('Error deteniendo stream:', err);
     }
     setIsStreaming(false);
-  };
-
-  // Procesamiento de datos del sensor IMX477
+  }, []);
   useEffect(() => {
     if (websocketData?.sensor === 'IMX477') {
       const sensorData = websocketData.data;
@@ -163,26 +195,25 @@ function TomarFoto() {
       }));
     }
   }, [websocketData]);
-
-  // Procesamiento de datos TF-Luna y MPU6050
   useEffect(() => {
-    if (!websocketData) return;
-
-    const now = new Date().toLocaleTimeString();
-
-    if (websocketData.sensor === 'TF-Luna') {
+    if (websocketData?.sensor === 'TF-Luna') {
       const tf = websocketData.data;
       const distancia = typeof tf.distancia_m === 'number' ? tf.distancia_m * 100 : 0;
       const fuerza = typeof tf.fuerza_senal === 'number' ? tf.fuerza_senal : 0;
       const temperatura = typeof tf.temperatura === 'number' ? tf.temperatura : 0;
-
-      // Actualizar historial
-      tfDataHistoryRef.current = {
-        ...tfDataHistoryRef.current,
-        distancia_cm_history: [...tfDataHistoryRef.current.distancia_cm_history, { name: now, valor: distancia }].slice(-20),
-        fuerzaSenal_history: [...tfDataHistoryRef.current.fuerzaSenal_history, { name: now, valor: fuerza }].slice(-20),
-        temperatura_history: [...tfDataHistoryRef.current.temperatura_history, { name: now, valor: temperatura }].slice(-20)
-      };
+      const now = new Date().toLocaleTimeString();
+      setDistanciaHistory(prev => {
+        const newHistory = [...prev, { name: now, valor: distancia }];
+        return newHistory.slice(-MAX_HISTORY_LENGTH);
+      });
+      setTfCombinedHistory(prev => {
+        const newHistory = [...prev, { 
+          name: now, 
+          temperatura: temperatura,
+          fuerzaSenal: fuerza
+        }];
+        return newHistory.slice(-MAX_HISTORY_LENGTH);
+      });
 
       setData(prev => ({
         ...prev,
@@ -191,16 +222,15 @@ function TomarFoto() {
         temperatura,
         timestamp: tf.timestamp
       }));
-
-      setTfDataHistory({ ...tfDataHistoryRef.current });
     }
-
-    if (websocketData.sensor === 'MPU6050') {
+  }, [websocketData, evaluarFuerzaSenal]);
+  useEffect(() => {
+    if (websocketData?.sensor === 'MPU6050') {
       const { roll, pitch, apertura, ax, ay, az, gx, gy, gz } = websocketData.data;
       if (typeof roll === 'number' && typeof pitch === 'number' && typeof apertura === 'number') {
         const inclinacion = roll + pitch;
+        const now = new Date().toLocaleTimeString();
 
-        // Guardar datos del MPU en ref para usarlos en el POST
         mpuDataRef.current = {
           ax: ax ?? 0,
           ay: ay ?? 0,
@@ -211,26 +241,24 @@ function TomarFoto() {
           roll,
           pitch
         };
-
-        tfDataHistoryRef.current = {
-          ...tfDataHistoryRef.current,
-          inclinacion_history: [...tfDataHistoryRef.current.inclinacion_history, { name: now, valor: inclinacion }].slice(-20),
-          apertura_history: [...tfDataHistoryRef.current.apertura_history, { name: now, valor: apertura }].slice(-20)
-        };
+        setMpuCombinedHistory(prev => {
+          const newHistory = [...prev, { 
+            name: now, 
+            inclinacion: inclinacion,
+            apertura: apertura
+          }];
+          return newHistory.slice(-MAX_HISTORY_LENGTH);
+        });
 
         setData(prev => ({
           ...prev,
           inclinacion,
           apertura,
         }));
-
-        setTfDataHistory({ ...tfDataHistoryRef.current });
       }
     }
   }, [websocketData]);
-
-  // Datos para gráfica radar
-  const radarData = [
+  const radarData = useMemo(() => [
     {
       atributo: 'Calidad',
       valor: data.calidad ? Number((data.calidad * 100).toFixed(2)) : 0,
@@ -248,17 +276,14 @@ function TomarFoto() {
       atributo: 'Confiabilidad',
       valor: data.probabilidad ? Number((data.probabilidad).toFixed(2)) : 0,
     },
-  ];
+  ], [data.calidad, data.nitidez, data.luminosidad, data.probabilidad, evaluarFPS, normalizarNitidez, normalizarLuminosidad]);
 
-  // Guardar medidas
-  const handleGuardarMedidas = async () => {
-    // Validar que hay datos de inclinación
+  const handleGuardarMedidas = useCallback(async () => {
     if (data.inclinacion === null) {
       await showErrorAlert("No hay datos de inclinación del MPU6050.\n\nEspera a recibir datos del sensor.");
       return;
     }
     
-    // Validar que la inclinación está en el rango permitido
     if (data.inclinacion < MIN_INCLINACION || data.inclinacion > MAX_INCLINACION) {
       await showErrorAlert(
         `Inclinación fuera de rango: ${data.inclinacion.toFixed(2)}°\n\n` +
@@ -326,7 +351,7 @@ function TomarFoto() {
       closeLoadingAlert();
       await showErrorAlert("Error al guardar los datos.");
     }
-  };
+  }, [data, id]);
 
   return (
     <div className="ProjectPContainer">
@@ -349,12 +374,11 @@ function TomarFoto() {
         </div>
         <div className="ProjectphotoContainer">
           <div className='MainphotoContainer'>
-            {isStreaming && <div className="stream-status-indicator">📡 Streaming Activo</div>}
+            {isStreaming && <div className="stream-status-indicator">Streaming Activo</div>}
             
-            {/* Advertencia de inclinación fuera de rango */}
             {data.inclinacion !== null && !isInclinacionValida && (
               <div className="inclinacion-warning">
-                <span>⚠️ Inclinación: {data.inclinacion.toFixed(2)}°</span>
+                <span>Inclinación: {data.inclinacion.toFixed(2)}°</span>
                 <small>Rango válido: {MIN_INCLINACION}° a {MAX_INCLINACION}°</small>
               </div>
             )}
@@ -366,7 +390,6 @@ function TomarFoto() {
               </div>
             )}
 
-            {/* Stream de video - MJPEG nativo sin procesamiento JavaScript */}
             {isStreaming ? (
               <img
                 src={`${API_BASE_URL}/video?t=${streamKey}`}
@@ -404,125 +427,188 @@ function TomarFoto() {
           <span>{data.inclinacion ? `${data.inclinacion.toFixed(2)} °` : "Cargando"}</span>
         </div>
       </div>
-
-      <div className="RadarGraphSection">
-        <h2>Gráfica del sensor de cámara y fiabilidad de datos</h2>
-        <div style={{ width: '100%', height: 400 }}>
-          <ResponsiveContainer>
-            <RadarChart data={radarData}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="atributo" />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} />
-              <Radar
-                name="Análisis"
-                dataKey="valor"
-                stroke="black"
-                fill="#E6AF2E"
-                fillOpacity={0.6}
-              />
-              <Tooltip
-                wrapperStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #ccc",
-                  borderRadius: "6px",
-                  padding: "5px"
-                }}
-                contentStyle={{ color: "#000000" }}
-                cursor={{ stroke: "#E6AF2E", strokeWidth: 2 }}
-                formatter={(value, _name, props) => {
-                  const atributo = props?.payload?.atributo;
-                  const evaluacion = props?.payload?.evaluacion || '';
-                  return [`${value} %${evaluacion}`, atributo];
-                }}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+      <div className='main-graphs'>
+        <div className="RadarGraphSection">
+          <h2>Gráfica del sensor de cámara y fiabilidad de datos</h2>
+          <div className="radar-and-circular-container">
+            <div className="radar-chart-container">
+              <ResponsiveContainer width="100%" height={400}>
+                <RadarChart data={radarData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="atributo" />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                  <Radar
+                    name="Análisis"
+                    dataKey="valor"
+                    stroke="black"
+                    fill="#E6AF2E"
+                    fillOpacity={0.6}
+                    animationDuration={0}
+                    isAnimationActive={false}
+                  />
+                  <Tooltip
+                    wrapperStyle={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #ccc",
+                      borderRadius: "6px",
+                      padding: "5px"
+                    }}
+                    contentStyle={{ color: "#000000" }}
+                    cursor={{ stroke: "#E6AF2E", strokeWidth: 2 }}
+                    formatter={(value, _name, props) => {
+                      const atributo = props?.payload?.atributo;
+                      const evaluacion = props?.payload?.evaluacion || '';
+                      return [`${value} %${evaluacion}`, atributo];
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <button 
+              className={`guardar-medidas-btn ${!isInclinacionValida ? 'disabled' : ''}`}
+              onClick={handleGuardarMedidas}
+              disabled={!isInclinacionValida}
+              title={!isInclinacionValida ? `Inclinación debe estar entre ${MIN_INCLINACION}° y ${MAX_INCLINACION}°` : 'Guardar medidas de todos los sensores'}
+            >
+              Guardar medidas
+            </button>
+            {!isInclinacionValida && data.inclinacion !== null && (
+              <p style={{ color: '#dc143c', marginTop: '10px', fontSize: '0.9rem' }}>
+                Ajusta la inclinación ({data.inclinacion.toFixed(2)}°) al rango {MIN_INCLINACION}° a {MAX_INCLINACION}°
+              </p>
+            )}
+          </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button 
-            className={`guardar-medidas-btn ${!isInclinacionValida ? 'disabled' : ''}`}
-            onClick={handleGuardarMedidas}
-            disabled={!isInclinacionValida}
-            title={!isInclinacionValida ? `Inclinación debe estar entre ${MIN_INCLINACION}° y ${MAX_INCLINACION}°` : 'Guardar medidas de todos los sensores'}
-          >
-            Guardar medidas
-          </button>
-          {!isInclinacionValida && data.inclinacion !== null && (
-            <p style={{ color: '#dc143c', marginTop: '10px', fontSize: '0.9rem' }}>
-              ⚠️ Ajusta la inclinación ({data.inclinacion.toFixed(2)}°) al rango {MIN_INCLINACION}° a {MAX_INCLINACION}°
-            </p>
-          )}
+        <div className="circular-metrics-container">
+          <CircularMetric
+            value={data.luminosidad ? normalizarLuminosidad(data.luminosidad) : 0}
+            label="Luminosidad"
+            color="#F59E0B"
+          />
+          <CircularMetric
+            value={data.nitidez ? normalizarNitidez(data.nitidez) : 0}
+            label="Nitidez"
+            color="#1E40AF"
+          />
+          <CircularMetric
+            value={data.calidad ? data.calidad * 100 : 0}
+            label="Calidad"
+            color="#031328"
+          />
         </div>
       </div>
-
       <div className="TFGraphsContainer">
         <h2>Gráficas del sensor TF-Luna</h2>
-
-        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Distancia (cm)</h4>
-          <ResponsiveContainer>
-            <LineChart data={tfDataHistory.distancia_cm_history}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="cm" />
-              <Tooltip formatter={(value: number) => [`${value.toFixed(2)} cm`, 'Distancia']} />
-              <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Fuerza de Señal basada en 2 bytes</h4>
-          <ResponsiveContainer>
-            <LineChart data={tfDataHistory.fuerzaSenal_history}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip formatter={(value: number) => [`${value.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza']} />
-              <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Temperatura (°C)</h4>
-          <ResponsiveContainer>
-            <LineChart data={tfDataHistory.temperatura_history}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="°C" />
-              <Tooltip formatter={(value: number) => [`${value.toFixed(2)} °C`, 'Temperatura']} />
-              <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className='TFGraphsContent'>
+          <div style={{ width: '100%', height: 380, marginBottom: 30 }}>
+            <h4>Distancia (cm)</h4>
+            <ResponsiveContainer>
+              <LineChart data={distanciaHistory}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis unit="cm" />
+                <Tooltip formatter={(value: number) => [`${value.toFixed(2)} cm`, 'Distancia']} />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="valor" 
+                  stroke="#031328" 
+                  strokeWidth={3} 
+                  dot={false}
+                  animationDuration={500}
+                  animationEasing="ease-in-out"
+                  isAnimationActive={true}
+                  name="Distancia"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ width: '100%', height: 380, marginBottom: 60 }}>
+            <h4>Temperatura y Fuerza de Señal</h4>
+            <ResponsiveContainer>
+              <LineChart data={tfCombinedHistory}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis yAxisId="left" label={{ value: 'Temperatura (°C)', angle: -90, position: 'insideLeft' }} />
+                <YAxis yAxisId="right" orientation="right" label={{ value: 'Fuerza Señal', angle: 90, position: 'insideRight' }} />
+                <Tooltip 
+                  formatter={(value: number, name: string) => {
+                    if (name === 'Temperatura') return [`${value.toFixed(2)} °C`, 'Temperatura'];
+                    if (name === 'Fuerza Señal') return [`${value.toFixed(2)} (${evaluarFuerzaSenal(value)})`, 'Fuerza Señal'];
+                    return [value, name];
+                  }}
+                />
+                <Legend />
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="temperatura" 
+                  stroke="#F59E0B" 
+                  strokeWidth={3} 
+                  dot={false}
+                  name="Temperatura"
+                  animationDuration={500}
+                  animationEasing="ease-in-out"
+                  isAnimationActive={true}
+                />
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="fuerzaSenal" 
+                  stroke="#031328" 
+                  strokeWidth={3} 
+                  dot={false}
+                  name="Fuerza Señal"
+                  animationDuration={500}
+                  animationEasing="ease-in-out"
+                  isAnimationActive={true}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
-
       <div className="MPUGraphsContainer">
         <h2>Gráficas del sensor MPU</h2>
-
-        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Inclinación (°)</h4>
+        <div style={{ width: '100%', height: 380, marginBottom: 80 }}>
+          <h4>Inclinación y Apertura</h4>
           <ResponsiveContainer>
-            <LineChart data={tfDataHistory.inclinacion_history}>
+            <LineChart data={mpuCombinedHistory}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis unit="°" />
-              <Tooltip formatter={(value: number) => [`${value.toFixed(2)} °`, 'Inclinación']} />
-              <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div style={{ width: '100%', height: 350, marginBottom: 50 }}>
-          <h4>Apertura (°)</h4>
-          <ResponsiveContainer>
-            <LineChart data={tfDataHistory.apertura_history}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis unit="°" />
-              <Tooltip formatter={(value: number) => [`${value.toFixed(2)} °`, 'Apertura']} />
-              <Line type="monotone" dataKey="valor" stroke="#E6AF2E" strokeWidth={2} dot={false} />
+              <YAxis label={{ value: 'Grados (°)', angle: -90, position: 'insideLeft' }} />
+              <Tooltip 
+                formatter={(value: number, name: string) => {
+                  if (name === 'Inclinación') return [`${value.toFixed(2)} °`, 'Inclinación'];
+                  if (name === 'Apertura') return [`${value.toFixed(2)} °`, 'Apertura'];
+                  return [value, name];
+                }}
+              />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="inclinacion" 
+                stroke="#c87f00ff" 
+                strokeWidth={3} 
+                dot={false}
+                name="Inclinación"
+                animationDuration={500}
+                animationEasing="ease-in-out"
+                isAnimationActive={true}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="apertura" 
+                stroke="#007eb5ff" 
+                strokeWidth={3} 
+                dot={false}
+                name="Apertura"
+                animationDuration={500}
+                animationEasing="ease-in-out"
+                isAnimationActive={true}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
