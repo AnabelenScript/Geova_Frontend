@@ -227,6 +227,34 @@ export const projectService = {
     }
   },
 
+  async checkSensorData(sensorType, projectId) {
+    try {
+      let endpoint = '';
+      switch (sensorType) {
+        case 'tfluna':
+          endpoint = `${API_URL_LOCAL2}/tfluna/sensor/${projectId}`;
+          break;
+        case 'imx477':
+          endpoint = `${API_URL_LOCAL2}/imx477/sensor/${projectId}`;
+          break;
+        case 'mpu':
+          endpoint = `${API_URL_LOCAL2}/mpu/sensor/${projectId}`;
+          break;
+        default:
+          return { exists: false };
+      }
+      
+      const response = await axios.get(endpoint, { timeout: 3000 });
+      // Verificar si hay datos en la respuesta
+      const data = response.data?.data || response.data;
+      const hasData = Array.isArray(data) ? data.length > 0 : !!data;
+      return { exists: hasData };
+    } catch (error) {
+      // Si es 404 o cualquier error, asumimos que no hay datos
+      return { exists: false };
+    }
+  },
+
   async deleteProjectByTFLuna(id) {
     try {
       const response = await axios.delete(`${API_URL_LOCAL2}/tfluna/sensor/project/${id}`);
