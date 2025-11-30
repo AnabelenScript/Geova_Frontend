@@ -1,13 +1,11 @@
 import axios from 'axios';
+import { showErrorAlert } from '../utils/alerts';
 
 const API_URL = 'https://go.geova.pro/projects';
 const API_URL_LOCAL2 = 'http://localhost:8000';
 
-//https://geova-api1.namixcode.cc/projects
-
 export const projectService = {
   getCountLastWeek(id) {
-    //const response = await axios.get(`${API_URL}/stats/${id}`)
     return {
       mon: 1,
       tue: 2,
@@ -16,57 +14,179 @@ export const projectService = {
       fri: 2,
       sat: 2,
       sun: 6
-    }
+    };
   },
 
   async createProject(formData) {
-    const response = await axios.post(API_URL, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await axios.post(API_URL, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error en createProject:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 400) {
+            await showErrorAlert('Datos inválidos (400). Verifica la información del proyecto.');
+          } else if (status === 401) {
+            await showErrorAlert('No autorizado (401). Inicia sesión nuevamente.');
+          } else if (status === 413) {
+            await showErrorAlert('Archivo demasiado grande (413). Reduce el tamaño del archivo.');
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudo crear el proyecto.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor. Verifica tu conexión.');
+        }
+      } else {
+        await showErrorAlert('Error inesperado al crear el proyecto.');
+      }
+
+      throw error;
+    }
   },
 
   async getAllProjects() {
-    const response = await axios.get(API_URL);
-    return response.data;
+    try {
+      const response = await axios.get(API_URL);
+      return response.data;
+    } catch (error) {
+      console.error('Error en getAllProjects:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 401) {
+            await showErrorAlert('No autorizado (401). Inicia sesión nuevamente.');
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudieron obtener los proyectos.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor.');
+        }
+      } else {
+        await showErrorAlert('Error inesperado al obtener los proyectos.');
+      }
+
+      throw error;
+    }
   },
 
   async getProjectById(id) {
-    const response = await axios.get(`${API_URL}/id/${id}`);
-    return response.data;
+    try {
+      const response = await axios.get(`${API_URL}/id/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en getProjectById:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 404) {
+            await showErrorAlert('Proyecto no encontrado (404).');
+          } else if (status === 401) {
+            await showErrorAlert('No autorizado (401). Inicia sesión nuevamente.');
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudo obtener el proyecto.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor.');
+        }
+      } else {
+        await showErrorAlert('Error inesperado al obtener el proyecto.');
+      }
+
+      throw error;
+    }
   },
-  
+
   async updateProject(id, formData) {
-    const response = await axios.put(`${API_URL}/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await axios.put(`${API_URL}/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error en updateProject:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 400) {
+            await showErrorAlert('Datos inválidos (400). Verifica la información.');
+          } else if (status === 401) {
+            await showErrorAlert('No autorizado (401). Tu sesión expiró.');
+          } else if (status === 404) {
+            await showErrorAlert('Proyecto no encontrado (404).');
+          } else if (status === 413) {
+            await showErrorAlert('Archivo demasiado grande (413).');
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudo actualizar el proyecto.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor.');
+        }
+      } else {
+        await showErrorAlert('Error inesperado al actualizar el proyecto.');
+      }
+
+      throw error;
+    }
   },
 
   async getAllProjectsByIdUser(idUser) {
-    const response = await axios.get(`${API_URL}/user/${idUser}`);
-    return response.data;
+    try {
+      const response = await axios.get(`${API_URL}/user/${idUser}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en getAllProjectsByIdUser:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 404) {
+            await showErrorAlert('Error en servidor, direccion url incorrecta');
+          } else if (status === 401) {
+            await showErrorAlert('No autorizado (401). Tu sesión expiró.');
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudieron obtener los proyectos del usuario.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor.');
+        }
+      } else {
+        await showErrorAlert('Error inesperado al obtener los proyectos del usuario.');
+      }
+
+      throw error;
+    }
   },
+
   async checkLocalAPIAvailability() {
     try {
       const response = await axios.get(`${API_URL_LOCAL2}/health`, {
-        timeout: 3000, // 3 segundos de timeout
+        timeout: 3000,
       });
       return response.status === 200;
     } catch (error) {
-      // Si hay cualquier error (conexión, timeout, etc.), consideramos que no está disponible
       return false;
     }
   },
 
-  // Función alternativa si no tienes endpoint /health
   async checkLocalAPIAvailabilityAlt() {
     try {
-      // Intenta hacer una petición simple a un endpoint que sepas que existe
       const response = await axios.get(`${API_URL_LOCAL2}`, {
         timeout: 3000,
       });
@@ -77,23 +197,108 @@ export const projectService = {
   },
 
   async deleteProject(id) {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.data;
+    try {
+      const response = await axios.delete(`${API_URL}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en deleteProject:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 404) {
+            await showErrorAlert('Proyecto no encontrado (404).');
+          } else if (status === 401) {
+            await showErrorAlert('No autorizado (401). Tu sesión expiró.');
+          } else if (status === 403) {
+            await showErrorAlert('Sin permisos (403). No puedes eliminar este proyecto.');
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudo eliminar el proyecto.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor.');
+        }
+      } else {
+        await showErrorAlert('Error inesperado al eliminar el proyecto.');
+      }
+
+      throw error;
+    }
   },
 
   async deleteProjectByTFLuna(id) {
-    const response = await axios.delete(`${API_URL_LOCAL2}/tfluna/sensor/project/${id}`);
-    return response.data;
+    try {
+      const response = await axios.delete(`${API_URL_LOCAL2}/tfluna/sensor/project/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en deleteProjectByTFLuna:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 404) {
+            return { success: true, message: 'No hay datos TF-Luna para eliminar' };
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudieron eliminar los datos TF-Luna.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor local.');
+        }
+      }
+
+      throw error;
+    }
   },
 
   async deleteProjectByIMX477(id) {
-    const response = await axios.delete(`${API_URL_LOCAL2}/imx477/sensor/project/${id}`);
-    return response.data;
+    try {
+      const response = await axios.delete(`${API_URL_LOCAL2}/imx477/sensor/project/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en deleteProjectByIMX477:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 404) {
+            return { success: true, message: 'No hay datos IMX477 para eliminar' };
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudieron eliminar los datos IMX477.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor local.');
+        }
+      }
+
+      throw error;
+    }
   },
 
   async deleteProjectByMPU6050(id) {
-    const response = await axios.delete(`${API_URL_LOCAL2}/mpu/sensor/project/${id}`);
-    return response.data;
-  },
+    try {
+      const response = await axios.delete(`${API_URL_LOCAL2}/mpu/sensor/project/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en deleteProjectByMPU6050:', error);
 
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const status = error.response.status;
+          
+          if (status === 404) {
+            return { success: true, message: 'No hay datos MPU6050 para eliminar' };
+          } else if (status >= 500) {
+            await showErrorAlert(`Error del servidor (${status}). No se pudieron eliminar los datos MPU6050.`);
+          }
+        } else if (error.request) {
+          await showErrorAlert('No se recibió respuesta del servidor local.');
+        }
+      }
+
+      throw error;
+    }
+  },
 };
