@@ -1,8 +1,6 @@
 .DetallesContainer{
     width: 98%;
     min-height: 100vh;
-    border-bottom-right-radius: 30px;
-    border-bottom-left-radius: 30px;
     padding: 24px 60px;
     box-sizing: border-box;
     display: flex;
