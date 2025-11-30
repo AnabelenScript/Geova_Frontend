@@ -360,8 +360,9 @@
   /* Proyectos */
   .MenuProjectsWrapper {
     height: auto;
-    min-height: 200px;
-    padding: 0 10px;
+    min-height: auto;
+    padding: 0;
+    overflow: visible;
   }
 
   .sliderArrow {
@@ -369,14 +370,19 @@
   }
 
   .MenuProjects {
-    gap: 12px;
-    padding: 10px 5px;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px 0;
     justify-content: flex-start;
+    overflow-x: visible;
+    overflow-y: visible;
+    height: auto;
   }
 
   .MenuProjectCard {
-    min-width: 80vw;
-    max-width: 85vw;
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
     padding: 12px;
     flex-shrink: 0;
   }
@@ -387,7 +393,7 @@
   }
 
   .MenuProjectImageContainer {
-    height: 120px;
+    height: 150px;
     width: 100%;
   }
 

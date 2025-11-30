@@ -11,9 +11,19 @@ function MainMenu() {
   const [weeklyData, setWeeklyData] = useState([]);
   const [totalProjects, setTotalProjects] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const cardsPerPage = 2;
   const navigate = useNavigate();
+
+  // Detectar cambio de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -62,7 +72,7 @@ function MainMenu() {
 
 
   const startIndex = currentPage * cardsPerPage;
-  const visibleProjects = projects.slice(startIndex, startIndex + cardsPerPage);
+  const visibleProjects = isMobile ? projects : projects.slice(startIndex, startIndex + cardsPerPage);
   const totalPages = Math.ceil(projects.length / cardsPerPage);
 
   return (
@@ -160,13 +170,15 @@ function MainMenu() {
       </div>
 
       <div className="MenuProjectsWrapper">
-        <button
-          className="sliderArrow"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-          disabled={currentPage === 0}
-        >
-          ◀
-        </button>
+        {!isMobile && (
+          <button
+            className="sliderArrow"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+            disabled={currentPage === 0}
+          >
+            ◀
+          </button>
+        )}
 
         <div className="MenuProjects">
           {visibleProjects.map((project) => (
@@ -189,13 +201,15 @@ function MainMenu() {
           ))}
         </div>
 
-        <button
-          className="sliderArrow"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
-          disabled={currentPage >= totalPages - 1}
-        >
-          ▶
-        </button>
+        {!isMobile && (
+          <button
+            className="sliderArrow"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+            disabled={currentPage >= totalPages - 1}
+          >
+            ▶
+          </button>
+        )}
       </div>
 
       <div className='VideoContainer'>
