@@ -12,6 +12,7 @@ function Layout() {
       <main className={`main-content ${collapsed ? 'collapsed' : ''}`}>
         <Outlet />
       </main>
+      <div id="modal-root"></div>
     </div>
   );
 }

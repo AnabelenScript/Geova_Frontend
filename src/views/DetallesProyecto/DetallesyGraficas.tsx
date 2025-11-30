@@ -1,4 +1,5 @@
 import './DetallesyGraficas.css';
+import Portal from '../../utils/Portal';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
@@ -232,7 +233,8 @@ function DetallesProyecto() {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
+        <Portal>
+          <div className="modal-overlay">
           <div className="modal-content">
             <h2>Editar Proyecto</h2>
 
@@ -302,6 +304,7 @@ function DetallesProyecto() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );
