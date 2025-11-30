@@ -121,12 +121,15 @@ function DetallesProyecto() {
     const { nombreProyecto, categoria, descripcion, lat, lng, imgFile } = editData;
 
     try {
+      // Si no se seleccionó nueva imagen, pasar la URL actual
+      const imageToSend = imgFile || project?.Img || null;
+      
       const { success, error } = await projectViewModel.handleUpdateProject(
         Number(id),
         nombreProyecto,
         categoria,
         descripcion,
-        imgFile,
+        imageToSend,
         lat,
         lng
       );

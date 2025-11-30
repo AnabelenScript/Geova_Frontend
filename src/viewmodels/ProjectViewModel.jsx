@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
 import './alerts.css'
-import { showSuccessAlert, showErrorAlert, showConfirmAlert, showCautionAlert} from '../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showConfirmAlert, showCautionAlert, showDeleteConfirmAlert } from '../utils/alerts';
 
 
 let selectedProjectId = null;
@@ -175,7 +175,7 @@ export const projectViewModel = {
     navigate(`/dashboard/detalles/${id}/irregularidades`);
   },
 
- async handleUpdateProject(id, nombreProyecto, categoria, descripcion, imgFile, lat, lng) {
+ async handleUpdateProject(id, nombreProyecto, categoria, descripcion, imgFileOrUrl, lat, lng) {
     try {
       const userKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
       if (!userKey) throw new Error('Usuario no autenticado');
@@ -193,8 +193,21 @@ export const projectViewModel = {
       formData.append('lng', parseFloat(lng));
       formData.append('userId', userId);
 
-      if (imgFile) {
-        formData.append('img', imgFile);
+      // Si es un File, enviarlo como imagen nueva
+      if (imgFileOrUrl instanceof File) {
+        formData.append('img', imgFileOrUrl);
+      } else if (typeof imgFileOrUrl === 'string' && imgFileOrUrl) {
+        // Si es una URL, descargar la imagen y enviarla como File
+        try {
+          const response = await fetch(imgFileOrUrl);
+          const blob = await response.blob();
+          const fileName = imgFileOrUrl.split('/').pop() || 'image.jpg';
+          const file = new File([blob], fileName, { type: blob.type });
+          formData.append('img', file);
+        } catch (fetchError) {
+          console.warn('No se pudo descargar la imagen existente:', fetchError);
+          // Continuar sin imagen si falla la descarga
+        }
       }
 
       const response = await projectService.updateProject(id, formData);
@@ -245,10 +258,8 @@ export const projectViewModel = {
         confirmText += '\n\nNo se encontraron datos de sensores asociados.';
       }
 
-      const confirm = await showConfirmAlert(
-        confirmMessage,
-        confirmText,
-        'Esta acción no se puede deshacer.'
+      const confirm = await showDeleteConfirmAlert(
+        confirmText
       );
 
       if (!confirm.isConfirmed) return { success: false };

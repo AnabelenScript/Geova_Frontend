@@ -70,7 +70,7 @@ function MainMenu() {
       <div className="MenuTitleContainer">
         <div className="MenuTitle">
           <h1>¡Bienvenido!</h1>
-          <i class="fa-solid fa-helmet-safety"></i>
+          <i className="fa-solid fa-helmet-safety"></i>
         </div>
         <h3>Comencemos a medir</h3>
         <div className="stats-container">
@@ -201,12 +201,16 @@ function MainMenu() {
       <div className='VideoContainer'>
         <h2 className="Msub1">Video promocional</h2>
         <div className='VideoPromocional'>
-          <iframe width="560" height="315" 
+          <iframe 
+              width="100%" 
+              height="100%" 
               src="https://www.youtube.com/embed/iOZG-GAH7tY?si=tGGRR3LGR5HLlFx7" 
-              title="YouTube video player" frameborder="0" 
+              title="YouTube video player" 
+              frameBorder="0" 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>  
-          </iframe>
+              referrerPolicy="strict-origin-when-cross-origin" 
+              allowFullScreen
+            />
         </div>
       </div>
     </div>
