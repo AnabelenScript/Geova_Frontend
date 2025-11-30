@@ -517,22 +517,24 @@
 
 .modal-buttons button {
   width: 65%;
-  padding: 0.5rem 1.2rem;
+  padding: 0.8rem 1.2rem;
   border: none;
-  border-radius: 0px 8px 8px 0px;
+  border-radius: 12px;
   cursor: pointer;
-  background-color: #E6AF2E;
+  color: var(--black);
+  font-weight: 600;
+  font-size: 1.1rem;
+  background-color: var(--yellow);
   transition: background-color 0.3s;
 }
 .modal-buttons button:first-child {
-  background-color: #FFEAB9;
-  border: solid 1px #E6AF2E;
-  border-radius: 8px 0px 0px 8px;
+  background-color: var(--red);
   width: 35%;
 }
 
 .modal-buttons button:hover {
-  background-color: #D68C0D;
+  transform: scale(.9);
+  transition: 0.3s;
 }
 
 @keyframes fadeIn {

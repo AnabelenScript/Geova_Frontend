@@ -1,4 +1,5 @@
 import "./CreateProject.css";
+import Portal from "../../utils/Portal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { projectViewModel } from "../../viewmodels/ProjectViewModel";
@@ -274,14 +275,16 @@ function CreateProject() {
         </div>
       </div>
       {isImageModalOpen && (
-        <div
-          className="ImageModalOverlay"
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <div className="ImageModal" onClick={(e) => e.stopPropagation()}>
+        <Portal>
+          <div
+            className="ImageModalOverlay"
+            onClick={() => setIsImageModalOpen(false)}
+          >
+            <div className="ImageModal" onClick={(e) => e.stopPropagation()}>
             <img src={imgPreview} alt="imagen" className="ModalImage" />
           </div>
-        </div>
+        < /div>
+        </Portal>
       )}
     </div>
   );
