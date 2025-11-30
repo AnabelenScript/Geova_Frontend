@@ -9,3 +9,48 @@
 .Charts>div:last-child {
     width: 100%;
 }
+
+/* ===== ESTILOS RESPONSIVE ===== */
+@media screen and (max-width: 768px) {
+    .Charts {
+        flex-direction: column;
+    }
+
+    .Charts > div {
+        width: 100%;
+    }
+
+    .Charts > div:last-child {
+        width: 100%;
+    }
+
+    /* Recharts responsive */
+    .Charts .recharts-responsive-container {
+        min-height: 250px;
+    }
+
+    .Charts .recharts-wrapper {
+        width: 100% !important;
+    }
+
+    /* Títulos de gráficas */
+    .Charts h3 {
+        font-size: 14px;
+        text-align: center;
+        margin: 10px 0;
+    }
+
+    /* Leyendas de Recharts */
+    .Charts .recharts-legend-wrapper {
+        font-size: 11px;
+    }
+
+    /* Ejes */
+    .Charts .recharts-cartesian-axis-tick-value {
+        font-size: 10px;
+    }
+
+    .Charts .recharts-label {
+        font-size: 10px;
+    }
+}

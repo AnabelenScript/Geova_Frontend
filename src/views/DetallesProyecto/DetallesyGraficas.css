@@ -1,5 +1,6 @@
 .DetallesContainer{
     width: 98%;
+    max-width: 100%;
     min-height: 100vh;
     padding: 24px 60px;
     box-sizing: border-box;
@@ -8,6 +9,7 @@
     gap: 20px;
     align-items: center;
     box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
+    overflow-x: hidden;
 }
 
 .DetallesTitleContainer{
@@ -199,15 +201,19 @@
 /* Nuevos estilos para el contenedor de gráficas */
 .GraphContainer {
     width: 100%;
+    max-width: 100%;
     padding: 0 40px;
     box-sizing: border-box;
     margin-bottom: 20px;
+    overflow-x: hidden;
 }
 
 /* Estilos para las secciones de sensores */
 .SensorSection {
     width: 100%;
+    max-width: 100%;
     margin-bottom: 40px;
+    overflow-x: hidden;
 }
 
 .GraphHeaderContainer {
@@ -243,6 +249,7 @@
 
 .GraphScrollContainer {
     width: 100%;
+    max-width: 100%;
     height: 450px;
     border: 2px solid #E6AF2E;
     border-radius: 15px;
@@ -547,27 +554,43 @@
   border: dashed 2px #E6AF2E;
   border-radius: 10px;
   overflow: hidden;
-  padding: 0;
+  padding: 16px;
+  margin-bottom: 1rem;
 }
 .ModalImageContainer input {
   width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  opacity: 0;
-  z-index: 177;
+  height: auto;
+  position: relative;
+  opacity: 1;
+  z-index: 1;
+  margin-bottom: 0;
+  padding: 8px;
+  border: none;
+  background: transparent;
+}
+.ModalImageContainer input:hover {
+  border: none;
 }
 .PreviewImageContainer {
-  margin-top: 0px;
+  margin-bottom: 12px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.PreviewImageContainer p {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #666;
 }
 
 .ProjectImagePreview {
   width: auto;
   max-width: 100%;
-  height: 100%;
-  padding: 0%;
-  object-fit: cover;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
 }
 
@@ -667,41 +690,315 @@
 
 /* Responsive design para las gráficas */
 @media (max-width: 768px) {
-  .GraphCard {
-    min-width: 350px;
-    max-width: 350px;
-    height: 350px;
+  .DetallesContainer {
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    gap: 16px;
+    overflow-x: hidden;
   }
-  
+
+  .DetallesTitle {
+    padding: 12px 20px;
+    height: auto;
+    min-height: 60px;
+  }
+
+  .DetallesTitle h1 {
+    font-size: 18px;
+    word-break: break-word;
+  }
+
+  .DetallesTitle i {
+    font-size: 24px;
+  }
+
+  .DetallesEndContainer {
+    margin-top: 8px;
+  }
+
+  .api-status {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .ProjectphotoDetail {
+    width: 100%;
+    height: 50vh;
+    border-radius: 16px;
+  }
+
+  .ProjectphotoDetail::before {
+    width: 50px;
+    height: 50px;
+  }
+
+  .PhotoContainer {
+    clip-path: polygon(60px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 60px);
+  }
+
+  .categorycontainer {
+    min-height: auto;
+    padding: 4px 8px;
+  }
+
+  .categorycontainer p {
+    font-size: 14px;
+    min-height: auto;
+    padding: 6px 12px;
+  }
+
+  .DetailOptions {
+    padding: 0 16px;
+  }
+
+  .SubtitleContainer {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .SubtitleContainer h2 {
+    font-size: 18px;
+  }
+
+  .ProjectOptions {
+    gap: 6px;
+    font-size: 1.2em;
+  }
+
+  .deleteproject,
+  .editproject {
+    padding: 10px;
+  }
+
+  .Dsub2 {
+    font-size: 13px;
+  }
+
+  .SectionTitle {
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .ExtraDetails {
+    padding: 20px 16px;
+    border-radius: 16px;
+    gap: 10px;
+  }
+
+  .ExtraDetails i {
+    font-size: 36px;
+  }
+
+  .ExtraDetails h3 {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .ExtraDetails span {
+    font-size: 14px;
+  }
+
+  .ExtraDetails button {
+    font-size: 14px;
+    padding: 12px 20px;
+    min-height: auto;
+  }
+
+  .MapDetail {
+    height: 35vh;
+    border-radius: 16px;
+  }
+
+  /* Gráficas */
+  .GraphContainer {
+    padding: 0 16px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .SensorSection {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .GraphContainer h2 {
+    font-size: 18px;
+  }
+
+  .GraphSection {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
   .GraphHeaderContainer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
   }
-  
+
+  .GraphHeaderContainer h2 {
+    font-size: 1.1rem;
+  }
+
+  .graph-count {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+
   .GraphScrollContainer {
-    height: 400px;
+    height: 380px;
+    border-radius: 12px;
+    max-width: 100%;
   }
-  
+
   .GraphScrollContent {
-    padding: 15px;
-    gap: 15px;
+    padding: 12px;
+    gap: 12px;
   }
-  
+
+  .GraphCard {
+    min-width: 280px;
+    max-width: 280px;
+    height: 340px;
+  }
+
+  .GraphCardHeader {
+    padding: 12px;
+  }
+
+  .GraphCardTitle {
+    font-size: 1rem;
+  }
+
+  .GraphCardDate {
+    font-size: 0.8rem;
+  }
+
+  .GraphCardContent {
+    padding: 10px;
+  }
+
   .SensorSection {
-    margin-bottom: 30px;
+    margin-bottom: 24px;
+  }
+
+  .NoGraphsMessage i {
+    font-size: 3rem;
+  }
+
+  .NoGraphsMessage p {
+    font-size: 1rem;
+  }
+
+  .NoGraphsMessage small {
+    font-size: 0.85rem;
+  }
+
+  /* Modal responsive */
+  .modal-overlay {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 5vh;
+  }
+
+  .modal-content {
+    padding: 1.2rem;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 16px;
+  }
+
+  .modal-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .modal-content input,
+  .modal-content textarea,
+  .modal-content select {
+    padding: 12px;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .modal-content textarea {
+    min-height: 80px;
+  }
+
+  .modal-content select {
+    height: 48px;
+  }
+
+  /* Contenedor de imagen en modal */
+  .ModalImageContainer {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .PreviewImageContainer p {
+    font-size: 13px;
+  }
+
+  .ProjectImagePreview {
+    max-height: 150px;
+  }
+
+  .ModalImageContainer input[type="file"] {
+    font-size: 12px;
+  }
+
+  /* Mapa en modal */
+  .modal-content > div[style*="height"] {
+    height: 200px !important;
+    margin-top: 0 !important;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .modal-buttons button {
+    width: 100% !important;
+    padding: 14px 16px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .modal-buttons button:first-child {
+    width: 100% !important;
+    order: 2; /* Cancelar abajo */
+  }
+
+  .modal-buttons button:last-child {
+    order: 1; /* Guardar arriba */
   }
 }
 
 @media (max-width: 480px) {
+  .DetallesTitle h1 {
+    font-size: 16px;
+  }
+
+  .ProjectphotoDetail {
+    height: 40vh;
+  }
+
   .GraphCard {
-    min-width: 300px;
-    max-width: 300px;
-    height: 320px;
+    min-width: 250px;
+    max-width: 250px;
+    height: 300px;
   }
   
   .GraphScrollContainer {
-    height: 350px;
+    height: 330px;
   }
   
   .GraphScrollContent {
@@ -710,10 +1007,18 @@
   }
   
   .SensorSection {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
   }
   
   .GraphHeaderContainer h2 {
-    font-size: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .ExtraDetails h3 {
+    font-size: 14px;
+  }
+
+  .MapDetail {
+    height: 30vh;
   }
 }

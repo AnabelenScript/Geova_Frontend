@@ -134,13 +134,21 @@ function Login() {
     if (isLogin) {
       await usersViewModel.handleLogin(form.email, form.password);
     } else {
-      await usersViewModel.handleRegister(
+      const registerResult = await usersViewModel.handleRegister(
         form.username,
         form.nombre,
         form.apellidos,
         form.email,
         form.password
       );
+      // Si el registro fue exitoso, cambiar al modo login
+      if (registerResult.success) {
+        setForm({ username: "", nombre: "", apellidos: "", email: "", password: "" });
+        setErrors({});
+        setTouched({});
+        setSubmitted(false);
+        setIsLogin(true);
+      }
     }
   };
 
@@ -168,6 +176,7 @@ function Login() {
                   </div>
                   <input
                     type="text"
+                    placeholder="Ingresa tu nombre de usuario"
                     name="username"
                     value={form.username}
                     onChange={handleChange}
@@ -181,6 +190,7 @@ function Login() {
                   </div>
                   <input
                     type="text"
+                    placeholder="Ingresa tu nombre"
                     name="nombre"
                     value={form.nombre}
                     onChange={handleChange}
@@ -194,6 +204,7 @@ function Login() {
                   </div>
                   <input
                     type="text"
+                    placeholder="Ingresa tus apellidos"
                     name="apellidos"
                     value={form.apellidos}
                     onChange={handleChange}
@@ -209,6 +220,7 @@ function Login() {
               </div>
               <input
                 type="text"
+                placeholder="Ingresa tu correo electrónico"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
@@ -222,6 +234,7 @@ function Login() {
               </div>
               <input
                 type="password"
+                placeholder="Ingresa tu contraseña"
                 name="password"
                 value={form.password}
                 onChange={handleChange}

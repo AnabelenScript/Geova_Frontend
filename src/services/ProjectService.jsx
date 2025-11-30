@@ -5,6 +5,16 @@ const API_URL = 'https://go.geova.pro/projects';
 const API_URL_LOCAL2 = 'http://localhost:8000';
 
 export const projectService = {
+  async getTotalProjectsByUser(userId) {
+    try {
+      const response = await axios.get(`${API_URL}/total/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener total de proyectos:', error);
+      return { total_projects: 0, user_id: userId };
+    }
+  },
+
   async getCountLastWeek(userId) {
   try {
     const response = await axios.get(`${API_URL}/stats`, {

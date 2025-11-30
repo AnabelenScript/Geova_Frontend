@@ -68,32 +68,17 @@ export const tflunaService = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        timeout: 5000, // 5 segundos de timeout
       });
 
       return response.data;
 
     } catch (error) {
-      console.error("Error en getSensorTFLunaByProjectId:", error);
-
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          const status = error.response.status;
-
-          if (status === 404) {
-            return []; // No hay sensores → solo regresa arreglo vacío igual que en projects
-          } else if (status === 401) {
-            await showErrorAlert("No autorizado (401). Tu sesión expiró.");
-          } else if (status >= 500) {
-            await showErrorAlert(`Error del servidor (${status}). No se pudo obtener TF-Luna.`);
-          }
-        } else if (error.request) {
-          await showErrorAlert("No se recibió respuesta del servidor.");
-        }
-      } else {
-        await showErrorAlert("Error inesperado al obtener el sensor.");
+      // Para GET de sensores, no mostrar alertas - es esperado que la Raspberry no siempre esté conectada
+      if (error.code !== 'ERR_NETWORK' && error.code !== 'ECONNREFUSED') {
+        console.error("Error en getSensorTFLunaByProjectId:", error);
       }
-
-      throw error;
+      return null; // Retornar null silenciosamente
     }
   },
 

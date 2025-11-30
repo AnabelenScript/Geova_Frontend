@@ -4,11 +4,17 @@ import Navbar from './Navbar';
 import '../Navbar/Navbar.css'
 
 function Layout() {
-  const [collapsed, setCollapsed] = useState<boolean>(false); 
+  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
   return (
     <div style={{ display: 'flex' }}>
-      <Navbar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <Navbar 
+        collapsed={collapsed} 
+        setCollapsed={setCollapsed}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+      />
       <main className={`main-content ${collapsed ? 'collapsed' : ''}`}>
         <Outlet />
       </main>

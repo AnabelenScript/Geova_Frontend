@@ -66,8 +66,7 @@ export const imxService = {
     try {
       const tokenKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
       if (!tokenKey) {
-        await showErrorAlert('Usuario no autenticado. Inicia sesión nuevamente.');
-        throw new Error('Usuario no autenticado');
+        return null; // Usuario no autenticado - retornar silenciosamente
       }
 
       const user = JSON.parse(localStorage.getItem(tokenKey));
@@ -77,31 +76,17 @@ export const imxService = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        timeout: 5000, // 5 segundos de timeout
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error en getSensorIMXByProjectId:', error);
-
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          const status = error.response.status;
-          
-          if (status === 404) {
-            return null; // No hay datos para este proyecto
-          } else if (status === 401) {
-            await showErrorAlert('No autorizado (401). Tu sesión expiró.');
-          } else if (status >= 500) {
-            await showErrorAlert(`Error del servidor (${status}). No se pudieron obtener los datos.`);
-          }
-        } else if (error.request) {
-          await showErrorAlert('No se recibió respuesta del servidor.');
-        }
-      } else {
-        await showErrorAlert('Error inesperado al obtener los datos del sensor.');
+      // Para GET de sensores, no mostrar alertas - es esperado que la Raspberry no siempre esté conectada
+      // Solo logear en consola para debug
+      if (error.code !== 'ERR_NETWORK' && error.code !== 'ECONNREFUSED') {
+        console.error('Error en getSensorIMXByProjectId:', error);
       }
-
-      throw error;
+      return null; // Retornar null silenciosamente
     }
   },
 
