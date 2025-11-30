@@ -227,6 +227,28 @@
     transition: .2s;
 }
 
+/* Estilos para mensajes de contraseña */
+.PasswordError {
+    color: var(--red);
+    font-size: 0.85em;
+    margin: 0;
+    padding: 8px 12px;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid var(--red);
+}
+
+.PasswordHint {
+    color: #666;
+    font-size: 0.8em;
+    margin: 0;
+    padding: 8px 12px;
+    background-color: rgba(214, 140, 13, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid var(--yellow);
+    line-height: 1.4;
+}
+
 /* 📱 Celulares en vertical */
 @media screen and (max-width: 768px) and (max-aspect-ratio: 3/4) {
   .ProfileData {
