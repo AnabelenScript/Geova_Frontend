@@ -44,6 +44,22 @@ interface DataHistory {
   apertura_history: HistoryPoint[];
 }
 
+// Interface para datos del MPU6050
+interface MPUData {
+  ax: number;
+  ay: number;
+  az: number;
+  gx: number;
+  gy: number;
+  gz: number;
+  roll: number;
+  pitch: number;
+}
+
+// Constantes para validación de inclinación
+const MIN_INCLINACION = -15;
+const MAX_INCLINACION = 15;
+
 function TomarFoto() {
   const [data, setData] = useState<SensorData>({
     calidad: null,
@@ -65,6 +81,18 @@ function TomarFoto() {
   const [streamError, setStreamError] = useState<string | null>(null);
   // Timestamp fijo que solo cambia al iniciar stream - evita re-renders
   const [streamKey, setStreamKey] = useState<number>(0);
+
+  // Ref para guardar los últimos datos del MPU6050 (persisten entre renders)
+  const mpuDataRef = useRef<MPUData>({
+    ax: 0, ay: 0, az: 0,
+    gx: 0, gy: 0, gz: 0,
+    roll: 0, pitch: 0
+  });
+
+  // Validación de inclinación
+  const isInclinacionValida = data.inclinacion !== null && 
+    data.inclinacion >= MIN_INCLINACION && 
+    data.inclinacion <= MAX_INCLINACION;
 
   const tfDataHistoryRef = useRef<DataHistory>({
     distancia_cm_history: [],
@@ -168,9 +196,21 @@ function TomarFoto() {
     }
 
     if (websocketData.sensor === 'MPU6050') {
-      const { roll, pitch, apertura } = websocketData.data;
+      const { roll, pitch, apertura, ax, ay, az, gx, gy, gz } = websocketData.data;
       if (typeof roll === 'number' && typeof pitch === 'number' && typeof apertura === 'number') {
         const inclinacion = roll + pitch;
+
+        // Guardar datos del MPU en ref para usarlos en el POST
+        mpuDataRef.current = {
+          ax: ax ?? 0,
+          ay: ay ?? 0,
+          az: az ?? 0,
+          gx: gx ?? 0,
+          gy: gy ?? 0,
+          gz: gz ?? 0,
+          roll,
+          pitch
+        };
 
         tfDataHistoryRef.current = {
           ...tfDataHistoryRef.current,
@@ -212,6 +252,22 @@ function TomarFoto() {
 
   // Guardar medidas
   const handleGuardarMedidas = async () => {
+    // Validar que hay datos de inclinación
+    if (data.inclinacion === null) {
+      await showErrorAlert("No hay datos de inclinación del MPU6050.\n\nEspera a recibir datos del sensor.");
+      return;
+    }
+    
+    // Validar que la inclinación está en el rango permitido
+    if (data.inclinacion < MIN_INCLINACION || data.inclinacion > MAX_INCLINACION) {
+      await showErrorAlert(
+        `Inclinación fuera de rango: ${data.inclinacion.toFixed(2)}°\n\n` +
+        `Debe estar entre ${MIN_INCLINACION}° y ${MAX_INCLINACION}° para guardar las medidas.\n\n` +
+        `Ajusta la posición del dispositivo e intenta de nuevo.`
+      );
+      return;
+    }
+
     showLoadingAlert();
     const timestamp = new Date().toISOString().replace('Z', '');
 
@@ -241,14 +297,14 @@ function TomarFoto() {
 
     const payloadMPU = {
       id_project: parseInt(id || '0'),
-      ax: websocketData?.data?.ax ?? 0,
-      ay: websocketData?.data?.ay ?? 0,
-      az: websocketData?.data?.az ?? 0,
-      gx: websocketData?.data?.gx ?? 0,
-      gy: websocketData?.data?.gy ?? 0,
-      gz: websocketData?.data?.gz ?? 0,
-      roll: websocketData?.data?.roll ?? 0,
-      pitch: websocketData?.data?.pitch ?? 0,
+      ax: mpuDataRef.current.ax,
+      ay: mpuDataRef.current.ay,
+      az: mpuDataRef.current.az,
+      gx: mpuDataRef.current.gx,
+      gy: mpuDataRef.current.gy,
+      gz: mpuDataRef.current.gz,
+      roll: mpuDataRef.current.roll,
+      pitch: mpuDataRef.current.pitch,
       apertura: data.apertura ?? 0,
       event: true,
       timestamp,
@@ -294,6 +350,14 @@ function TomarFoto() {
         <div className="ProjectphotoContainer">
           <div className='MainphotoContainer'>
             {isStreaming && <div className="stream-status-indicator">📡 Streaming Activo</div>}
+            
+            {/* Advertencia de inclinación fuera de rango */}
+            {data.inclinacion !== null && !isInclinacionValida && (
+              <div className="inclinacion-warning">
+                <span>⚠️ Inclinación: {data.inclinacion.toFixed(2)}°</span>
+                <small>Rango válido: {MIN_INCLINACION}° a {MAX_INCLINACION}°</small>
+              </div>
+            )}
             
             {streamError && (
               <div className="stream-error-overlay">
@@ -375,9 +439,19 @@ function TomarFoto() {
           </ResponsiveContainer>
         </div>
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button className="guardar-medidas-btn" onClick={handleGuardarMedidas}>
+          <button 
+            className={`guardar-medidas-btn ${!isInclinacionValida ? 'disabled' : ''}`}
+            onClick={handleGuardarMedidas}
+            disabled={!isInclinacionValida}
+            title={!isInclinacionValida ? `Inclinación debe estar entre ${MIN_INCLINACION}° y ${MAX_INCLINACION}°` : 'Guardar medidas de todos los sensores'}
+          >
             Guardar medidas
           </button>
+          {!isInclinacionValida && data.inclinacion !== null && (
+            <p style={{ color: '#dc143c', marginTop: '10px', fontSize: '0.9rem' }}>
+              ⚠️ Ajusta la inclinación ({data.inclinacion.toFixed(2)}°) al rango {MIN_INCLINACION}° a {MAX_INCLINACION}°
+            </p>
+          )}
         </div>
       </div>
 
