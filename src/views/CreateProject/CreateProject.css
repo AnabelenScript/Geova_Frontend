@@ -218,10 +218,10 @@ input:hover, input:focus, select:hover {
 .CreateButton{
     width: 100%;
     height: 50px;
-    background-color: #FFEAB9;
+    background-color: var(--yellow);
     margin: none;
-     font-weight: 600;
-    border: #E6AF2E solid 1px;
+    font-weight: 600;
+    border: none;
     border-radius: 10px;
     font-size: 1em;
     font-family: Arial, Helvetica, sans-serif;
@@ -337,8 +337,12 @@ input:hover, input:focus, select:hover {
     flex-direction: row;
   }
 
+  .add-image-elements {
+    width: 100%;
+  }
+
   .CreateInfo1 {
-    width: 57%;
+    width: 43%;
     height: auto; /* Cuadrado */
   }
 
@@ -359,12 +363,12 @@ input:hover, input:focus, select:hover {
     width: 30%;
   }
   .CreateButton {
-    width: 70%;
+    width: 100%;
   }
 
   .buttonsContainer {
     flex-direction: row;
-    width: 100%;
+    width: 60%;
   }
 
   .Map {
