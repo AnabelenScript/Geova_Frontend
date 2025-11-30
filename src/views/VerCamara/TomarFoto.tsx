@@ -433,7 +433,7 @@ function TomarFoto() {
           <div className="radar-and-circular-container">
             <div className="radar-chart-container">
               <ResponsiveContainer width="100%" height={400}>
-                <RadarChart data={radarData}>
+                <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="60%">
                   <PolarGrid />
                   <PolarAngleAxis dataKey="atributo" />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} />

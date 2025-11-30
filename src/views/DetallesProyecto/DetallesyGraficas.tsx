@@ -6,6 +6,7 @@ import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { projectService } from '../../services/ProjectService';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import Obligatorio from '../../utils/ui/span-obligatorio';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import GraphViewer from '../GraphViewer/Graph';
@@ -54,6 +55,49 @@ function DetallesProyecto() {
     lng: null,
     imgFile: null
   });
+
+  // Estados para validaciones del modal
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [editTouched, setEditTouched] = useState<Record<string, boolean>>({});
+
+  const showEditError = (field: string) => editTouched[field] && !!editErrors[field];
+
+  const handleEditBlur = (field: string, value: string) => {
+    setEditTouched((t) => ({ ...t, [field]: true }));
+    setEditErrors((prev) => {
+      const newErrors = { ...prev };
+      if (!value || !value.trim()) {
+        newErrors[field] = 'Campo obligatorio.';
+      } else if (field === 'nombreProyecto' && value.trim().length < 3) {
+        newErrors[field] = 'Debe tener mínimo 3 caracteres.';
+      } else if (field === 'descripcion' && value.trim().length < 10) {
+        newErrors[field] = 'Debe tener al menos 10 caracteres.';
+      } else {
+        newErrors[field] = '';
+      }
+      return newErrors;
+    });
+  };
+
+  const validateEdit = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!editData.nombreProyecto.trim()) {
+      newErrors.nombreProyecto = 'Campo obligatorio.';
+    } else if (editData.nombreProyecto.trim().length < 3) {
+      newErrors.nombreProyecto = 'Debe tener mínimo 3 caracteres.';
+    }
+    
+    if (!editData.descripcion.trim()) {
+      newErrors.descripcion = 'Campo obligatorio.';
+    } else if (editData.descripcion.trim().length < 10) {
+      newErrors.descripcion = 'Debe tener al menos 10 caracteres.';
+    }
+    
+    setEditErrors(newErrors);
+    setEditTouched({ nombreProyecto: true, descripcion: true });
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -109,12 +153,20 @@ function DetallesProyecto() {
       lng: project.Lng || null,
       imgFile: null
     });
+    // Limpiar errores al abrir el modal
+    setEditErrors({});
+    setEditTouched({});
     setShowModal(true);
   };
 
   const handleEditSubmit = async () => {
     if (!id) {
       alert('ID del proyecto no disponible.');
+      return;
+    }
+
+    // Validar antes de enviar
+    if (!validateEdit()) {
       return;
     }
 
@@ -126,9 +178,9 @@ function DetallesProyecto() {
       
       const { success, error } = await projectViewModel.handleUpdateProject(
         Number(id),
-        nombreProyecto,
+        nombreProyecto.trim(),
         categoria,
-        descripcion,
+        descripcion.trim(),
         imageToSend,
         lat,
         lng
@@ -254,12 +306,19 @@ function DetallesProyecto() {
           <div className="modal-content">
             <h2>Editar Proyecto</h2>
 
-            <input
-              type="text"
-              placeholder="Nombre del Proyecto"
-              value={editData.nombreProyecto}
-              onChange={(e) => setEditData({ ...editData, nombreProyecto: e.target.value })}
-            />
+            <div className="modal-field">
+              <div className="modal-field-header">
+                <label>Nombre del Proyecto</label>
+                <Obligatorio show={showEditError('nombreProyecto')} message={editErrors.nombreProyecto || ''} />
+              </div>
+              <input
+                type="text"
+                placeholder="Nombre del Proyecto"
+                value={editData.nombreProyecto}
+                onChange={(e) => setEditData({ ...editData, nombreProyecto: e.target.value })}
+                onBlur={() => handleEditBlur('nombreProyecto', editData.nombreProyecto)}
+              />
+            </div>
 
             <select
               value={editData.categoria}
@@ -268,13 +327,26 @@ function DetallesProyecto() {
               <option value="">Seleccione una categoría</option>
               <option value="Residencial">Residencial</option>
               <option value="Comercial">Comercial</option>
+              <option value="Industrial">Industrial</option>
+              <option value="Infraestructura">Infraestructura</option>
+              <option value="Remodelación">Remodelación</option>
+              <option value="Obra civil">Obra civil</option>
+              <option value="Obra pública">Obra pública</option>
+              <option value="Arquitectónico">Arquitectónico</option>
             </select>
 
-            <textarea
-              placeholder="Descripción"
-              value={editData.descripcion}
-              onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
-            />
+            <div className="modal-field">
+              <div className="modal-field-header">
+                <label>Descripción</label>
+                <Obligatorio show={showEditError('descripcion')} message={editErrors.descripcion || ''} />
+              </div>
+              <textarea
+                placeholder="Descripción"
+                value={editData.descripcion}
+                onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
+                onBlur={() => handleEditBlur('descripcion', editData.descripcion)}
+              />
+            </div>
             <div className='ModalImageContainer'>
               <div className="PreviewImageContainer">
                 {editData.imgFile ? (

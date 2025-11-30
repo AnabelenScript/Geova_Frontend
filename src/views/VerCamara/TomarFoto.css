@@ -1,5 +1,6 @@
 .ProjectPContainer{
      width: 98%;
+    max-width: 100%;
     min-height: 100vh;
     padding:  40px 40px;
     box-sizing: border-box;
@@ -8,6 +9,7 @@
     gap: 30px;
     align-items: center;
     box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
+    overflow-x: hidden;
 }
 
 
@@ -321,10 +323,12 @@
 .RadarGraphSection {
   padding: 30px;
   width: 80%;
+  max-width: 100%;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.262);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 .RadarGraphSection h2 {
@@ -348,8 +352,9 @@
 /* Contenedor de la gráfica radar */
 .radar-chart-container {
   flex: 1 1 500px;
-  min-width: 400px;
+  min-width: 300px;
   max-width: 600px;
+  overflow: hidden;
 }
 
 /* Contenedor de las 3 gráficas circulares apiladas verticalmente */
@@ -363,9 +368,9 @@
 .main-graphs{
     display: flex;
     width: 100%;
+    max-width: 100%;
     gap: 30px;
-
-
+    overflow-x: hidden;
 }
 /* ============================================
    ESTILOS DE GRÁFICAS CIRCULARES INDIVIDUALES
@@ -533,10 +538,26 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 16px;
+  }
+
+  .circular-metric-container {
+    flex: 0 0 auto;
+    min-width: 180px;
   }
 
   .radar-chart-container {
     max-width: 100%;
+    width: 100%;
+  }
+
+  .main-graphs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .RadarGraphSection {
+    width: 100%;
   }
 }
 
@@ -641,49 +662,73 @@
   }
 
   .RadarGraphSection h2 {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    text-align: center;
   }
 
   .radar-and-circular-container {
     flex-direction: column;
     gap: 20px;
+    align-items: center;
   }
 
   .main-graphs {
     flex-direction: column;
     gap: 20px;
+    width: 100%;
   }
 
   .radar-chart-container {
-    min-width: 100%;
     width: 100%;
+    min-width: auto;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 350px;
+  }
+
+  /* Asegurar que la gráfica radar tenga dimensiones */
+  .radar-chart-container > div {
+    width: 100% !important;
+    min-height: 300px;
+  }
+
+  .radar-chart-container .recharts-responsive-container {
+    min-height: 300px !important;
   }
 
   .circular-metrics-container {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     width: 100%;
-    gap: 16px;
+    gap: 12px;
+    justify-content: center;
   }
 
   .circular-metric-container {
-    width: 100%;
-    max-width: none;
-    padding: 16px;
-    min-width: auto;
+    width: calc(50% - 8px);
+    max-width: 160px;
+    min-width: 140px;
+    padding: 12px;
   }
 
   .circular-chart-wrapper-small {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
   }
 
   .circular-value-number {
-    font-size: 22px;
+    font-size: 18px;
+  }
+
+  .circular-metric-label {
+    margin-top: 8px;
   }
 
   .circular-metric-label span {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   /* Gráficas TF-Luna y MPU */
@@ -726,16 +771,38 @@
 
 @media (max-width: 480px) {
   .RadarGraphSection h2 {
-    font-size: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .radar-chart-container {
+    min-height: 280px;
+  }
+
+  .radar-chart-container > div {
+    min-height: 250px;
+  }
+
+  .radar-chart-container .recharts-responsive-container {
+    min-height: 250px !important;
   }
 
   .circular-metric-container {
-    padding: 12px;
+    padding: 10px;
+    width: calc(50% - 6px);
+    min-width: 120px;
   }
 
   .circular-chart-wrapper-small {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
+  }
+
+  .circular-value-number {
+    font-size: 16px;
+  }
+
+  .circular-metric-label span {
+    font-size: 10px;
   }
 
   .circular-value-number {

@@ -495,6 +495,36 @@
   text-align: center;
 }
 
+/* Estilos para campos con validación en modal */
+.modal-field {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.modal-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.modal-field-header label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.modal-field .field-error {
+  color: #dc3545;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.modal-field input,
+.modal-field textarea {
+  margin-bottom: 0.5rem;
+}
+
 .modal-content input,
 .modal-content textarea,
 .modal-content select {
@@ -900,15 +930,19 @@
   .modal-overlay {
     padding: 16px;
     align-items: flex-start;
+    justify-content: center;
     padding-top: 5vh;
+    box-sizing: border-box;
   }
 
   .modal-content {
     padding: 1.2rem;
-    width: 100%;
-    max-width: 100%;
+    width: calc(100% - 32px);
+    max-width: calc(100% - 32px);
     max-height: 90vh;
     border-radius: 16px;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
 
   .modal-content h2 {

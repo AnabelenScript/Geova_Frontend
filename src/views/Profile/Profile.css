@@ -1,5 +1,6 @@
 .ProfileContainer{
     width: 98%;
+    max-width: 100%;
     min-height: 100vh;
     padding: 24px 60px;
     box-sizing: border-box;
@@ -8,6 +9,7 @@
     gap: 30px;
     align-items: center;
     box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
+    overflow-x: hidden;
 }
 
 .ProfileTitleContainer{
@@ -249,93 +251,166 @@
     line-height: 1.4;
 }
 
-/* 📱 Celulares en vertical */
-@media screen and (max-width: 768px) and (max-aspect-ratio: 3/4) {
+/* ===== RESPONSIVE MÓVIL ===== */
+@media screen and (max-width: 768px) {
+  .ProfileContainer {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+    gap: 20px;
+    overflow-x: hidden;
+  }
+
+  .ProfileTitleContainer {
+    width: 100%;
+  }
+
+  .ProfileTitle {
+    padding: 12px 20px;
+    height: auto;
+    min-height: 60px;
+    border-radius: 12px;
+  }
+
+  .ProfileTitle h1 {
+    font-size: 18px;
+  }
+
+  .ProfileTitle i {
+    font-size: 24px;
+  }
+
   .ProfileData {
     flex-direction: column;
     height: auto;
     width: 100%;
-    padding: 30px 20px;
+    padding: 24px 16px;
     gap: 20px;
+    border-radius: 16px;
   }
 
   .ProfilePhoto {
     width: 100%;
     height: auto;
+    padding: 20px 0;
   }
 
   .ProfilePhoto i {
-    font-size: 10em;
+    font-size: 8rem;
   }
 
   .ProfileInfo {
     width: 100%;
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 16px;
+    gap: 20px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
+
+  .ProfileInfo h3 {
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .profdataview p,
+  .profdata p {
+    font-size: 14px;
+    word-break: break-word;
+  }
+
+  .profdataview {
+    gap: 12px;
+  }
+
+  .profdataedit {
+    gap: 12px;
+  }
+
+  .profdata input {
+    font-size: 14px;
+    padding: 12px;
   }
 
   .ProfileOptions {
     flex-direction: row;
     width: 100%;
-    gap: 20px;
+    gap: 16px;
     justify-content: center;
-    padding: 10px 0;
+    padding: 16px 0;
+    background-color: transparent;
   }
 
   .editiconcontainer,
   .deleteiconcontainer {
-    font-size: 1.2em;
+    padding: 14px 20px;
+    font-size: 1.3em;
+  }
+
+  .editoptions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .CancelEditButton,
+  .GuardarEditButton {
+    width: 100%;
+    height: 48px;
+    font-size: 15px;
+  }
+
+  .PasswordError,
+  .PasswordHint {
+    font-size: 0.8em;
+    padding: 10px;
   }
 }
 
-
-/* 💻 Tabletas en horizontal */
-@media screen and (min-width: 769px) and (min-aspect-ratio: 2/3) and (max-width: 1000px) {
-  .ProfileData {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    height: auto;
-    width: auto;
-    padding: 30px;
-    gap: 50px;
+/* ===== RESPONSIVE PANTALLAS PEQUEÑAS ===== */
+@media screen and (max-width: 480px) {
+  .ProfileContainer {
+    padding: 12px;
   }
 
-  .ProfilePhoto {
-    width: 45%;
-    height: 100%;
+  .ProfileTitle h1 {
+    font-size: 16px;
+  }
+
+  .ProfilePhoto i {
+    font-size: 6rem;
   }
 
   .ProfileInfo {
-    position: relative;
-    width: 45%;
-    height: 100%;
-    padding: 20px;
-    box-sizing: border-box !important;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
+    padding: 12px;
+    gap: 16px;
   }
-  .ProfileInfo h3{
-    text-align: left;
-    font-size: 18px;
-  }
-  .ProfileInfo p {
-    text-align: left;
+
+  .ProfileInfo h3 {
     font-size: 14px;
   }
 
-  .ProfileOptions {
-    width: 10%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
+  .profdataview p,
+  .profdata p {
+    font-size: 13px;
   }
-    .ProfileOptions {
-    flex-direction: row;
-    width: 100%;
-    gap: 20px;
-    justify-content: center;
-    padding: 10px 0;
+}
+
+/* ===== TABLETAS ===== */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .ProfileContainer {
+    padding: 24px 30px;
+  }
+
+  .ProfileData {
+    width: 95%;
+    padding: 40px 30px;
+  }
+
+  .ProfilePhoto i {
+    font-size: 12rem;
+  }
+
+  .ProfileInfo {
+    gap: 25px;
   }
 }
