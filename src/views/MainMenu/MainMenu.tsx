@@ -103,6 +103,9 @@ function MainMenu() {
             label={{ 
               value: 'Cantidad de proyectos creados', 
               angle: -90, 
+              offset: 0,
+              dy: 70,
+              position: 'insideLeft',
               style: { fill: '#ffffff', fontSize: 12 }
             }}
             stroke="#ffffff"

@@ -1,9 +1,11 @@
 import './Profile.css';
 import { useEffect, useState } from 'react';
 import { usersViewModel } from '../../viewmodels/UserViewModel';
+import { projectService } from '../../services/ProjectService';
 
 function Profile() {
     const [user, setUser] = useState(null);
+    const [totalProjects, setTotalProjects] = useState(0);
     const [editMode, setEditMode] = useState(false);
     const [passwordMode, setPasswordMode] = useState(false);
     const [formData, setFormData] = useState({ Nombre: '', Apellidos: '', Email: '', Username: '' });
@@ -15,6 +17,10 @@ function Profile() {
             if (res.success) {
                 setUser(res.data);
                 setFormData(res.data);
+                // Obtener total de proyectos
+                projectService.getTotalProjectsByUser(res.data.Id).then((result) => {
+                    setTotalProjects(result.total_projects || 0);
+                });
             } else {
                 console.error('Error al obtener el usuario:', res.error);
             }
@@ -148,6 +154,7 @@ function Profile() {
                                     <p><strong>Apellidos:</strong> {user.Apellidos}</p>
                                     <p><strong>Email:</strong> {user.Email}</p>
                                     <p><strong>Contraseña:</strong> ••••••••</p>
+                                    <p><strong>Total de proyectos:</strong> {totalProjects}</p>
                                 </div>
                             )}
                         </div>
