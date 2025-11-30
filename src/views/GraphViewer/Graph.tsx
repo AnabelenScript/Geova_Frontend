@@ -454,7 +454,7 @@ function GraphViewer() {
         color: '#666',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '20px' }}>📊</div>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}></div>
         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>No hay mediciones registradas</h3>
         <p style={{ margin: '0', color: '#666' }}>
           Realiza una medición desde el módulo de captura para ver las gráficas aquí.

@@ -5,7 +5,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
     align-items: center;
     box-shadow: 0px 15px 15px rgba(106, 76, 60, 0.4);
 }
@@ -314,47 +314,145 @@
     animation: fadeIn 0.3s ease-in-out;
 }
 
+/* ============================================
+   SECCIÓN DE GRÁFICA RADAR Y CIRCULARES
+   ============================================ */
+
 .RadarGraphSection {
-  margin-top: 40px;
-  padding: 20px;
+  padding: 30px;
   width: 80%;
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.262);
   font-family: Arial, Helvetica, sans-serif;
-  border: 2px solid #E6AF2E;
 }
 
 .RadarGraphSection h2 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  color: #1F2937;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
-.ProjectFotoPContainer{
-    width: 100%;
-    display: flex;
-    height: 70vh;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
+/* Contenedor principal: Radar + Circulares lado a lado */
+.radar-and-circular-container {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
 }
+
+/* Contenedor de la gráfica radar */
+.radar-chart-container {
+  flex: 1 1 500px;
+  min-width: 400px;
+  max-width: 600px;
+}
+
+/* Contenedor de las 3 gráficas circulares apiladas verticalmente */
+.circular-metrics-container {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main-graphs{
+    display: flex;
+    width: 100%;
+    gap: 30px;
+
+
+}
+/* ============================================
+   ESTILOS DE GRÁFICAS CIRCULARES INDIVIDUALES
+   ============================================ */
+
+.circular-metric-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.262);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 200px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.circular-metric-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Wrapper del gráfico circular pequeño */
+.circular-chart-wrapper-small {
+  width: 150px;
+  height: 150px;
+  position: relative;
+}
+
+/* Overlay del valor en el centro del círculo */
+.circular-value-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.circular-value-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1F2937;
+  line-height: 1;
+}
+
+/* Label debajo del gráfico circular */
+.circular-metric-label {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.circular-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.circular-metric-label span {
+  font-size: 14px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+/* ============================================
+   BOTÓN GUARDAR MEDIDAS
+   ============================================ */
 
 .guardar-medidas-btn {
   background-color: #E6AF2E;
   color: #000;
-  padding: 10px 24px;
+  padding: 12px 30px;
   border: none;
   border-radius: 8px;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.guardar-medidas-btn:hover:not(:disabled) {
+.guardar-medidas-btn:hover:not(:disabled):not(.disabled) {
   background-color: #c9941c;
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .guardar-medidas-btn:disabled,
@@ -367,37 +465,79 @@
   opacity: 0.7;
 }
 
-.guardar-medidas-btn:active:not(:disabled) {
-  transform: scale(0.98);
+.guardar-medidas-btn:active:not(:disabled):not(.disabled) {
+  transform: translateY(0px);
+}
+
+/* ============================================
+   CONTENEDORES DE GRÁFICAS TF-LUNA Y MPU
+   ============================================ */
+
+.ProjectFotoPContainer{
+    width: 100%;
+    display: flex;
+    height: 70vh;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
 }
 
 .TFGraphsContainer, .MPUGraphsContainer {
   display: flex;
-  flex-wrap: wrap;
+  width: 100%;
+  height: auto;
+  flex-direction: column;
   margin-top: 40px;
   padding: 20px;
-  width: 80%;
+  box-sizing: border-box;
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   font-family: Arial, Helvetica, sans-serif;
-  border: 2px solid #E6AF2E;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.262);
 }
 
+.TFGraphsContent{
+    display: flex;
+    gap: 30px;
+}
+
+.TFGraphsContainer > div, 
+.MPUGraphsContainer > div {
+  width: 100% !important;
+}
 .TFGraphsContainer h2, .MPUGraphsContainer h2 {
   width: 100%;
   text-align: center;
   margin-bottom: 20px;
+  color: #1F2937;
+  font-weight: 600;
 }
 
-.TFGraphsContainer>div, .MPUGraphsContainer>div {
-    position: relative;
-    width: 50% !important;
-}
 
 .TFGraphsContainer>div:last-child{
     position: relative;
     width: 100% !important;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .radar-and-circular-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .circular-metrics-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .radar-chart-container {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px), (max-aspect-ratio: 3/2) {
@@ -415,6 +555,7 @@
     gap: 0px;
     width: 100%;
   }
+  
   .ProjectphotoContainer {
     margin: 0%;
   }
@@ -425,7 +566,6 @@
     margin-bottom: 10px;
   }
 
-  /* Agrupa visualmente el label + span como un "bloque" */
   .ProjectData label {
     border-radius: 10px 0px 0px 10px;
     align-content: center;
@@ -433,15 +573,98 @@
   }
 
   .ProjectData span {
-        border-radius: 0px 10px 10px 0px;
-        margin-right: 10px;
-        padding-right: 8px;
+    border-radius: 0px 10px 10px 0px;
+    margin-right: 10px;
+    padding-right: 8px;
   }
 
-  .TFGraphsContainer {
+  /* Ajustes para gráficas circulares en móvil */
+  .circular-metrics-container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .circular-metric-container {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+  }
+
+  .circular-chart-wrapper-small {
+    width: 120px;
+    height: 120px;
+  }
+
+  .circular-value-number {
+    font-size: 24px;
+  }
+
+  .circular-metric-label span {
+    font-size: 12px;
+  }
+
+  .radar-chart-container {
+    min-width: 100%;
+  }
+
+  .RadarGraphSection {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .TFGraphsContainer, .MPUGraphsContainer {
+    width: 95%;
     flex-direction: column;
   }
-  .TFGraphsContainer div {
+
+  .TFGraphsContainer div, .MPUGraphsContainer div {
     width: 100% !important;
   }
+}
+
+@media (max-width: 480px) {
+  .RadarGraphSection h2 {
+    font-size: 1.2rem;
+  }
+
+  .circular-metric-container {
+    min-width: 180px;
+    padding: 15px;
+  }
+
+  .guardar-medidas-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   ANIMACIONES ADICIONALES
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.circular-metric-container {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.circular-metric-container:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.circular-metric-container:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.circular-metric-container:nth-child(3) {
+  animation-delay: 0.3s;
 }

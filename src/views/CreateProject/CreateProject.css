@@ -475,7 +475,7 @@ input:hover, input:focus, select:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000;
+  z-index: 20000;
 }
 
 .ImageModal {
@@ -485,6 +485,7 @@ input:hover, input:focus, select:hover {
   max-width: 90vw;
   max-height: 90vh;
   text-align: center;
+  z-index: 2000;
 }
 
 .ModalImage {
