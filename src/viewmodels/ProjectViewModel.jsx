@@ -456,32 +456,57 @@ async handleGetWeeklyStats() {
       throw new Error('No se pudo obtener el ID del usuario');
     }
 
-    const response = projectService.getCountLastWeek(userId);
+    const response = await projectService.getCountLastWeek(userId);
     
-    const formattedData = [
-      { dia: 'Lunes', proyectos: response.mon },
-      { dia: 'Martes', proyectos: response.tue },
-      { dia: 'Miércoles', proyectos: response.wed },
-      { dia: 'Jueves', proyectos: response.thu },
-      { dia: 'Viernes', proyectos: response.fri },
-      { dia: 'Sábado', proyectos: response.sat },
-      { dia: 'Domingo', proyectos: response.sun }
-    ];
+    if (!response.success || !response.data) {
+      throw new Error('Respuesta inválida del servidor');
+    }
 
-    const totalProyectos = response.mon + response.tue + response.wed + response.thu + response.fri + response.sat + response.sun;
+    // Obtener los últimos 7 días
+    const today = new Date();
+    const last7Days = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      last7Days.push(date.toISOString().split('T')[0]); // formato YYYY-MM-DD
+    }
+
+    // Crear un mapa de fechas con sus conteos
+    const dailyMap = {};
+    response.data.daily.forEach(item => {
+      dailyMap[item.date] = item.count;
+    });
+
+    // Nombres de días en español
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+    // Formatear datos para el gráfico
+    const formattedData = last7Days.map(dateStr => {
+      const date = new Date(dateStr + 'T00:00:00'); // Evitar problemas de zona horaria
+      const diaNombre = diasSemana[date.getDay()];
+      const count = dailyMap[dateStr] || 0;
+
+      return {
+        dia: diaNombre,
+        proyectos: count,
+        fecha: dateStr // Por si necesitas la fecha completa
+      };
+    });
 
     return { 
       success: true, 
       data: formattedData,
-      total: totalProyectos
+      total: response.data.total_count
     };
   } catch (error) {
     console.error('Error al obtener estadísticas semanales:', error);
     return {
       success: false,
-      error: error.message || 'Error al obtener estadísticas semanales'
+      error: error.message || 'Error al obtener estadísticas semanales',
+      data: [],
+      total: 0
     };
   }
-}
-
+} 
 };
