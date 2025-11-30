@@ -12,7 +12,6 @@ import {
   XAxis, YAxis,
 } from 'recharts';
 
-// URL base para el streaming - DEBE coincidir con tu servidor
 const API_BASE_URL = "http://localhost:8000/imx477/streaming";
 
 // Interfaces para tipado
@@ -98,10 +97,6 @@ function TomarFoto() {
   const normalizarLuminosidad = (lum: number) => Math.min((lum / 255) * 100, 100);
   const normalizarNitidez = (nit: number) => Math.min((nit / 500) * 100, 100);
 
-  // ========================================
-  // STREAMING SIMPLIFICADO - MJPEG NATIVO
-  // Usando fetch directo como en el ejemplo funcional
-  // ========================================
   const startStream = async () => {
     setStreamError(null);
     try {
@@ -296,11 +291,6 @@ function TomarFoto() {
           <label>Luminosidad </label>
           <span>{data.luminosidad ? `${data.luminosidad.toFixed(2)} lux` : "Cargando"}</span>
         </div>
-
-        {/* ========================================
-            CONTENEDOR DE STREAMING OPTIMIZADO
-            El navegador renderiza MJPEG nativamente
-        ======================================== */}
         <div className="ProjectphotoContainer">
           <div className='MainphotoContainer'>
             {isStreaming && <div className="stream-status-indicator">📡 Streaming Activo</div>}
@@ -324,7 +314,7 @@ function TomarFoto() {
             ) : (
               !streamError && (
                 <div className="camera-inactive-message">
-                  <h2>📷 Cámara Inactiva</h2>
+                  <h2>Cámara Inactiva</h2>
                   <p>Presiona el botón para activar el streaming</p>
                 </div>
               )
