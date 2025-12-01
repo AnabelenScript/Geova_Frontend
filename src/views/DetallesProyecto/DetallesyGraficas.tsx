@@ -45,6 +45,8 @@ function DetallesProyecto() {
   const [checkingLocalAPI, setCheckingLocalAPI] = useState(true);
   const navigate = useNavigate();
   const { data: graphs } = graphViewModel.useGraphData();
+  const [hasGraphData, setHasGraphData] = useState(false);
+
 
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState({
@@ -271,10 +273,10 @@ function DetallesProyecto() {
 
         <div className="ExtraDetails">
             <i className="bx bx-ruler"></i>
-            <h3>Este terreno aún no ha sido medido</h3>
-            <span>Sin datos estadísticos </span>
-            <button onClick={Handlecamera}>
-              <i className="fa-solid fa-circle-play"></i> Comenzar medición
+            <h3>{hasGraphData ? '¿Quieres hacer otra medición?' : 'Este terreno aún no ha sido medido'}</h3>
+            <span>{isLocalAPIAvailable ? hasGraphData ? '' : 'Sin datos estadísticos' :'No puedes comenzar a medir sin el dispositivo'} </span>
+            <button className={!isLocalAPIAvailable ? 'buttonDisabled' : ''} onClick={Handlecamera} disabled={!isLocalAPIAvailable}>
+              <i className="fa-solid fa-circle-play"></i> Comenzar {hasGraphData ? 'nueva' : ''} medición
             </button>
         </div>
 
@@ -296,7 +298,7 @@ function DetallesProyecto() {
       <div className='GraphContainer'>
         <h2>Gráficas</h2>
         <div className="GraphSection">
-          <GraphViewer />
+          <GraphViewer onDataStatusChange={setHasGraphData} />
         </div>
       </div>
 

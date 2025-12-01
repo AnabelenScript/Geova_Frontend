@@ -129,8 +129,11 @@
   color: var(--black);
   font-size: 18px;
 }
+.ExtraDetails .buttonDisabled {
+  opacity: 0.5;
+}
 
-.ExtraDetails button:hover{
+.ExtraDetails button:hover:not(.buttonDisabled){
     background-color: var(--dark-yellow);
     color: black;
     transform: scale(.9);
@@ -251,8 +254,8 @@
     width: 100%;
     max-width: 100%;
     height: 450px;
-    border: 2px solid #E6AF2E;
     border-radius: 15px;
+    box-sizing: border-box;
     background-color: #fff;
     overflow: hidden;
     position: relative;
@@ -261,40 +264,20 @@
 .GraphScrollContent {
     display: flex;
     height: 100%;
-    overflow-x: auto;
+    width: 100%;
     gap: 20px;
-    padding: 20px;
+    padding: 0px;
     box-sizing: border-box;
     scroll-behavior: smooth;
 }
 
-/* Estilo personalizado para la barra de scroll horizontal */
-.GraphScrollContent::-webkit-scrollbar {
-    height: 8px;
-}
-
-.GraphScrollContent::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.GraphScrollContent::-webkit-scrollbar-thumb {
-    background: #E6AF2E;
-    border-radius: 10px;
-    transition: background 0.3s ease;
-}
-
-.GraphScrollContent::-webkit-scrollbar-thumb:hover {
-    background: #D68C0D;
-}
-
 .GraphCard {
-    min-width: 400px;
-    max-width: 400px;
+    width: 100%;
     height: 400px;
     background-color: #fff;
     border: 2px solid #E6AF2E;
     border-radius: 12px;
+    box-sizing: border-box;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;

@@ -10,6 +10,16 @@
     width: 100%;
 }
 
+.GraphContainerChild {
+    display: 'flex'; 
+    flex-direction: 'column';
+    justify-content: 'center'; 
+    align-items: 'center'; 
+    height: '400px';
+    font-size: '18px';
+    color: '#666';
+    text-align: 'center';
+}
 /* ===== ESTILOS RESPONSIVE ===== */
 @media screen and (max-width: 768px) {
     .Charts {
