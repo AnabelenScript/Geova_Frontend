@@ -47,6 +47,7 @@ function DetallesProyecto() {
   const { data: graphs } = graphViewModel.useGraphData();
 
   const [showModal, setShowModal] = useState(false);
+  const [hasMeasurements, setHasMeasurements] = useState(false);
   const [editData, setEditData] = useState({
     nombreProyecto: '',
     categoria: '',
@@ -119,8 +120,25 @@ function DetallesProyecto() {
       setCheckingLocalAPI(false);
     };
 
+    const checkMeasurements = async () => {
+      if (!id) return;
+      try {
+        // Verificar si hay mediciones (solo una petición para no saturar)
+        const imx = await projectViewModel.handleGetSensorIMXByProjectId(id);
+        if (imx.success && imx.data && imx.data.length > 0) {
+          setHasMeasurements(true);
+          return;
+        }
+        setHasMeasurements(false);
+      } catch (error) {
+        console.error('Error verificando mediciones:', error);
+        setHasMeasurements(false);
+      }
+    };
+
     fetchProject();
     checkLocalAPI();
+    checkMeasurements();
   }, [id]);
 
   const Handlecamera = () => {
@@ -269,12 +287,17 @@ function DetallesProyecto() {
         <h3 className='SectionTitle'>DESCRIPCIÓN</h3>
         <p>{project?.Descripcion || ''}</p>
 
-        <div className="ExtraDetails">
-            <i className="bx bx-ruler"></i>
-            <h3>Este terreno aún no ha sido medido</h3>
-            <span>Sin datos estadísticos </span>
-            <button onClick={Handlecamera}>
-              <i className="fa-solid fa-circle-play"></i> Comenzar medición
+        <div className={`ExtraDetails ${hasMeasurements ? 'has-data' : ''}`}>
+            <i className={`bx ${hasMeasurements ? 'bx-bar-chart-alt-2' : 'bx-ruler'}`}></i>
+            <h3>{hasMeasurements ? '¡Ya tienes mediciones registradas!' : 'Este terreno aún no ha sido medido'}</h3>
+            <span>{hasMeasurements ? 'Baja para ver los datos estadísticos de este terreno' : 'Sin datos estadísticos'}</span>
+            <button 
+              onClick={Handlecamera}
+              className={!isLocalAPIAvailable ? 'disabled' : ''}
+              disabled={!isLocalAPIAvailable}
+              title={!isLocalAPIAvailable ? 'Requiere conexión a Raspberry Pi' : hasMeasurements ? 'Crear nueva medición' : 'Comenzar medición'}
+            >
+              <i className={`fa-solid ${hasMeasurements ? 'fa-plus' : 'fa-circle-play'}`}></i> {hasMeasurements ? 'Nueva medición' : 'Comenzar medición'}
             </button>
         </div>
 
@@ -294,7 +317,7 @@ function DetallesProyecto() {
       </div>
 
       <div className='GraphContainer'>
-        <h2>Gráficas</h2>
+        {hasMeasurements && <h2>Gráficas</h2>}
         <div className="GraphSection">
           <GraphViewer />
         </div>
