@@ -7,13 +7,23 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 function MainMenu() {
   const [projects, setProjects] = useState([]);
   const [selectedButton, setSelectedButton] = useState('recientes');
-  const [currentPage, setCurrentPage] = useState(0); // 👈 Página actual
+  const [currentPage, setCurrentPage] = useState(0); 
   const [weeklyData, setWeeklyData] = useState([]);
   const [totalProjects, setTotalProjects] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const cardsPerPage = 2;
   const navigate = useNavigate();
+
+  // Detectar cambio de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -62,7 +72,7 @@ function MainMenu() {
 
 
   const startIndex = currentPage * cardsPerPage;
-  const visibleProjects = projects.slice(startIndex, startIndex + cardsPerPage);
+  const visibleProjects = isMobile ? projects : projects.slice(startIndex, startIndex + cardsPerPage);
   const totalPages = Math.ceil(projects.length / cardsPerPage);
 
   return (
@@ -70,7 +80,7 @@ function MainMenu() {
       <div className="MenuTitleContainer">
         <div className="MenuTitle">
           <h1>¡Bienvenido!</h1>
-          <i class="fa-solid fa-helmet-safety"></i>
+          <i className="fa-solid fa-helmet-safety"></i>
         </div>
         <h3>Comencemos a medir</h3>
         <div className="stats-container">
@@ -103,6 +113,9 @@ function MainMenu() {
             label={{ 
               value: 'Cantidad de proyectos creados', 
               angle: -90, 
+              offset: 0,
+              dy: 70,
+              position: 'insideLeft',
               style: { fill: '#ffffff', fontSize: 12 }
             }}
             stroke="#ffffff"
@@ -157,13 +170,15 @@ function MainMenu() {
       </div>
 
       <div className="MenuProjectsWrapper">
-        <button
-          className="sliderArrow"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-          disabled={currentPage === 0}
-        >
-          ◀
-        </button>
+        {!isMobile && (
+          <button
+            className="sliderArrow"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+            disabled={currentPage === 0}
+          >
+            ◀
+          </button>
+        )}
 
         <div className="MenuProjects">
           {visibleProjects.map((project) => (
@@ -186,24 +201,30 @@ function MainMenu() {
           ))}
         </div>
 
-        <button
-          className="sliderArrow"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
-          disabled={currentPage >= totalPages - 1}
-        >
-          ▶
-        </button>
+        {!isMobile && (
+          <button
+            className="sliderArrow"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+            disabled={currentPage >= totalPages - 1}
+          >
+            ▶
+          </button>
+        )}
       </div>
 
       <div className='VideoContainer'>
         <h2 className="Msub1">Video promocional</h2>
         <div className='VideoPromocional'>
-          <iframe width="560" height="315" 
+          <iframe 
+              width="100%" 
+              height="100%" 
               src="https://www.youtube.com/embed/iOZG-GAH7tY?si=tGGRR3LGR5HLlFx7" 
-              title="YouTube video player" frameborder="0" 
+              title="YouTube video player" 
+              frameBorder="0" 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>  
-          </iframe>
+              referrerPolicy="strict-origin-when-cross-origin" 
+              allowFullScreen
+            />
         </div>
       </div>
     </div>

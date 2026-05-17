@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
+import { projectService } from '../../services/ProjectService';
+import { showCautionAlert } from '../../utils/alerts';
 
 function GraphViewer() {
   const { id } = useParams();
@@ -195,6 +197,20 @@ function GraphViewer() {
       async function fetchData() {
         setLoading(true);
         try {
+          // Primero verificar si la Raspberry Pi está conectada
+          const isLocalAPIAvailable = await projectService.checkLocalAPIAvailability();
+          
+          if (!isLocalAPIAvailable) {
+            // Mostrar una sola alerta de que la Raspberry está desconectada
+            await showCautionAlert(
+              'Raspberry Pi desconectada',
+              'No se pueden cargar los datos de sensores porque la Raspberry Pi no está conectada.'
+            );
+            setDataFetched(true);
+            setLoading(false);
+            return;
+          }
+
           const imx = await projectViewModel.handleGetSensorIMXByProjectId(id);
           const tf = await projectViewModel.handleGetSensorTFLunaByProjectId(id);
           const mpu = await projectViewModel.handleGetSensorMPUByProjectId(id);
@@ -454,7 +470,7 @@ function GraphViewer() {
         color: '#666',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '20px' }}>📊</div>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}></div>
         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>No hay mediciones registradas</h3>
         <p style={{ margin: '0', color: '#666' }}>
           Realiza una medición desde el módulo de captura para ver las gráficas aquí.

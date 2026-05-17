@@ -17,26 +17,46 @@
 }
 
 .custom-swal-cancel,
-.custom-swal-delete-user {
+.custom-swal-delete-user,
+.custom-swal-confirm {
   border: none;
-  color: var(--white);
-  background-color: transparent;
+  color: #ffffff;
   padding: 14px 36px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.custom-swal-confirm {
+  background-color: #E6AF2E;
+  color: #000000;
+}
+
+.custom-swal-confirm:hover {
+  background-color: #c9941c;
+  transform: scale(0.95);
 }
 
 .custom-swal-cancel {
-  border-radius: 12px;
-  background-color: var(--dark-blue);
+  background-color: #0D1B2A !important;
+  color: #ffffff !important;
+}
+
+.custom-swal-cancel:hover {
+  background-color: #1a2d42 !important;
+  transform: scale(0.95);
 }
 
 .custom-swal-delete-user {
-  background-color: var(--red);
-  border-radius: 12px;
-  border: none !important;
+  background-color: #E63946 !important;
+  color: #ffffff !important;
+}
+
+.custom-swal-delete-user:hover {
+  background-color: #c5303c !important;
+  transform: scale(0.95);
 }
 
 .custom-swal-cancel:hover,
@@ -75,4 +95,70 @@
 .custom-swal-delete:hover {
   background-color: #dc3545 !important;
   color: white !important;
+}
+
+/* ===== RESPONSIVE PARA ALERTAS ===== */
+@media screen and (max-width: 768px) {
+  .custom-swal-popup {
+    width: 90% !important;
+    max-width: 350px !important;
+    padding: 20px 16px !important;
+    margin: 0 auto !important;
+  }
+
+  .custom-swal-popup .swal2-image {
+    width: 100px !important;
+    height: 100px !important;
+    margin-top: 10px !important;
+  }
+
+  .custom-swal-title {
+    font-size: 1.2rem !important;
+    margin-top: 10px !important;
+  }
+
+  .custom-swal-popup .swal2-html-container {
+    font-size: 13px !important;
+    padding: 0 8px !important;
+    margin: 10px 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  .custom-swal-actions {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+    margin-top: 10px !important;
+  }
+
+  .custom-swal-cancel,
+  .custom-swal-delete-user,
+  .custom-swal-confirm {
+    width: 100% !important;
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    margin: 0 !important;
+  }
+
+  /* Orden de botones en móvil */
+  .custom-swal-actions .custom-swal-delete-user,
+  .custom-swal-actions .custom-swal-confirm {
+    order: 1;
+  }
+
+  .custom-swal-actions .custom-swal-cancel {
+    order: 2;
+  }
+
+  .succesful-popup {
+    width: 90% !important;
+    max-width: 300px !important;
+  }
+
+  .succesful-popup .swal2-image {
+    width: 100px !important;
+    height: 100px !important;
+  }
 }

@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import alerticon from '../assets/alerticon.svg'; 
 import succesfulicon from '../assets/sucessfulicon.svg'
 import './alerts.css'
-import { showSuccessAlert, showErrorAlert, showConfirmAlert, showCautionAlert} from '../utils/alerts';
+import { showSuccessAlert, showErrorAlert, showConfirmAlert, showCautionAlert, showDeleteConfirmAlert } from '../utils/alerts';
 
 
 let selectedProjectId = null;
@@ -175,7 +175,7 @@ export const projectViewModel = {
     navigate(`/dashboard/detalles/${id}/irregularidades`);
   },
 
- async handleUpdateProject(id, nombreProyecto, categoria, descripcion, imgFile, lat, lng) {
+ async handleUpdateProject(id, nombreProyecto, categoria, descripcion, imgFileOrUrl, lat, lng) {
     try {
       const userKey = Object.keys(localStorage).find(k => k.startsWith('loggeduser:'));
       if (!userKey) throw new Error('Usuario no autenticado');
@@ -193,8 +193,21 @@ export const projectViewModel = {
       formData.append('lng', parseFloat(lng));
       formData.append('userId', userId);
 
-      if (imgFile) {
-        formData.append('img', imgFile);
+      // Si es un File, enviarlo como imagen nueva
+      if (imgFileOrUrl instanceof File) {
+        formData.append('img', imgFileOrUrl);
+      } else if (typeof imgFileOrUrl === 'string' && imgFileOrUrl) {
+        // Si es una URL, descargar la imagen y enviarla como File
+        try {
+          const response = await fetch(imgFileOrUrl);
+          const blob = await response.blob();
+          const fileName = imgFileOrUrl.split('/').pop() || 'image.jpg';
+          const file = new File([blob], fileName, { type: blob.type });
+          formData.append('img', file);
+        } catch (fetchError) {
+          console.warn('No se pudo descargar la imagen existente:', fetchError);
+          // Continuar sin imagen si falla la descarga
+        }
       }
 
       const response = await projectService.updateProject(id, formData);
@@ -245,10 +258,8 @@ export const projectViewModel = {
         confirmText += '\n\nNo se encontraron datos de sensores asociados.';
       }
 
-      const confirm = await showConfirmAlert(
-        confirmMessage,
-        confirmText,
-        'Esta acción no se puede deshacer.'
+      const confirm = await showDeleteConfirmAlert(
+        confirmText
       );
 
       if (!confirm.isConfirmed) return { success: false };
@@ -296,10 +307,13 @@ export const projectViewModel = {
   async handleGetSensorIMXByProjectId(id_project) {
   try {
     const response = await imxService.getSensorIMXByProjectId(id_project);
-    return { success: true, data: response };
+    // La API devuelve {success, data}, extraemos el array de data
+    const data = response?.data || response;
+    return { success: true, data: Array.isArray(data) ? data : [] };
   } catch (error) {
     return {
       success: false,
+      data: []
     };
   }
 },
@@ -322,10 +336,13 @@ async handlePostSensorTFLuna(sensorData) {
 async handleGetSensorTFLunaByProjectId(id_project) {
   try {
     const response = await tflunaService.getSensorTFLunaByProjectId(id_project);
-    return { success: true, data: response };
+    // La API devuelve {success, data}, extraemos el array de data
+    const data = response?.data || response;
+    return { success: true, data: Array.isArray(data) ? data : [] };
   } catch (error) {
     return {
       success: false,
+      data: []
     };
   }
 },
@@ -348,10 +365,13 @@ async handlePostSensorMPU(sensorData) {
 async handleGetSensorMPUByProjectId(id_project) {
   try {
     const response = await mpuSensorService.getSensorMPUByProjectId(id_project);
-    return { success: true, data: response };
+    // La API devuelve {success, data}, extraemos el array de data
+    const data = response?.data || response;
+    return { success: true, data: Array.isArray(data) ? data : [] };
   } catch (error) {
     return {
       success: false,
+      data: []
     };
   }
 },
@@ -447,32 +467,57 @@ async handleGetWeeklyStats() {
       throw new Error('No se pudo obtener el ID del usuario');
     }
 
-    const response = projectService.getCountLastWeek(userId);
+    const response = await projectService.getCountLastWeek(userId);
     
-    const formattedData = [
-      { dia: 'Lunes', proyectos: response.mon },
-      { dia: 'Martes', proyectos: response.tue },
-      { dia: 'Miércoles', proyectos: response.wed },
-      { dia: 'Jueves', proyectos: response.thu },
-      { dia: 'Viernes', proyectos: response.fri },
-      { dia: 'Sábado', proyectos: response.sat },
-      { dia: 'Domingo', proyectos: response.sun }
-    ];
+    if (!response.success || !response.data) {
+      throw new Error('Respuesta inválida del servidor');
+    }
 
-    const totalProyectos = response.mon + response.tue + response.wed + response.thu + response.fri + response.sat + response.sun;
+    // Obtener los últimos 7 días
+    const today = new Date();
+    const last7Days = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      last7Days.push(date.toISOString().split('T')[0]); // formato YYYY-MM-DD
+    }
+
+    // Crear un mapa de fechas con sus conteos
+    const dailyMap = {};
+    response.data.daily.forEach(item => {
+      dailyMap[item.date] = item.count;
+    });
+
+    // Nombres de días en español
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+    // Formatear datos para el gráfico
+    const formattedData = last7Days.map(dateStr => {
+      const date = new Date(dateStr + 'T00:00:00'); // Evitar problemas de zona horaria
+      const diaNombre = diasSemana[date.getDay()];
+      const count = dailyMap[dateStr] || 0;
+
+      return {
+        dia: diaNombre,
+        proyectos: count,
+        fecha: dateStr // Por si necesitas la fecha completa
+      };
+    });
 
     return { 
       success: true, 
       data: formattedData,
-      total: totalProyectos
+      total: response.data.total_count
     };
   } catch (error) {
     console.error('Error al obtener estadísticas semanales:', error);
     return {
       success: false,
-      error: error.message || 'Error al obtener estadísticas semanales'
+      error: error.message || 'Error al obtener estadísticas semanales',
+      data: [],
+      total: 0
     };
   }
-}
-
+} 
 };

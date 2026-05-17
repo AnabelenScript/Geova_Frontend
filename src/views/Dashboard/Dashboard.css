@@ -1,8 +1,6 @@
 .DashboardContainer{
     width: 98%;
-    height: 100vh;
-    border-bottom-right-radius: 30px;
-    border-bottom-left-radius: 30px;
+    min-height: 100vh;
     padding: 24px 60px;
     box-sizing: border-box;
     display: flex;
@@ -72,8 +70,9 @@
 }
 
 .DashSub2 select{
-    width: 10vw;
+    width: 14vw;
     transition: .3s ease;
+    border: 1px solid #d1d1d1;
 
 }
 
@@ -99,7 +98,7 @@
 }
 
 .input {
- width: 17vw;
+ width: 20vw;
  height: 100%;
  line-height: 28px;
  padding: 0 1rem;
@@ -111,6 +110,7 @@
  color: #0d0c22;
  transition: .3s ease;
  font-size: 1em;
+ border: 1px solid #d1d1d1;
 }
 
 .input::placeholder {
@@ -118,8 +118,8 @@
 }
 
 .input:focus, input:hover {
- outline: none;
- border-color:#D68C0D;
+ 
+ border-color:#D68C0D  2px solid;
 }
 
 .icon {
@@ -139,7 +139,7 @@
     display: flex;
     box-sizing: border-box;
     border-radius: 20px;
-    border: 2px solid #FAF6F1;
+    border: 2px solid #d1d1d1;
     overflow: hidden;
 }
 
@@ -223,27 +223,155 @@
   }
 }
 
+/* ===== ESTILOS RESPONSIVE MÓVIL ===== */
+@media screen and (max-width: 768px) {
+  .DashboardContainer {
+    padding: 16px;
+    width: 100%;
+    gap: 16px;
+  }
 
-@media screen and (min-aspect-ratio: 3/4) and (max-width: 768px) {
+  .DashTitle {
+    padding: 12px 20px;
+    height: auto;
+    min-height: 60px;
+  }
+
+  .DashTitle h1 {
+    font-size: 22px;
+  }
+
+  .DashTitle i {
+    font-size: 24px;
+  }
+
+  .DashSubtitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0 8px;
+  }
+
+  .DashSub1 {
+    width: 100%;
+  }
+
+  .DashSub1 .Dsub1 {
+    font-size: 18px;
+  }
+
+  .DashSub1 .Dsub2 {
+    font-size: 14px;
+  }
+
+  .DashSub2 {
+    width: 100%;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .group {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .input {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px 8px 8px 2.5rem;
+  }
+
+  .DashSub2 select {
+    width: auto;
+    min-width: 100px;
+    flex-shrink: 0;
+    font-size: 14px;
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  .ProjectListContainer {
+    width: 100%;
+    padding: 0;
+  }
+
+  .ProjectList {
+    gap: 16px;
+  }
+
+  .ProjectCard {
+    flex-direction: column;
+    border-radius: 16px;
+  }
+
   .graphview {
     display: none;
   }
 
   .projectinfo {
     width: 100%;
-    gap: 20px;
-    flex-direction: column;
-    align-items: center; /* opcional: para apilar contenido si es necesario */
+    flex-direction: row;
+    gap: 16px;
+    padding: 12px;
+    align-items: center;
   }
 
   .Projectphoto {
-    width: 100%; /* para ocupar todo el ancho si se apila */
+    width: 100px;
+    min-width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
   }
-  .projectinfo  div {
-    display: flex;
+
+  .Projectphoto img {
     width: 100%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; /* opcional: para apilar contenido si es necesario */
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .projectinfo > div:last-child {
+    flex: 1;
+    margin-left: 0;
+  }
+
+  .projectinfo h3 {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+    word-break: break-word;
+  }
+
+  .projectinfo p {
+    font-size: 13px;
+    margin: 4px 0;
+  }
+
+  .NoProjects {
+    padding: 20px;
+    text-align: center;
+  }
+}
+
+/* Tablets */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .DashboardContainer {
+    padding: 20px 30px;
+  }
+
+  .DashSub2 {
+    gap: 15px;
+  }
+
+  .input {
+    width: 180px;
+  }
+
+  .DashSub2 select {
+    width: 120px;
+  }
+
+  .Projectphoto {
+    width: 20vw;
   }
 }

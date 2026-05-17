@@ -1,4 +1,5 @@
 import "./CreateProject.css";
+import Portal from "../../utils/Portal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { projectViewModel } from "../../viewmodels/ProjectViewModel";
@@ -162,6 +163,7 @@ function CreateProject() {
 
                 <input
                   type="text"
+                  placeholder="Ingresa el nombre del proyecto"
                   value={nombreProyecto}
                   onChange={(e) => setNombreProyecto(e.target.value)}
                   onBlur={() => handleBlur("nombreProyecto", nombreProyecto)}
@@ -181,7 +183,7 @@ function CreateProject() {
                   onChange={(e) => setCategoria(e.target.value)}
                   onBlur={() => handleBlur("categoria", categoria)}
                 >
-                  <option value="">Seleccione</option>
+                  <option value="">Seleccione una categoria</option>
                   <option value="Residencial">Residencial</option>
                   <option value="Comercial">Comercial</option>
                   <option value="Industrial">Industrial</option>
@@ -203,6 +205,7 @@ function CreateProject() {
               </div>
 
               <textarea
+              placeholder="Añade una descripción del proyecto"
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
                 onBlur={() => handleBlur("descripcion", descripcion)}
@@ -274,14 +277,16 @@ function CreateProject() {
         </div>
       </div>
       {isImageModalOpen && (
-        <div
-          className="ImageModalOverlay"
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <div className="ImageModal" onClick={(e) => e.stopPropagation()}>
+        <Portal>
+          <div
+            className="ImageModalOverlay"
+            onClick={() => setIsImageModalOpen(false)}
+          >
+            <div className="ImageModal" onClick={(e) => e.stopPropagation()}>
             <img src={imgPreview} alt="imagen" className="ModalImage" />
           </div>
-        </div>
+        < /div>
+        </Portal>
       )}
     </div>
   );

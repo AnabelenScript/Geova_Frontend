@@ -38,7 +38,9 @@ export const usersViewModel = {
   async handleLogin(email, password) {
   try {
     showLoadingAlert();
+
     const response = await userService.login(email, password);
+
     closeLoadingAlert();
 
     localStorage.setItem("token", response.token);
@@ -51,21 +53,25 @@ export const usersViewModel = {
     await showSuccessAlert(`Bienvenid@, ${response.user?.nombre || "usuario"}`);
 
     window.location.href = "#/menu";
+
     return { success: true, data: response };
 
   } catch (error) {
+
     closeLoadingAlert();
+
     const backendMsg =
-      error.response?.data?.error ||      
-      error.response?.data?.details ||   
-      error.message ||                   
-      "Datos incorrectos";              
+      error?.response?.data?.error ||
+      error?.response?.data?.details ||
+      error?.message ||
+      "Error inesperado";
 
     await showErrorAlert(backendMsg);
 
     return { success: false, error: backendMsg };
   }
 },
+
 
 
   async handleGetLoggedUser() {
@@ -91,7 +97,20 @@ export const usersViewModel = {
 
   async handleUpdateUser(id, updatedUser) {
     try {
-      const response = await userService.updateUser(id, updatedUser);
+      // Mapear campos del frontend (mayúsculas) al backend (minúsculas)
+      const mappedUser = {
+        username: updatedUser.Username || updatedUser.username || '',
+        nombre: updatedUser.Nombre || updatedUser.nombre || '',
+        apellidos: updatedUser.Apellidos || updatedUser.apellidos || '',
+        email: updatedUser.Email || updatedUser.email || '',
+      };
+      
+      // Solo agregar password si se proporciona (si está vacío, el backend mantiene la actual)
+      if (updatedUser.password) {
+        mappedUser.password = updatedUser.password;
+      }
+      
+      const response = await userService.updateUser(id, mappedUser);
       return { success: true, data: response };
     } catch (error) {
       const msg =
@@ -101,6 +120,10 @@ export const usersViewModel = {
       return { success: false, error: msg };
     }
   },
+
+  // Exponer funciones de alertas para uso externo
+  showSuccessAlert,
+  showErrorAlert,
 
   async handleUpdateUserWithAlert(id, updatedUser, setUser, setEditMode) {
     const result = await usersViewModel.handleUpdateUser(id, updatedUser);

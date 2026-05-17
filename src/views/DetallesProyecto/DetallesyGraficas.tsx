@@ -1,12 +1,27 @@
 import './DetallesyGraficas.css';
+import Portal from '../../utils/Portal';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectViewModel } from '../../viewmodels/ProjectViewModel';
 import { projectService } from '../../services/ProjectService';
 import { graphViewModel } from '../../viewmodels/GraphViewModel';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import Obligatorio from '../../utils/ui/span-obligatorio';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import GraphViewer from '../GraphViewer/Graph';
+
+// Fix para el ícono del marcador en producción
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 function LocationMarkerEdit({ setLat, setLng }) {
   const [position, setPosition] = useState(null);
@@ -41,47 +56,72 @@ function DetallesProyecto() {
     imgFile: null
   });
 
-useEffect(() => {
-  const abortController = new AbortController();
-  let isMounted = true;
-  
-  const fetchProject = async () => {
-    if (!id) return;
-    const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
-    if (isMounted && success) {
-      setProject(data);
-    } else if (isMounted) {
-      console.error("Error al obtener proyecto:", error);
-    }
-    if (isMounted) setLoading(false);
+  // Estados para validaciones del modal
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [editTouched, setEditTouched] = useState<Record<string, boolean>>({});
+
+  const showEditError = (field: string) => editTouched[field] && !!editErrors[field];
+
+  const handleEditBlur = (field: string, value: string) => {
+    setEditTouched((t) => ({ ...t, [field]: true }));
+    setEditErrors((prev) => {
+      const newErrors = { ...prev };
+      if (!value || !value.trim()) {
+        newErrors[field] = 'Campo obligatorio.';
+      } else if (field === 'nombreProyecto' && value.trim().length < 3) {
+        newErrors[field] = 'Debe tener mínimo 3 caracteres.';
+      } else if (field === 'descripcion' && value.trim().length < 10) {
+        newErrors[field] = 'Debe tener al menos 10 caracteres.';
+      } else {
+        newErrors[field] = '';
+      }
+      return newErrors;
+    });
   };
 
-  const checkLocalAPI = async () => {
-    if (!isMounted) return;
-    setCheckingLocalAPI(true);
+  const validateEdit = () => {
+    const newErrors: Record<string, string> = {};
     
-    try {
-      const isAvailable = await projectService.checkLocalAPIAvailability(abortController.signal);
-            if (isMounted && !abortController.signal.aborted) {
-        setIsLocalAPIAvailable(isAvailable);
-        setCheckingLocalAPI(false);
-      }
-    } catch (error) {
-      if (isMounted && !abortController.signal.aborted) {
-        setIsLocalAPIAvailable(false);
-        setCheckingLocalAPI(false);
-      }
+    if (!editData.nombreProyecto.trim()) {
+      newErrors.nombreProyecto = 'Campo obligatorio.';
+    } else if (editData.nombreProyecto.trim().length < 3) {
+      newErrors.nombreProyecto = 'Debe tener mínimo 3 caracteres.';
     }
+    
+    if (!editData.descripcion.trim()) {
+      newErrors.descripcion = 'Campo obligatorio.';
+    } else if (editData.descripcion.trim().length < 10) {
+      newErrors.descripcion = 'Debe tener al menos 10 caracteres.';
+    }
+    
+    setEditErrors(newErrors);
+    setEditTouched({ nombreProyecto: true, descripcion: true });
+    return Object.keys(newErrors).length === 0;
   };
 
-  fetchProject();
-  checkLocalAPI();
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (!id) return;
 
-  return () => {
-    isMounted = false;
-    abortController.abort();
-  };
-}, [id]);
+      const { success, data, error } = await projectViewModel.handleGetProjectById(Number(id));
+      if (success) {
+        setProject(data);
+      } else {
+        console.error("Error al obtener proyecto:", error);
+      }
+      setLoading(false);
+    };
+
+    const checkLocalAPI = async () => {
+      setCheckingLocalAPI(true);
+      const isAvailable = await projectService.checkLocalAPIAvailability();
+      setIsLocalAPIAvailable(isAvailable);
+      setCheckingLocalAPI(false);
+    };
+
+    fetchProject();
+    checkLocalAPI();
+  }, [id]);
 
   const Handlecamera = () => {
     projectViewModel.handleCamera(navigate);
@@ -113,6 +153,9 @@ useEffect(() => {
       lng: project.Lng || null,
       imgFile: null
     });
+    // Limpiar errores al abrir el modal
+    setEditErrors({});
+    setEditTouched({});
     setShowModal(true);
   };
 
@@ -122,15 +165,23 @@ useEffect(() => {
       return;
     }
 
+    // Validar antes de enviar
+    if (!validateEdit()) {
+      return;
+    }
+
     const { nombreProyecto, categoria, descripcion, lat, lng, imgFile } = editData;
 
     try {
+      // Si no se seleccionó nueva imagen, pasar la URL actual
+      const imageToSend = imgFile || project?.Img || null;
+      
       const { success, error } = await projectViewModel.handleUpdateProject(
         Number(id),
-        nombreProyecto,
+        nombreProyecto.trim(),
         categoria,
-        descripcion,
-        imgFile,
+        descripcion.trim(),
+        imageToSend,
         lat,
         lng
       );
@@ -250,16 +301,24 @@ useEffect(() => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
+        <Portal>
+          <div className="modal-overlay">
           <div className="modal-content">
             <h2>Editar Proyecto</h2>
 
-            <input
-              type="text"
-              placeholder="Nombre del Proyecto"
-              value={editData.nombreProyecto}
-              onChange={(e) => setEditData({ ...editData, nombreProyecto: e.target.value })}
-            />
+            <div className="modal-field">
+              <div className="modal-field-header">
+                <label>Nombre del Proyecto</label>
+                <Obligatorio show={showEditError('nombreProyecto')} message={editErrors.nombreProyecto || ''} />
+              </div>
+              <input
+                type="text"
+                placeholder="Nombre del Proyecto"
+                value={editData.nombreProyecto}
+                onChange={(e) => setEditData({ ...editData, nombreProyecto: e.target.value })}
+                onBlur={() => handleEditBlur('nombreProyecto', editData.nombreProyecto)}
+              />
+            </div>
 
             <select
               value={editData.categoria}
@@ -268,13 +327,26 @@ useEffect(() => {
               <option value="">Seleccione una categoría</option>
               <option value="Residencial">Residencial</option>
               <option value="Comercial">Comercial</option>
+              <option value="Industrial">Industrial</option>
+              <option value="Infraestructura">Infraestructura</option>
+              <option value="Remodelación">Remodelación</option>
+              <option value="Obra civil">Obra civil</option>
+              <option value="Obra pública">Obra pública</option>
+              <option value="Arquitectónico">Arquitectónico</option>
             </select>
 
-            <textarea
-              placeholder="Descripción"
-              value={editData.descripcion}
-              onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
-            />
+            <div className="modal-field">
+              <div className="modal-field-header">
+                <label>Descripción</label>
+                <Obligatorio show={showEditError('descripcion')} message={editErrors.descripcion || ''} />
+              </div>
+              <textarea
+                placeholder="Descripción"
+                value={editData.descripcion}
+                onChange={(e) => setEditData({ ...editData, descripcion: e.target.value })}
+                onBlur={() => handleEditBlur('descripcion', editData.descripcion)}
+              />
+            </div>
             <div className='ModalImageContainer'>
               <div className="PreviewImageContainer">
                 {editData.imgFile ? (
@@ -320,6 +392,7 @@ useEffect(() => {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );
